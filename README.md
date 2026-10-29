@@ -13,7 +13,7 @@ https://dkwo284-max.github.io/Whale_Radar/
 
 ## 동작 방식
 
-- `.github/workflows/update.yml` 이 매일 UTC 22:17(뉴질랜드 오전 11시경) 실행 → `scripts/build.py`
+- `.github/workflows/update.yml` 이 매일 UTC 03:37 — SEC 접수 마감(미국 동부 밤 10시) 직후, 동부시간 밤 10:37(표준시)·11:37(서머타임) — 실행 → `scripts/build.py`
   - **SEC EDGAR**(키 불필요): 투자자별 최근 13F 두 분기 비교(±5% 기준 BUY/SELL), 최근 180일 Form 4·13D/G
   - 13F 의 CUSIP → 티커는 **OpenFIGI**(키 불필요), 섹터는 SEC 업종코드(SIC)로 근사. 결과는 `cache/` 에 쌓아 다시 묻지 않음
   - **Google 뉴스 RSS** → **Gemini 무료 등급**으로 한국어 요약(새 기사만, 하루 최대 40건을 요청 1회로, 하루 상한 4회 — `web/data/ai-usage.json`)

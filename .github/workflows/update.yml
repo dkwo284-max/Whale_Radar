@@ -1,10 +1,12 @@
 name: Whale Radar update
 
 # 매일 SEC 공시·뉴스를 모아 web/data 에 저장하고 GitHub Pages 로 배포합니다.
-# 미국 공시는 미국 업무시간에 올라오므로 미국 장 마감 뒤(UTC 22시 ≈ 뉴질랜드 아침 11시)에 돌립니다.
+# SEC EDGAR 는 미국 동부시간(ET) 밤 10시에 그날 접수를 마감하므로, 마감 직후에 돌려 그날 공시를 모두 담습니다.
+#   UTC 03:37 = 미국 동부 서머타임(EDT) 밤 11:37 / 표준시(EST) 밤 10:37 — 계절과 관계없이 마감 뒤
+#   (뉴질랜드 시간으로는 오후 4~5시대. GitHub 예약 실행은 붐비면 몇십 분 늦을 수 있습니다)
 on:
   schedule:
-    - cron: "17 22 * * *"
+    - cron: "37 3 * * *"
   workflow_dispatch:
     inputs:
       news:
