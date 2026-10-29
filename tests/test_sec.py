@@ -15,6 +15,8 @@ def test_parse_infotable_aggregates_and_skips_options():
     h = parse_infotable(INFO, "2026-08-14")
     assert h == {"037833100": {"issuer": "Apple Inc", "value": 1200000.0, "shares": 6000.0}}
     assert parse_infotable(INFO, "2022-11-14")["037833100"]["value"] == 1200000000.0   # 천 달러 단위 시절
+    thousands = INFO.replace("<ns1:value>1000000</ns1:value>", "<ns1:value>1000</ns1:value>").replace("<ns1:value>200000</ns1:value>", "<ns1:value>200</ns1:value>")
+    assert parse_infotable(thousands, "2026-08-14")["037833100"]["value"] == 1200000.0   # 2023 이후에도 천 달러 단위로 낸 경우
 
 
 def test_compare_signals():

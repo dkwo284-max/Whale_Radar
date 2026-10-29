@@ -108,7 +108,7 @@ def main(argv: list[str] | None = None) -> int:
     sectors: dict[str, dict] = defaultdict(lambda: {"buy_flow": 0, "sell_flow": 0, "BUY": 0, "SELL": 0, "HOLD": 0})
     for b in live:
         for p in b["positions"]:
-            key = p["ticker"] or p["cusip"]
+            key = p["issuer"].lower() or p["ticker"] or p["cusip"]  # 같은 회사의 여러 주식(GOOG·GOOGL)은 한 줄로
             o = by_tk.setdefault(key, {"ticker": p["ticker"], "issuer": p["issuer"], "sector": p["sector"],
                                        "buyers": [], "sellers": [], "holders": [], "flow": 0})
             entry = {"investor": b["id"], "label": p["label"], "change_pct": p["change_pct"]}

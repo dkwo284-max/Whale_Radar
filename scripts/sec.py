@@ -50,7 +50,8 @@ def _num(s: str) -> float:
 
 def parse_infotable(xml: str, filed: str = "") -> dict[str, dict]:
     """정보표(informationTable) → CUSIP 별 {issuer, value(USD), shares}. 옵션(PUT/CALL)·채권(PRN) 행은 뺀다.
-    2023-01-03 이전 제출분은 금액이 천 달러 단위라 1000 을 곱한다."""
+    2023-01-03 이전 제출분은 금액이 천 달러 단위라 1000 을 곱한다. 그 뒤에도 천 달러 단위로 내는 곳이 있어
+    (예: Duquesne, Baupost) 주당 가격 중앙값이 1달러 미만이면 천 달러 단위로 본다."""
     root = _strip_ns(xml)
     mult = 1000 if filed and filed < "2023-01-03" else 1
     out: dict[str, dict] = {}
@@ -63,6 +64,11 @@ def parse_infotable(xml: str, filed: str = "") -> dict[str, dict]:
         o = out.setdefault(cusip, {"issuer": _t(row, "nameOfIssuer").title(), "value": 0.0, "shares": 0.0})
         o["value"] += _num(_t(row, "value")) * mult
         o["shares"] += _num(_t(row, "shrsOrPrnAmt/sshPrnamt"))
+    if mult == 1:
+        prices = sorted(o["value"] / o["shares"] for o in out.values() if o["shares"] > 0 and o["value"] > 0)
+        if prices and prices[len(prices) // 2] < 1:
+            for o in out.values():
+                o["value"] *= 1000
     return out
 
 
