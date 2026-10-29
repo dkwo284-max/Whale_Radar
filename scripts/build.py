@@ -112,8 +112,10 @@ def main(argv: list[str] | None = None) -> int:
             o = by_tk.setdefault(key, {"ticker": p["ticker"], "issuer": p["issuer"], "sector": p["sector"],
                                        "buyers": [], "sellers": [], "holders": [], "flow": 0})
             entry = {"investor": b["id"], "label": p["label"], "change_pct": p["change_pct"]}
-            o[{"BUY": "buyers", "SELL": "sellers", "HOLD": "holders"}[p["signal"]]].append(entry)
             o["flow"] += p["flow"]
+            # 한 투자자가 같은 회사의 여러 주식(GOOG·GOOGL)을 가져도 한 번만 센다 (평가액 큰 쪽 기준 — 정렬돼 있음)
+            if not any(e["investor"] == b["id"] for k in ("buyers", "sellers", "holders") for e in o[k]):
+                o[{"BUY": "buyers", "SELL": "sellers", "HOLD": "holders"}[p["signal"]]].append(entry)
             s = sectors[p["sector"] or "ETF·기타"]
             s[p["signal"]] += 1
             if p["flow"] > 0:
