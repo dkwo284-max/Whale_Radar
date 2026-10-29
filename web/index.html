@@ -311,6 +311,17 @@ select { font: inherit; font-size: 0.82rem; padding: 7px 10px; border-radius: 9p
 
 footer { color: var(--muted); font-size: 0.78rem; padding-top: 28px; }
 footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+/* 개요 탭: PC에서는 섹터 흐름(왼쪽, 고정)과 컨센서스(오른쪽)를 나란히 */
+@media (min-width: 1000px) {
+  body[data-view="overview"] .wrap { max-width: 1120px; }
+  body[data-view="overview"] .tabbar .in { max-width: 560px; }
+  [data-panel="overview"] { grid-template-columns: minmax(380px, 5fr) minmax(0, 6fr); column-gap: 24px; }
+  [data-panel="overview"] > section { min-width: 0; }
+  [data-panel="overview"] > .ov-brief, [data-panel="overview"] > .ov-news { grid-column: 1 / -1; }
+  [data-panel="overview"] > .ov-sector { grid-column: 1; align-self: start; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 66px); }
+  [data-panel="overview"] > .ov-cons { grid-column: 2; }
+  .ov-sector .dchart { max-height: calc(100vh - 66px - var(--nav-h) - 110px); overflow-y: auto; }
+}
 @media (prefers-reduced-motion: no-preference) {
   .sheet { animation: sheet-up .22s ease-out; }
   @keyframes sheet-up { from { translate: 0 24px; opacity: .6; } to { translate: 0 0; opacity: 1; } }
@@ -347,23 +358,23 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   <div class="demo" id="demo" hidden><b>예시 데이터</b> · 실제 공시·기사가 아닌 화면 확인용 데이터입니다. GitHub Actions가 처음 실행되면 SEC 공시와 실제 뉴스로 바뀝니다.</div>
 
   <div class="panel" data-panel="overview">
-    <section>
+    <section class="ov-brief">
       <h2>오늘의 브리핑</h2>
       <div class="meta" id="meta" style="margin:0 0 12px"></div>
       <div id="since"></div>
       <div class="brief" id="brief"><div class="sk card"></div><div class="sk card"></div><div class="sk card"></div></div>
     </section>
-    <section>
+    <section class="ov-sector">
       <h2>섹터 흐름</h2>
-      <p class="sub">직전 분기 대비 추정 순매수 금액<button type="button" class="tip" data-tip="flow" aria-label="추정 순매수 설명">ⓘ</button> · 줄을 누르면 아래 컨센서스가 그 섹터로 좁혀집니다.</p>
+      <p class="sub">직전 분기 대비 추정 순매수 금액<button type="button" class="tip" data-tip="flow" aria-label="추정 순매수 설명">ⓘ</button> · 줄을 누르면 거물 컨센서스가 그 섹터로 좁혀집니다.</p>
       <div class="dchart" id="heat"><div class="sk" style="height:220px;margin:4px 8px"></div></div>
     </section>
-    <section>
+    <section class="ov-cons">
       <h2>거물 컨센서스<button type="button" class="tip" data-tip="consensus" aria-label="컨센서스 설명">ⓘ</button></h2>
       <p class="sub" id="cons-sub"></p>
       <div class="list" id="cons"></div>
     </section>
-    <section>
+    <section class="ov-news">
       <h2>최근 인터뷰·뉴스 <a href="#news">전체 보기</a></h2>
       <p class="sub">종목 논조가 담긴 기사</p>
       <div class="feed" id="news-hl"></div>
@@ -978,6 +989,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   const current = () => VIEWS[location.hash.slice(1)] ? location.hash.slice(1) : "overview";
   function route() {
     const v = current();
+    document.body.dataset.view = v;
     $$("[data-panel]").forEach((p) => (p.hidden = p.dataset.panel !== v));
     $$(".tabbar a").forEach((a) => { if (a.dataset.view === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
     VIEWS[v]();
