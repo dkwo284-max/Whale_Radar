@@ -1,9 +1,0 @@
-18:48:54 WARNING company_tickers failed: Client error '403 Forbidden' for url 'https://www.sec.gov/files/company_tickers.json'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
-18:48:54 ERROR   investor buffett failed: Client error '403 Forbidden' for url 'https://data.sec.gov/submissions/CIK0001067983.json'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
-18:48:54 ERROR   investor ackman failed: Client error '403 Forbidden' for url 'https://data.sec.gov/submissions/CIK0001336528.json'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
-18:48:54 ERROR   investor burry failed: Client error '403 Forbidden' for url 'https://data.sec.gov/submissions/CIK0001649339.json'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
-18:48:54 ERROR   no investor data — not writing
