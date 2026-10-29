@@ -131,8 +131,8 @@ def summarize(items: list[dict], cfg: dict, llm: Gemini) -> tuple[list[dict], st
     todo, rest = items[:limit], items[limit:]
     rows: dict[str, dict] = {}
     warn = None
-    for start in range(0, len(todo), 20):
-        chunk = todo[start:start + 20]
+    for start in range(0, len(todo), 40):  # 보통 한 번에 (요청 1회)
+        chunk = todo[start:start + 40]
         user = "\n\n".join(f"[id] {x['id']}\n[투자자] {names.get(x['investor'], x['investor'])}\n[제목] {x['title']}\n[출처] {x['source']} · {x['date']}"
                            + (f"\n[설명] {x['desc'][:400]}" if x["desc"] else "") for x in chunk)
         try:

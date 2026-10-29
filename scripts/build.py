@@ -138,8 +138,18 @@ def main(argv: list[str] | None = None) -> int:
         from llm import Gemini
         from news import update_news
 
-        news = update_news(cfg, read_json(DATA / "news.json", {}) if not args.only else {}, Gemini(cfg))
-        write_json(out_dir / "news.json", news)
+        from usage import over_cap, record
+
+        today = datetime.now(timezone.utc).date().isoformat()
+        llm = Gemini(cfg)
+        over, used, cap = over_cap(out_dir, today, cfg)
+        if over and llm.enabled:
+            log.warning("AI 하루 상한: 오늘 %d/%d회 사용 — 이번 실행은 뉴스 AI 요약을 건너뜀", used, cap)
+        else:
+            news = update_news(cfg, read_json(DATA / "news.json", {}) if not args.only else {}, llm)
+            write_json(out_dir / "news.json", news)
+            if llm.requests:
+                record(out_dir, today, llm.requests, cfg)
     log.info("done: %d investors, %d timeline, %d consensus", len(investors), len(timeline), len(consensus))
     return 0
 

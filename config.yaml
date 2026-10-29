@@ -16,12 +16,15 @@ news:
   lookback_days: 30
   keep_days: 120
   per_investor: 6            # 투자자별 새 기사 최대 수 (AI 요약 대상)
-  max_ai_items: 40           # 하루 AI 요약 최대 기사 수 (무료 한도 보호)
+  max_ai_items: 40           # 하루 AI 요약 최대 기사 수 — 한 번의 요청에 모두 넣음
 
 llm:
   # Gemini 무료 등급. 저장소 Secret GEMINI_API_KEY 가 없으면 요약 없이 제목만 보여줍니다.
-  models: ["gemini-3.8-flash", "gemini-flash-latest", "gemini-3.8-flash-lite", "gemini-flash-lite-latest"]
-  max_requests_per_run: 4
+  # Daily Brief 와 같은 키(같은 무료 한도)를 쓰므로, Daily Brief 요약이 주로 쓰는 flash 대신 경량(lite) 모델을 먼저 씁니다.
+  models: ["gemini-3.8-flash-lite", "gemini-flash-lite-latest", "gemini-3.8-flash", "gemini-flash-latest"]
+  max_requests_per_run: 2
+  daily_cap: 4               # 하루(UTC) 합계 상한 — 넘으면 그날은 뉴스 AI 요약을 건너뜀 (web/data/ai-usage.json)
+  expected_per_run: 1        # 보통 하루 1회 (새 기사 40건까지 한 번에)
   timeout_seconds: 240
 
 # 추적할 투자자 — cik 는 SEC 기관 번호(https://www.sec.gov/cgi-bin/browse-edgar 에서 검색)
