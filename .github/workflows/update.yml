@@ -3,10 +3,16 @@ name: Whale Radar update
 # 매일 SEC 공시·뉴스를 모아 web/data 에 저장하고 GitHub Pages 로 배포합니다.
 # SEC EDGAR 는 미국 동부시간(ET) 밤 10시에 그날 접수를 마감하므로, 마감 직후에 돌려 그날 공시를 모두 담습니다.
 #   UTC 03:37 = 미국 동부 서머타임(EDT) 밤 11:37 / 표준시(EST) 밤 10:37 — 계절과 관계없이 마감 뒤
-#   (뉴질랜드 시간으로는 오후 4~5시대. GitHub 예약 실행은 붐비면 몇십 분 늦을 수 있습니다)
+#   (뉴질랜드 시간으로는 오후 4~5시대)
+# GitHub 예약 실행은 붐비면 몇 시간씩 늦거나 건너뛰는 일이 있어서, 03:37 이후에 예비 시각을 몇 번 더 둡니다.
+# check 잡이 "오늘 03:37 UTC 이후에 이미 갱신됐는지" 보고, 갱신됐으면 예비 실행은 곧바로 끝냅니다(수집·배포 없음).
 on:
   schedule:
     - cron: "37 3 * * *"
+    - cron: "17 5 * * *"
+    - cron: "47 6 * * *"
+    - cron: "17 9 * * *"
+    - cron: "47 12 * * *"
   workflow_dispatch:
     inputs:
       news:
@@ -26,8 +32,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  update:
+  check:
     if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.g.outputs.run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: web/data
+          sparse-checkout-cone-mode: false
+      - id: g
+        run: |
+          run=true
+          if [ "${{ github.event_name }}" = "schedule" ] && [ -f web/data/dashboard.json ]; then
+            gen=$(python3 -c "import json; d = json.load(open('web/data/dashboard.json')); print('' if d.get('demo') else d.get('generated_at', ''))" || true)
+            if [ -n "$gen" ] && g=$(date -u -d "$gen" +%s 2>/dev/null) && [ "$g" -ge "$(date -u -d 'today 03:37' +%s)" ]; then
+              run=false
+              echo "already updated at $gen; skipping"
+            fi
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+
+  update:
+    needs: check
+    if: github.event_name != 'push' && needs.check.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -52,7 +82,7 @@ jobs:
 
   deploy:
     needs: update
-    if: always() && (needs.update.result == 'success' || needs.update.result == 'skipped')
+    if: always() && (needs.update.result == 'success' || github.event_name == 'push')
     runs-on: ubuntu-latest
     environment:
       name: github-pages
