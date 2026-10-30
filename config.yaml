@@ -21,7 +21,9 @@ news:
 llm:
   # Gemini 무료 등급. 저장소 Secret GEMINI_API_KEY 가 없으면 요약 없이 제목만 보여줍니다.
   # Daily Brief 와 같은 키(같은 무료 한도)를 쓰므로, Daily Brief 요약이 주로 쓰는 flash 대신 경량(lite) 모델을 먼저 씁니다.
-  models: ["gemini-3.8-flash-lite", "gemini-flash-lite-latest", "gemini-3.8-flash", "gemini-flash-latest"]
+  # 무료 한도(AI Studio 확인): Flash 는 하루 20회·분당 5회, Flash-Lite 는 하루 500회·분당 15회.
+  models: ["gemini-3.8-flash-lite", "gemini-flash-lite-latest", "gemini-3.8-flash", "gemini-flash-latest"]   # 수동·테스트 실행: Flash-Lite 우선
+  models_production: ["gemini-3.8-flash", "gemini-flash-latest", "gemini-flash-lite-latest"]                  # 매일 정해진 시각의 실제 배포: Flash 우선
   max_requests_per_run: 2
   # 세 앱이 같은 키의 하루 몫을 My Hub 의 budget.json 으로 나눠 씁니다 (하루 = 오클랜드 00시 리셋, scripts/budget.py).
   # 아래 값은 My Hub 를 읽지 못할 때 쓰는 안전값이고, 실제 배분은 https://dkwo284-max.github.io/budget.json 에서 바꿉니다.

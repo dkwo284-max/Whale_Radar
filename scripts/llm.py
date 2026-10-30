@@ -20,7 +20,9 @@ class Gemini:
     def __init__(self, cfg: dict, client: httpx.Client | None = None):
         self.key = os.environ.get("GEMINI_API_KEY", "").strip()
         lc = cfg.get("llm", {})
-        self.models = list(lc.get("models", ["gemini-flash-latest"]))
+        # 정해진 시각의 실제 배포 실행(AI_PROFILE=production)은 models_production(Flash 우선), 수동·테스트는 models(Flash-Lite 우선)
+        production = os.environ.get("AI_PROFILE", "").strip().lower() == "production"
+        self.models = list((lc.get("models_production") if production else None) or lc.get("models", ["gemini-flash-latest"]))
         self.max_requests = int(lc.get("max_requests_per_run", 4))
         self.client = client or httpx.Client(timeout=float(lc.get("timeout_seconds", 240)))
         self.requests = 0

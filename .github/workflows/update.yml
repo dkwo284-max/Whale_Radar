@@ -70,6 +70,8 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+          # 매일 정해진 시각의 실제 배포(schedule)는 Flash, 수동 실행 같은 테스트는 Flash-Lite
+          AI_PROFILE: ${{ github.event_name == 'schedule' && 'production' || 'test' }}
         run: python scripts/build.py ${{ github.event.inputs.news == 'false' && '--no-news' || '' }}
       - name: Commit data
         run: |
