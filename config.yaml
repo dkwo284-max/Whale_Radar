@@ -23,7 +23,9 @@ llm:
   # Daily Brief 와 같은 키(같은 무료 한도)를 쓰므로, Daily Brief 요약이 주로 쓰는 flash 대신 경량(lite) 모델을 먼저 씁니다.
   models: ["gemini-3.8-flash-lite", "gemini-flash-lite-latest", "gemini-3.8-flash", "gemini-flash-latest"]
   max_requests_per_run: 2
-  daily_cap: 4               # 하루(UTC) 합계 상한 — 넘으면 그날은 뉴스 AI 요약을 건너뜀 (web/data/ai-usage.json)
+  # 세 앱이 같은 키의 하루 몫을 My Hub 의 budget.json 으로 나눠 씁니다 (하루 = 오클랜드 00시 리셋, scripts/budget.py).
+  # 아래 값은 My Hub 를 읽지 못할 때 쓰는 안전값이고, 실제 배분은 https://dkwo284-max.github.io/budget.json 에서 바꿉니다.
+  guaranteed: 3              # 내 보장량 (평소 1회 + 재시도 여유)
   expected_per_run: 1        # 보통 하루 1회 (새 기사 40건까지 한 번에)
   timeout_seconds: 240
 

@@ -1,9 +1,8 @@
-from usage import over_cap, record
+from usage import record, used_today
 
 
-def test_whale_usage_cap(tmp_path):
-    cfg = {"llm": {"daily_cap": 4, "expected_per_run": 1}}
+def test_record_accumulates_per_day(tmp_path):
+    cfg = {"llm": {"guaranteed": 3}}
+    record(tmp_path, "2026-10-29", 1, cfg)
     record(tmp_path, "2026-10-29", 2, cfg)
-    assert over_cap(tmp_path, "2026-10-29", cfg) == (False, 2, 4)
-    record(tmp_path, "2026-10-29", 2, cfg)
-    assert over_cap(tmp_path, "2026-10-29", cfg) == (True, 4, 4)
+    assert used_today(tmp_path, "2026-10-29") == 3 and used_today(tmp_path, "2026-10-30") == 0
