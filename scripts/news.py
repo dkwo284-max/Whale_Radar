@@ -160,12 +160,22 @@ def summarize(items: list[dict], cfg: dict, llm: Gemini) -> tuple[list[dict], st
     return out_items, warn, irrelevant
 
 
-def update_news(cfg: dict, old: dict, llm: Gemini, client: httpx.Client | None = None) -> dict:
+def skip_ai_this_run(n_new: int, first_of_day: bool, min_new: int) -> bool:
+    """하루 AI 는 첫 실행에서 한 번 쓰고, 같은 날 다른 실행은 새 기사가 min_new 건 이상일 때만 다시 쓴다.
+    건너뛴 기사는 저장하지 않으므로 다음 실행(또는 내일)에 새 기사로 다시 잡힌다."""
+    return n_new > 0 and not first_of_day and n_new < min_new
+
+
+def update_news(cfg: dict, old: dict, llm: Gemini, client: httpx.Client | None = None, first_of_day: bool = True) -> dict:
     own = client is None
     client = client or httpx.Client(timeout=30, follow_redirects=True, headers={"User-Agent": "Mozilla/5.0 (compatible; WhaleRadar/1.0)"})
     try:
         items = {x["id"]: x for x in old.get("items", [])}
         fresh = collect(cfg, client, set(items) | set(old.get("dropped", [])))
+        min_new = int(cfg.get("news", {}).get("min_new_extra_run", 6))
+        if llm.enabled and skip_ai_this_run(len(fresh), first_of_day, min_new):
+            log.info("news: %d new item(s) < %d and AI already used today — skipping AI, they stay queued for the next run", len(fresh), min_new)
+            fresh = []
         done, warn, dropped = summarize(fresh, cfg, llm)
     finally:
         if own:

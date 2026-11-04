@@ -144,13 +144,14 @@ def main(argv: list[str] | None = None) -> int:
         today = nz_today()  # 하루 = 오클랜드 00시 리셋 (세 앱 공통)
         llm = Gemini(cfg)
         lc = cfg.get("llm", {})
-        left, binfo = allowance("whale-radar", used_today(out_dir, today), int(lc.get("guaranteed", 3)), today)
+        used = used_today(out_dir, today)
+        left, binfo = allowance("whale-radar", used, int(lc.get("guaranteed", 3)), today)
         log.info("%s", describe("whale-radar", left, binfo))
         if left < int(lc.get("expected_per_run", 1)) and llm.enabled:
             log.warning("AI 예산 부족: 오늘 남은 %d회 — 이번 실행은 뉴스 AI 요약을 건너뜀", left)
         else:
             llm.max_requests = min(llm.max_requests, max(left, 0))
-            news = update_news(cfg, read_json(DATA / "news.json", {}) if not args.only else {}, llm)
+            news = update_news(cfg, read_json(DATA / "news.json", {}) if not args.only else {}, llm, first_of_day=used == 0)
             write_json(out_dir / "news.json", news)
             if llm.requests:
                 record(out_dir, today, llm.requests, cfg)

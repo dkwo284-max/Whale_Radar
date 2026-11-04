@@ -17,6 +17,7 @@ news:
   keep_days: 120
   per_investor: 6            # 투자자별 새 기사 최대 수 (AI 요약 대상)
   max_ai_items: 40           # 하루 AI 요약 최대 기사 수 — 한 번의 요청에 모두 넣음
+  min_new_extra_run: 6       # 그날 첫 AI 실행 뒤, 같은 날 다른 실행은 새 기사가 이만큼 이상일 때만 AI 를 다시 씀 (건너뛴 기사는 다음 실행에서 이어서)
 
 llm:
   # Gemini 무료 등급. 저장소 Secret GEMINI_API_KEY 가 없으면 요약 없이 제목만 보여줍니다.

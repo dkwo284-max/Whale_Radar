@@ -1,5 +1,5 @@
 from meta import sic_sector
-from news import parse_feed, summarize
+from news import parse_feed, skip_ai_this_run, summarize
 
 RSS = """<?xml version="1.0"?><rss version="2.0"><channel>
 <item><title>Buffett's Berkshire trims Apple stake again - Reuters</title><link>https://news.google.com/a</link>
@@ -38,3 +38,10 @@ def test_summarize_filters_irrelevant():
     out, warn, dropped = summarize(items, cfg, FakeLLM())
     assert [x["id"] for x in out] == ["a1"] and dropped == ["a2"] and warn is None
     assert out[0]["calls"] == [{"ticker": "AAPL", "stance": "SELL", "note": "지분 축소", "sector": "IT"}] and out[0]["basis"] == "제목"
+
+
+def test_skip_ai_only_for_small_extra_runs():
+    assert skip_ai_this_run(0, False, 6) is False       # 새 기사가 없으면 애초에 AI 호출이 없음
+    assert skip_ai_this_run(3, True, 6) is False        # 그날 첫 실행은 적어도 쓴다
+    assert skip_ai_this_run(3, False, 6) is True        # 같은 날 추가 실행 + 새 기사 적음 → 건너뜀
+    assert skip_ai_this_run(6, False, 6) is False       # 충분히 쌓였으면 다시 씀
