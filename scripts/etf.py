@@ -227,6 +227,11 @@ def fix_splits(closes: list[float], volumes: list[float], tol: float = 0.04) -> 
     return cs, vs
 
 
+def has_glitch(closes: list[float], limit: float = 0.45) -> bool:
+    """분할 보정 뒤에도 하루 45% 넘게 움직인 날이 있으면 시세 오류로 본다(레버리지를 뺀 ETF 기준)."""
+    return any(a and b and abs(b / a - 1) > limit for a, b in zip(closes, closes[1:]))
+
+
 # ---------------------------------------------------------------- 행 만들기
 
 def make_row(meta: dict, dates: list[str], closes: list[float], volumes: list[float]) -> dict | None:
@@ -236,6 +241,8 @@ def make_row(meta: dict, dates: list[str], closes: list[float], volumes: list[fl
         return None
     ds = [p[0] for p in pts]
     cs, vs = fix_splits([float(p[1]) for p in pts], [float(p[2] or 0) for p in pts])
+    if has_glitch(cs):
+        return "glitch"
     now = period_returns(ds, cs)
     prev = period_returns(ds, cs, len(ds) - 2)
     row = {

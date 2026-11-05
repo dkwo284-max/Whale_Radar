@@ -150,3 +150,9 @@ def test_fix_splits_keeps_normal_moves():
     from etf import fix_splits
     cs = [100.0, 80.0, 70.0, 95.0]
     assert fix_splits(cs, [1.0] * 4)[0] == cs
+
+
+def test_glitch_row_dropped():
+    ds, cs = _series()
+    cs = cs[:-1] + [cs[-1] * 0.23]  # 정수배가 아닌 급락 = 시세 오류
+    assert make_row({"t": "X", "n": "x", "c": "us", "l": "us"}, ds, cs, [1] * len(ds)) == "glitch"

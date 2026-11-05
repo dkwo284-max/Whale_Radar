@@ -1231,7 +1231,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     $("#etf-theme").innerHTML = th.length ? heatRows(th, (it) => `${esc(it.key)}<small>${it.n}개</small>`, "theme") : `<div class="empty">테마를 묶을 만큼 ETF가 많지 않습니다.</div>`;
     const ex = E.excluded || {};
     const nf = (n) => (n || 0).toLocaleString();
-    $("#etf-excl").textContent = `제외한 ETF(미국 상장 기준): 레버리지 ${nf(ex.leveraged)} · 인버스 ${nf(ex.inverse)} · VIX ${nf(ex.vix)} · 저유동성 ${nf(ex.illiquid)} · 소형 ${nf(ex.small)} · 다른 나라 ${nf(ex.other_country)} · 상장 20일 미만 ${nf(ex.short_history)}개.`;
+    $("#etf-excl").textContent = `제외한 ETF(미국 상장 기준): 레버리지 ${nf(ex.leveraged)} · 인버스 ${nf(ex.inverse)} · VIX ${nf(ex.vix)} · 저유동성 ${nf(ex.illiquid)} · 소형 ${nf(ex.small)} · 다른 나라 ${nf(ex.other_country)} · 상장 20일 미만 ${nf(ex.short_history)}${ex.glitch ? ` · 시세 오류 ${nf(ex.glitch)}` : ""}개.`;
   }
   function renderEtfHome() {
     const sec = $(".ov-etf");

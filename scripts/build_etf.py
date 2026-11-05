@@ -190,10 +190,14 @@ def build(cfg: dict, limit: int = 0) -> tuple[dict, dict]:
     min_tv = cfg.get("min_turnover") or {}
     rows, series = [], {}
     excl.update(illiquid=skipped_illiquid, short_history=0, stale=0, small=0)
+    glitches: list[str] = []
     recheck = (today + timedelta(days=int(cfg.get("illiquid_recheck_days", 7)))).isoformat()
     for y, (ds, cs, vs) in prices.items():
         m = metas[y]
         made = make_row(m, ds, cs, vs)
+        if made == "glitch":
+            glitches.append(m["t"])
+            continue
         if not made:
             excl["short_history"] += 1
             continue
@@ -207,6 +211,9 @@ def build(cfg: dict, limit: int = 0) -> tuple[dict, dict]:
         rows.append(row)
         series[y] = wk
     rows, excl["stale"] = drop_stale(rows)
+    excl["glitch"] = len(glitches)
+    if glitches:
+        warnings.append("시세 오류(하루 45% 넘는 변동, 분할 미반영 추정)로 뺀 ETF: " + ", ".join(sorted(glitches)[:30]))
 
     # 상세정보: 화면에 올라올 후보만, 캐시 우선. AUM 이 작으면 빼고 후보를 다시 뽑는다.
     icache: dict = read_json(CACHE / "etf_info.json", {})
