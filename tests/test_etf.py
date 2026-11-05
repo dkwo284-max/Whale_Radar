@@ -135,3 +135,18 @@ def test_rank_union_covers_top_and_bottom():
 
 def test_weekly_empty():
     assert weekly([], []) == {"end": None, "v": []}
+
+
+def test_fix_splits_unadjusted_split():
+    from etf import fix_splits
+    cs = [300.0, 303.0, 306.0, 102.5, 103.0]  # 3:1 분할이 반영 안 된 시계열
+    out, vs = fix_splits(cs, [10.0] * 5)
+    assert out[2] == pytest.approx(102.0) and out[3] == 102.5 and vs[0] == pytest.approx(30.0)
+    r = period_returns(["2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05"], out)
+    assert abs(r["1d"]) < 1
+
+
+def test_fix_splits_keeps_normal_moves():
+    from etf import fix_splits
+    cs = [100.0, 80.0, 70.0, 95.0]
+    assert fix_splits(cs, [1.0] * 4)[0] == cs

@@ -199,6 +199,34 @@ def weekly(dates: list[str], closes: list[float], weeks: int = 53) -> dict:
     return {"end": dates[end], "v": [round(v / b * 1000) for v in vals]}
 
 
+# ---------------------------------------------------------------- 분할 보정
+
+_SPLIT_K = [2, 3, 4, 5, 6, 8, 10, 15, 20, 25, 50, 100]
+
+
+def fix_splits(closes: list[float], volumes: list[float], tol: float = 0.04) -> tuple[list[float], list[float]]:
+    """Yahoo 가 분할(병합)을 아직 반영하지 않은 날을 찾아 그 이전 가격을 맞춘다.
+    레버리지를 뺀 ETF 가 하루에 35% 넘게, 그것도 정수배(1/2, 1/3, 2, 3 …)에 가깝게 움직이면 분할로 본다."""
+    cs, vs = list(closes), list(volumes)
+    for i in range(1, len(cs)):
+        if not cs[i - 1] or not cs[i]:
+            continue
+        ratio = cs[i] / cs[i - 1]
+        if 0.65 < ratio < 1.35:
+            continue
+        for k in _SPLIT_K:
+            for target in (1 / k, float(k)):
+                if abs(ratio / target - 1) <= tol:
+                    for j in range(i):
+                        cs[j] *= target
+                        vs[j] /= target
+                    break
+            else:
+                continue
+            break
+    return cs, vs
+
+
 # ---------------------------------------------------------------- 행 만들기
 
 def make_row(meta: dict, dates: list[str], closes: list[float], volumes: list[float]) -> dict | None:
@@ -207,8 +235,7 @@ def make_row(meta: dict, dates: list[str], closes: list[float], volumes: list[fl
     if len(pts) < 20:
         return None
     ds = [p[0] for p in pts]
-    cs = [float(p[1]) for p in pts]
-    vs = [float(p[2] or 0) for p in pts]
+    cs, vs = fix_splits([float(p[1]) for p in pts], [float(p[2] or 0) for p in pts])
     now = period_returns(ds, cs)
     prev = period_returns(ds, cs, len(ds) - 2)
     row = {
