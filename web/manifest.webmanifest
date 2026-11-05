@@ -1,7 +1,7 @@
 {
-  "name": "웨일 레이더 · Whale Radar",
-  "short_name": "웨일 레이더",
-  "description": "거물 투자자의 SEC 공시와 뉴스를 매일 한국어로",
+  "name": "마켓 레이더 · Market Radar",
+  "short_name": "마켓 레이더",
+  "description": "거물 투자자 공시·뉴스와 미국·중국·인도 ETF 등락을 매일 한국어로",
   "lang": "ko",
   "start_url": "./",
   "scope": "./",

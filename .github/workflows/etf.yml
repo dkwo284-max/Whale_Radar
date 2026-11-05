@@ -1,0 +1,83 @@
+name: Market Radar ETF update
+
+# 매일 미국·중국·인도 ETF 시세를 받아 등락 순위 데이터(web/data/etf.json)를 만들고 GitHub Pages 로 배포합니다.
+# 미국 정규장 마감은 UTC 20:00(서머타임) / 21:00(표준시) — 마감 뒤 UTC 21:13 에 돌립니다.
+#   뉴질랜드 시간으로는 오전 9~10시대. 오전 11시에 Claude 예약 작업이 이 데이터로 한국어 해설을 붙입니다.
+# GitHub 예약 실행이 늦거나 건너뛸 때를 대비해 예비 시각을 두고, 이미 갱신됐으면 곧바로 끝냅니다.
+on:
+  schedule:
+    - cron: "13 21 * * *"
+    - cron: "43 21 * * *"
+    - cron: "23 23 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: radar
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.g.outputs.run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: web/data/etf.json
+          sparse-checkout-cone-mode: false
+      - id: g
+        run: |
+          run=true
+          if [ "${{ github.event_name }}" = "schedule" ] && [ -f web/data/etf.json ]; then
+            gen=$(python3 -c "import json; d = json.load(open('web/data/etf.json')); print('' if d.get('demo') else d.get('generated_at', ''))" || true)
+            if [ -n "$gen" ] && g=$(date -u -d "$gen" +%s 2>/dev/null) && [ "$g" -ge "$(date -u -d 'today 21:00' +%s)" ]; then
+              run=false
+              echo "already updated at $gen; skipping"
+            fi
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+
+  update:
+    needs: check
+    if: needs.check.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -r requirements.txt -r requirements-etf.txt pytest
+      - run: python -m pytest -q tests/test_etf.py
+      - name: Collect ETF prices
+        run: python scripts/build_etf.py
+      - name: Commit data
+        run: |
+          git config user.name "market-radar-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/data/etf.json web/data/etf-series.json cache/etf_*.json
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -m "etf: $(date -u +%F)"
+          for i in 1 2 3; do git pull --rebase -X theirs -q origin main && git push -q origin HEAD:main && exit 0; git rebase --abort 2>/dev/null; sleep 5; done
+          echo "::error::data commit could not be pushed"; exit 1
+
+  deploy:
+    needs: update
+    if: needs.update.result == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.pages.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: web }
+      - id: pages
+        uses: actions/deploy-pages@v4

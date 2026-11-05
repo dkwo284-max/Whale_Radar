@@ -1,4 +1,4 @@
-name: Whale Radar update
+name: Market Radar update (투자자·뉴스)
 
 # 매일 SEC 공시·뉴스를 모아 web/data 에 저장하고 GitHub Pages 로 배포합니다.
 # SEC EDGAR 는 미국 동부시간(ET) 밤 10시에 그날 접수를 마감하므로, 마감 직후에 돌려 그날 공시를 모두 담습니다.

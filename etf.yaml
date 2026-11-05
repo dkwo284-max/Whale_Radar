@@ -1,0 +1,115 @@
+# 마켓 레이더 · ETF 등락 설정 (scripts/build_etf.py)
+# 미국 상장 ETF 는 나스닥 심볼 목록(nasdaqtraded.txt)에서 매일 전부 가져오고,
+# 중국·인도 현지 상장 ETF 는 아래 목록을 씁니다(Yahoo Finance 티커). 목록에 없는 ETF 를 보고 싶으면 한 줄 추가하면 됩니다.
+
+# 제외: 이름으로 레버리지·인버스·VIX(변동성 지수) ETF 를 거르고, 거래가 적거나 작은 ETF 를 뺍니다.
+min_turnover:              # 최근 20거래일 평균 거래대금(현지 통화) 이 이보다 작으면 '저유동성'
+  USD: 1000000             # 약 $1M
+  CNY: 20000000            # 약 ¥2천만 (≈ $2.8M)
+  HKD: 5000000             # 약 HK$5백만 (≈ $0.6M)
+  INR: 20000000            # 약 ₹2천만 (≈ $0.24M)
+min_aum_usd: 50000000      # 운용자산(AUM)을 알 수 있는 ETF 중 $50M 미만은 '소형'으로 제외
+min_history_days: 20       # 상장 20거래일 미만은 제외 (기간 수익률을 낼 수 없음)
+illiquid_recheck_days: 7   # 저유동성으로 빠진 미국 ETF 는 7일 동안 받지 않고 건너뜀(요청 수 절약)
+info_ttl_days: 14          # 운용사·AUM·보수·보유종목은 14일마다 다시 받음
+info_max_per_run: 220      # 한 번 실행에서 새로 받을 상세정보 수
+top_n: 20
+
+# 이름 규칙으로 못 거르는 ETF 를 손으로 지정 (Yahoo 티커)
+exclude: [SVIX, SVOL, UVIX, UVXY, VIXY, VIXM, VXX, VXZ, SQQQ, TQQQ, SOXL, SOXS, SPXU, SPXL, UPRO, SDS, SH, PSQ, DOG, RWM, TZA, TNA, YANG, YINN, CHAU, CWEB, INDL]
+# 이름 규칙으로 잘못 걸러진 ETF 를 되살리기 / 나라를 강제로 지정
+force_include: []
+force_country: {}          # 예: { KWEB: cn }
+
+local:
+  cn:   # 상해(.SS)·심천(.SZ)·홍콩(.HK)
+    - { y: 510300.SS, n: "화태백서 CSI 300", th: 시장 대표지수 }
+    - { y: 510500.SS, n: "남방 CSI 500", th: 시장 대표지수 }
+    - { y: 510050.SS, n: "화하 상해 SSE 50", th: 시장 대표지수 }
+    - { y: 512100.SS, n: "남방 CSI 1000", th: 시장 대표지수 }
+    - { y: 588000.SS, n: "화하 과창판 STAR 50", th: 기술 }
+    - { y: 159915.SZ, n: "이방달 창업판(ChiNext)", th: 기술 }
+    - { y: 159949.SZ, n: "화안 창업판 50", th: 기술 }
+    - { y: 510880.SS, n: "화태백서 상해 배당", th: 배당·인컴 }
+    - { y: 515180.SS, n: "이방달 CSI 배당", th: 배당·인컴 }
+    - { y: 512880.SS, n: "국태 증권사", th: 금융 }
+    - { y: 512800.SS, n: "화보 은행", th: 금융 }
+    - { y: 512480.SS, n: "국련안 반도체", th: 반도체 }
+    - { y: 512760.SS, n: "국태 반도체 칩", th: 반도체 }
+    - { y: 159995.SZ, n: "화하 반도체 칩", th: 반도체 }
+    - { y: 588200.SS, n: "가실 과창판 칩", th: 반도체 }
+    - { y: 515070.SS, n: "화하 인공지능 AI", th: AI·로봇 }
+    - { y: 159819.SZ, n: "이방달 인공지능", th: AI·로봇 }
+    - { y: 562500.SS, n: "화하 로봇", th: AI·로봇 }
+    - { y: 159770.SZ, n: "천홍 로봇", th: AI·로봇 }
+    - { y: 512720.SS, n: "국태 컴퓨터", th: 인터넷·소프트웨어 }
+    - { y: 516510.SS, n: "이방달 클라우드 컴퓨팅", th: 인터넷·소프트웨어 }
+    - { y: 159869.SZ, n: "화하 애니메이션·게임", th: 인터넷·소프트웨어 }
+    - { y: 515050.SS, n: "화하 5G 통신", th: 기술 }
+    - { y: 515880.SS, n: "국태 통신장비", th: 기술 }
+    - { y: 512980.SS, n: "광발 미디어", th: 소비재 }
+    - { y: 512660.SS, n: "국태 군수", th: 산업재·방산 }
+    - { y: 516970.SS, n: "광발 인프라 건설", th: 산업재·방산 }
+    - { y: 512010.SS, n: "이방달 CSI 300 의약", th: 헬스케어 }
+    - { y: 512170.SS, n: "화보 의료", th: 헬스케어 }
+    - { y: 159928.SZ, n: "회첨부 필수소비재", th: 소비재 }
+    - { y: 512690.SS, n: "붕화 주류(백주)", th: 소비재 }
+    - { y: 159865.SZ, n: "국태 축산·양돈", th: 소비재 }
+    - { y: 515030.SS, n: "화하 신에너지차", th: 클린에너지·EV }
+    - { y: 515790.SS, n: "화태백서 태양광", th: 클린에너지·EV }
+    - { y: 516160.SS, n: "남방 신에너지", th: 클린에너지·EV }
+    - { y: 159611.SZ, n: "광발 전력·유틸리티", th: 유틸리티 }
+    - { y: 512400.SS, n: "남방 비철금속", th: 원자재 }
+    - { y: 515220.SS, n: "국태 석탄", th: 에너지 }
+    - { y: 512200.SS, n: "남방 부동산", th: 부동산 }
+    - { y: 518880.SS, n: "화안 금", th: 금·귀금속 }
+    - { y: 511260.SS, n: "국태 10년 국채", th: 채권·현금 }
+    - { y: 513050.SS, n: "이방달 중국 인터넷(해외상장)", th: 인터넷·소프트웨어 }
+    - { y: 513180.SS, n: "화하 항셍테크", th: 기술 }
+    - { y: 159920.SZ, n: "화하 항셍지수", th: 시장 대표지수 }
+    - { y: 2800.HK, n: "Tracker Fund 항셍지수", th: 시장 대표지수 }
+    - { y: 2828.HK, n: "항셍 중국기업(H주)", th: 시장 대표지수 }
+    - { y: 3033.HK, n: "CSOP 항셍테크", th: 기술 }
+    - { y: 3067.HK, n: "iShares 항셍테크", th: 기술 }
+    - { y: 3032.HK, n: "Hang Seng 항셍테크", th: 기술 }
+    - { y: 2823.HK, n: "iShares FTSE A50", th: 시장 대표지수 }
+    - { y: 2822.HK, n: "CSOP FTSE A50", th: 시장 대표지수 }
+    - { y: 3188.HK, n: "ChinaAMC CSI 300", th: 시장 대표지수 }
+    - { y: 2846.HK, n: "iShares CSI 300", th: 시장 대표지수 }
+    - { y: 2801.HK, n: "iShares Core MSCI China", th: 시장 대표지수 }
+    - { y: 3040.HK, n: "Global X MSCI China", th: 시장 대표지수 }
+    - { y: 3147.HK, n: "CSOP 창업판(ChiNext)", th: 기술 }
+    - { y: 3110.HK, n: "Global X 항셍 고배당", th: 배당·인컴 }
+    - { y: 2845.HK, n: "Global X 중국 전기차·배터리", th: 클린에너지·EV }
+    - { y: 2840.HK, n: "SPDR 금(홍콩)", th: 금·귀금속 }
+  in:   # 인도 NSE(.NS)
+    - { y: NIFTYBEES.NS, n: "Nippon Nifty 50 BeES", th: 시장 대표지수 }
+    - { y: SETFNIF50.NS, n: "SBI Nifty 50", th: 시장 대표지수 }
+    - { y: NIFTYIETF.NS, n: "ICICI Nifty 50", th: 시장 대표지수 }
+    - { y: JUNIORBEES.NS, n: "Nippon Nifty Next 50", th: 시장 대표지수 }
+    - { y: MID150BEES.NS, n: "Nippon Nifty Midcap 150", th: 시장 대표지수 }
+    - { y: MOM100.NS, n: "Motilal Midcap 100", th: 시장 대표지수 }
+    - { y: HDFCSML250.NS, n: "HDFC Nifty Smallcap 250", th: 시장 대표지수 }
+    - { y: BANKBEES.NS, n: "Nippon Nifty Bank", th: 금융 }
+    - { y: SETFNIFBK.NS, n: "SBI Nifty Bank", th: 금융 }
+    - { y: PSUBNKBEES.NS, n: "Nippon PSU Bank(국영은행)", th: 금융 }
+    - { y: PVTBANIETF.NS, n: "ICICI 민간은행", th: 금융 }
+    - { y: ITBEES.NS, n: "Nippon Nifty IT", th: 기술 }
+    - { y: PHARMABEES.NS, n: "Nippon Nifty Pharma", th: 헬스케어 }
+    - { y: HEALTHIETF.NS, n: "ICICI 헬스케어", th: 헬스케어 }
+    - { y: AUTOBEES.NS, n: "Nippon Nifty Auto", th: 소비재 }
+    - { y: CONSUMBEES.NS, n: "Nippon India Consumption", th: 소비재 }
+    - { y: FMCGIETF.NS, n: "ICICI 필수소비재(FMCG)", th: 소비재 }
+    - { y: INFRABEES.NS, n: "Nippon Nifty Infrastructure", th: 산업재·방산 }
+    - { y: MODEFENCE.NS, n: "Motilal India Defence", th: 산업재·방산 }
+    - { y: CPSEETF.NS, n: "CPSE(국영기업)", th: 에너지 }
+    - { y: ICICIB22.NS, n: "Bharat 22(국영기업)", th: 산업재·방산 }
+    - { y: OILIETF.NS, n: "ICICI 석유·가스", th: 에너지 }
+    - { y: METALIETF.NS, n: "ICICI 금속", th: 원자재 }
+    - { y: DIVOPPBEES.NS, n: "Nippon 배당기회 50", th: 배당·인컴 }
+    - { y: MOMOMENTUM.NS, n: "Motilal Nifty200 모멘텀30", th: 시장 대표지수 }
+    - { y: ALPHA.NS, n: "Kotak Nifty Alpha 50", th: 시장 대표지수 }
+    - { y: LOWVOLIETF.NS, n: "ICICI 저변동성 30", th: 시장 대표지수 }
+    - { y: SHARIABEES.NS, n: "Nippon 샤리아", th: 시장 대표지수 }
+    - { y: GOLDBEES.NS, n: "Nippon 금", th: 금·귀금속 }
+    - { y: SILVERBEES.NS, n: "Nippon 은", th: 금·귀금속 }

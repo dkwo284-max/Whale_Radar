@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>웨일 레이더 · Whale Radar</title>
-<meta name="description" content="버핏·애크먼 등 거물 투자자의 SEC 공시(13F·Form 4·13D/G)와 인터뷰·뉴스를 매일 한국어로 모아 보는 앱">
+<title>마켓 레이더 · Market Radar</title>
+<meta name="description" content="거물 투자자의 SEC 공시·인터뷰와 미국·중국·인도 ETF 등락 순위를 매일 한국어로 모아 보는 앱">
 <meta name="theme-color" content="#f4f6f9">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="웨일 레이더">
+<meta name="apple-mobile-web-app-title" content="마켓 레이더">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
@@ -39,7 +39,12 @@
   --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --r: 14px;
   --nav-h: 62px;
+  /* 수익률: 한국식 상승=빨강, 하락=파랑 (BUY/SELL 의 초록·빨강과 구분) */
+  --up: #d8343f;
+  --down: #2a6bd8;
 }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --up: #ff6b70; --down: #6ea2ff; } }
+:root[data-theme="dark"] { --up: #ff6b70; --down: #6ea2ff; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0a0e13; --surface: #121821; --raised: #19212c; --ink: #e9eef3; --muted: #8b98a7; --line: #212a35;
@@ -84,7 +89,7 @@ svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-widt
 
 /* 하단 탭바 */
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 7; background: color-mix(in oklab, var(--surface) 94%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
-.tabbar .in { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); height: var(--nav-h); }
+.tabbar .in { max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(6, 1fr); height: var(--nav-h); }
 .tabbar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; color: var(--muted); font-size: 0.7rem; font-weight: 600; position: relative; }
 .tabbar a[aria-current="page"] { color: var(--ink); }
 .tabbar a[aria-current="page"] svg.i { stroke-width: 2.3; }
@@ -330,6 +335,70 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 }
 </style>
 <style>.brand h1 .brand-sub { font-size: 0.72rem; font-weight: 500; color: var(--muted); margin-left: 4px; }</style>
+<style>
+/* ETF 등락: 순위 목록 → 기간 히트맵 → 테마 흐름. 수익률은 상승 빨강·하락 파랑 + 부호·숫자로도 구분 */
+.up { color: var(--up); } .dn { color: var(--down); }
+.etf-ctl { display: grid; gap: 8px; margin-bottom: 12px; }
+.etf-ctl .controls { margin: 0; }
+.seg.wide { display: flex; width: 100%; }
+.seg.wide button { flex: 1; padding-inline: 4px; }
+.etf-sum { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 12px 14px; font-size: 0.86rem; display: grid; gap: 4px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
+.etf-sum .eyebrow { font-size: 0.72rem; font-weight: 600; color: var(--muted); letter-spacing: 0.03em; display: flex; gap: 6px; align-items: center; }
+.etf-sum .moves { color: var(--muted); font-size: 0.8rem; }
+.erow { display: grid; grid-template-columns: 34px minmax(0, 1fr) 60px 66px; gap: 10px; align-items: center; padding: 10px 12px 10px 8px; border-top: 1px solid var(--line); cursor: pointer; }
+.erow:first-child { border-top: 0; }
+.erow:hover { background: var(--raised); }
+.erow .rk { display: grid; justify-items: center; gap: 1px; }
+.erow .rk b { font-size: 0.95rem; }
+.mv { font-family: var(--font-fig); font-size: 0.64rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.mv.up { color: var(--up); } .mv.dn { color: var(--down); } .mv.new { color: var(--accent); letter-spacing: 0.04em; }
+.erow .m { min-width: 0; }
+.erow .l1 { display: flex; align-items: baseline; gap: 7px; min-width: 0; }
+.erow .l1 .tk { font-weight: 600; font-size: 0.93rem; flex: none; }
+.erow .l1 .name { color: var(--muted); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.erow .l2 { font-size: 0.75rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.erow .l2 .nt { color: var(--ink); }
+.erow .rv { text-align: right; font-weight: 700; font-size: 0.98rem; white-space: nowrap; }
+.spark { display: block; width: 60px; height: 24px; overflow: visible; }
+@media (max-width: 380px) { .erow { grid-template-columns: 30px minmax(0, 1fr) 62px; } .erow .spark { display: none; } }
+.hmwrap { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); overflow-x: auto; box-shadow: var(--card-shadow); }
+.hm { min-width: 420px; padding: 6px; display: grid; gap: 2px; }
+.hr { display: grid; grid-template-columns: 74px repeat(8, minmax(36px, 1fr)); gap: 2px; align-items: stretch; }
+.hr[data-etf], .hr[data-etheme] { cursor: pointer; }
+.hr[data-etf]:hover .tk, .hr[data-etheme]:hover .lb { text-decoration: underline; }
+.hr > span { font-size: 0.76rem; padding: 6px 2px; text-align: center; border-radius: 5px; white-space: nowrap; }
+.hr > span:first-child { text-align: left; padding-left: 6px; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+.hr.hh > span { color: var(--muted); font-size: 0.7rem; font-weight: 600; padding: 4px 2px; }
+.hr.hh > span.on { color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); border-radius: 0; }
+.hr .lb small { display: block; font-weight: 400; color: var(--muted); font-size: 0.66rem; }
+.hr[aria-pressed="true"] > span:first-child { color: var(--accent); }
+.hc { font-family: var(--font-fig); font-variant-numeric: tabular-nums; color: var(--ink); }
+.hm-legend { display: flex; align-items: center; gap: 8px; justify-content: flex-end; font-size: 0.7rem; color: var(--muted); margin-top: 6px; }
+.hm-legend i { width: 72px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, color-mix(in oklab, var(--down) 46%, var(--surface)), var(--surface), color-mix(in oklab, var(--up) 46%, var(--surface))); border: 1px solid var(--line); }
+.estrip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.estrip div { border-radius: 9px; padding: 8px 6px; text-align: center; border: 1px solid var(--line); }
+.estrip dt { font-size: 0.68rem; color: var(--muted); }
+.estrip dd { margin: 0; font-weight: 700; font-size: 0.95rem; font-family: var(--font-fig); font-variant-numeric: tabular-nums; }
+.echart { position: relative; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 10px 10px 6px; }
+.echart svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+.echart .ax { font-size: 11px; fill: var(--muted); font-family: var(--font-fig); }
+.echart .tt { position: absolute; top: 8px; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 0.74rem; padding: 4px 8px; border-radius: 6px; white-space: nowrap; transform: translateX(-50%); }
+.claude-note { border-left: 3px solid var(--accent); background: color-mix(in oklab, var(--accent) 7%, var(--surface)); border-radius: 0 10px 10px 0; padding: 10px 12px; font-size: 0.88rem; }
+.claude-note small { display: block; color: var(--muted); font-size: 0.72rem; margin-bottom: 2px; }
+.holds { display: grid; gap: 0; }
+.holds li { display: grid; grid-template-columns: 58px minmax(0, 1fr) 54px; gap: 8px; padding: 7px 12px; border-top: 1px solid var(--line); font-size: 0.84rem; align-items: center; }
+.holds li:first-child { border-top: 0; }
+.holds .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.holds .w { text-align: right; font-family: var(--font-fig); }
+.holds ul { list-style: none; margin: 0; padding: 0; }
+.ehome { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.ehome .bcard li .v { margin-left: auto; font-family: var(--font-fig); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ehome .bcard li .tk { font-weight: 600; flex: none; }
+.ehome .bcard .split { display: grid; gap: 6px; }
+.ehome .bcard .eyebrow { display: flex; align-items: center; gap: 6px; }
+.ehome .bcard .eyebrow a { text-decoration: none; }
+.chiprow { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+</style>
 </head>
 <body>
 
@@ -339,6 +408,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3v5h5"/><path d="M8.5 13h7M8.5 17h5"/></symbol>
   <symbol id="i-news" viewBox="0 0 24 24"><rect x="3" y="4" width="14" height="16" rx="1.5"/><path d="M17 8h3v10.5A1.5 1.5 0 0 1 18.5 20H6"/><path d="M6.5 8h7M6.5 12h7M6.5 16h4"/></symbol>
   <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+  <symbol id="i-etf" viewBox="0 0 24 24"><path d="M3.5 20.5h17"/><path d="M6.5 17v-5M11 17V7.5M15.5 17v-7M20 17V4.5"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.3-4.3"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></symbol>
@@ -350,9 +420,9 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 
 <header class="topbar">
   <div class="wrap">
-    <div class="brand"><span class="mark" aria-hidden="true"><i></i></span><h1>웨일 레이더 <small class="brand-sub">거물 투자자 추적</small></h1></div>
+    <div class="brand"><span class="mark" aria-hidden="true"><i></i></span><h1>마켓 레이더 <small class="brand-sub">거물 투자자 · ETF 등락</small></h1></div>
     <button type="button" class="themebtn" id="theme-btn" aria-label="화면 테마: 자동"><svg class="i"><use href="#i-auto"/></svg></button>
-    <button type="button" class="searchbtn" id="open-search" aria-label="투자자, 종목, 기사 검색"><svg class="i"><use href="#i-search"/></svg><span>검색</span></button>
+    <button type="button" class="searchbtn" id="open-search" aria-label="투자자, 종목, ETF, 기사 검색"><svg class="i"><use href="#i-search"/></svg><span>검색</span></button>
   </div>
 </header>
 
@@ -365,6 +435,11 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
       <div class="meta" id="meta" style="margin:0 0 12px"></div>
       <div id="since"></div>
       <div class="brief" id="brief"><div class="sk card"></div><div class="sk card"></div><div class="sk card"></div></div>
+    </section>
+    <section class="ov-etf" hidden>
+      <h2>ETF 등락 한눈에 <a href="#etf">순위 보기</a></h2>
+      <p class="sub" id="etf-home-sub">전일 대비 가장 많이 오르고 내린 ETF (레버리지·인버스·VIX 제외)</p>
+      <div class="ehome" id="etf-home"></div>
     </section>
     <div class="ov-split">
     <section class="ov-sector">
@@ -448,6 +523,52 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     </section>
   </div>
 
+  <div class="panel" data-panel="etf" hidden>
+    <div class="demo" id="etf-demo" hidden><b>예시 데이터</b> · 실제 시세가 아닌 화면 확인용 데이터입니다. GitHub Actions의 ETF 수집이 처음 돌면 실제 시세로 바뀝니다.</div>
+    <section>
+      <h2>ETF 등락 순위<button type="button" class="tip" data-tip="etf" aria-label="ETF 순위 기준 설명">ⓘ</button></h2>
+      <div class="meta" id="etf-meta" style="margin:0 0 12px"></div>
+      <div class="etf-ctl">
+        <div class="seg wide" id="etf-c" role="group" aria-label="나라">
+          <button type="button" data-c="us" aria-pressed="true">미국</button>
+          <button type="button" data-c="cn" aria-pressed="false">중국</button>
+          <button type="button" data-c="in" aria-pressed="false">인도</button>
+        </div>
+        <div class="controls" id="etf-l-row">
+          <div class="seg" id="etf-l" role="group" aria-label="상장 시장">
+            <button type="button" data-l="all" aria-pressed="true">전체</button>
+            <button type="button" data-l="us" aria-pressed="false">미국 상장</button>
+            <button type="button" data-l="local" aria-pressed="false">현지 상장</button>
+          </div>
+        </div>
+        <div class="controls">
+          <div class="seg" id="etf-p" role="group" aria-label="기간">
+            <button type="button" data-p="0" aria-pressed="true">1일</button><button type="button" data-p="1" aria-pressed="false">7일</button><button type="button" data-p="2" aria-pressed="false">14일</button><button type="button" data-p="3" aria-pressed="false">30일</button><button type="button" data-p="4" aria-pressed="false">90일</button><button type="button" data-p="5" aria-pressed="false">180일</button><button type="button" data-p="6" aria-pressed="false">YTD</button><button type="button" data-p="7" aria-pressed="false">1년</button>
+          </div>
+        </div>
+        <div class="seg wide" id="etf-dir" role="group" aria-label="상승 또는 하락">
+          <button type="button" data-dir="up" aria-pressed="true">▲ 상승 Top 20</button>
+          <button type="button" data-dir="down" aria-pressed="false">▼ 하락 Top 20</button>
+        </div>
+      </div>
+      <div id="etf-chips" class="chiprow"></div>
+      <div id="etf-sum"></div>
+      <div class="list" id="etf-list"><div class="sk" style="height:300px;margin:8px"></div></div>
+    </section>
+    <section>
+      <h2>기간별 히트맵</h2>
+      <p class="sub">지금 순위에 오른 ETF의 7일·14일·30일 단기 흐름과 90일 이상 장기 추세를 한눈에. 칸 숫자는 %입니다.</p>
+      <div class="hmwrap" id="etf-hm"></div>
+      <div class="hm-legend"><span>하락</span><i></i><span>상승</span></div>
+    </section>
+    <section>
+      <h2>테마별 흐름</h2>
+      <p class="sub" id="etf-theme-sub">같은 테마 ETF들의 평균 수익률. 줄을 누르면 위 순위가 그 테마로 좁혀집니다.</p>
+      <div class="hmwrap" id="etf-theme"></div>
+    </section>
+    <p class="sub" id="etf-excl" style="margin:0"></p>
+  </div>
+
   <div class="panel" data-panel="watch" hidden>
     <div class="watchbox">
       <div>
@@ -481,7 +602,9 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
       <li id="rule"></li>
       <li>Form 4는 10% 이상 대주주의 장내 거래, 13D·13G는 5% 이상 지분 신고입니다.</li>
       <li>뉴스의 한국어 요약과 종목 논조는 AI가 기사에서 뽑은 추정치입니다. 중요한 내용은 원문으로 확인하세요.</li>
-      <li>모든 데이터는 SEC EDGAR와 공개 뉴스이며 투자 권유가 아닙니다.</li>
+      <li>ETF 수익률은 Yahoo Finance 수정종가(배당·분할 반영) 기준이며, 7·14·30·90·180일과 1년은 달력일, YTD는 지난해 마지막 거래일 대비입니다. 순위 옆 ▲▼·NEW는 하루 전 같은 기준 순위와 비교한 변화입니다.</li>
+      <li>ETF 해설은 Claude가 매일 아침 뉴스를 찾아 쓴 요약입니다. 원인을 단정하지 않으니 참고로만 보세요.</li>
+      <li>모든 데이터는 SEC EDGAR·공개 뉴스·공개 시세이며 투자 권유가 아닙니다.</li>
     </ul>
     <ul id="warnings" style="margin-top:10px"></ul>
     <p style="margin:12px 0 0"><button type="button" class="ghost" id="replay-onb" style="padding:0;text-decoration:underline">사용법 다시 보기</button></p>
@@ -493,6 +616,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     <a href="#overview" data-view="overview"><svg class="i"><use href="#i-home"/></svg>홈</a>
     <a href="#investors" data-view="investors"><svg class="i"><use href="#i-users"/></svg>투자자</a>
     <a href="#timeline" data-view="timeline"><svg class="i"><use href="#i-doc"/></svg>공시</a>
+    <a href="#etf" data-view="etf"><svg class="i"><use href="#i-etf"/></svg>ETF</a>
     <a href="#news" data-view="news"><svg class="i"><use href="#i-news"/></svg>뉴스</a>
     <a href="#watch" data-view="watch"><svg class="i"><use href="#i-star"/></svg>관심</a>
   </div>
@@ -505,7 +629,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   <div class="wrap">
     <div class="bar">
       <button type="button" class="iconbtn" id="close-search" aria-label="검색 닫기"><svg class="i"><use href="#i-back"/></svg></button>
-      <input type="search" id="search-input" placeholder="투자자, 티커, 키워드" autocomplete="off" enterkeyhint="search" aria-label="검색어">
+      <input type="search" id="search-input" placeholder="투자자, 종목·ETF 티커, 키워드" autocomplete="off" enterkeyhint="search" aria-label="검색어">
     </div>
     <div id="search-results"></div>
   </div>
@@ -600,6 +724,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     F4: ["Form 4", "회사 지분 10% 이상 대주주나 임원이 주식을 사고팔면 2영업일 안에 내는 신고예요. 가장 빠른 매매 신호예요."],
     "13DG": ["13D · 13G", "한 회사 지분을 5% 넘게 가지면 내는 신고예요. 13D는 경영 참여 가능, 13G는 단순 투자 목적이에요."],
     flow: ["추정 순매수", "직전 분기 대비 보유 수량 변화에 분기말 주가를 곱한 추정 금액이에요. 실제 매매 가격과는 다를 수 있어요."],
+    etf: ["ETF 순위 기준", "레버리지·인버스·VIX(공포지수) ETF와 거래대금이 적거나 운용자산이 작은 ETF는 뺐어요. 미국 탭은 미국 시장 ETF, 중국·인도 탭은 미국에 상장된 중국·인도 ETF와 현지(상해·심천·홍콩·NSE) 상장 ETF예요."],
     consensus: ["거물 컨센서스", "같은 분기에 두 명 이상이 같은 종목을 사거나 판 경우만 모았어요. 여러 명이 같은 방향이면 신호가 더 강해요."],
     signal: ["BUY · HOLD · SELL", "13F 기준 직전 분기보다 보유 수량이 5% 이상 늘거나 새로 샀으면 BUY, 5% 이상 줄거나 다 팔았으면 SELL, 그 사이는 HOLD예요."],
     ai: ["AI 추정", "기사에 나온 투자자의 직접 발언이나 매매만 근거로 AI가 붙인 논조예요. 중요한 판단 전에는 원문을 확인하세요."],
@@ -622,8 +747,9 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 
   /* ---------- 첫 방문 안내 ---------- */
   const ONB = [
-    ["오늘의 브리핑부터 보세요", "홈 맨 위 카드 세 장이 핵심이에요. 가장 큰 순매수 종목, 여러 거물이 겹친 종목, 최근 새 소식을 먼저 보여줘요."],
+    ["오늘의 브리핑부터 보세요", "홈 맨 위 카드 세 장이 핵심이에요. 가장 큰 순매수 종목, 여러 거물이 겹친 종목, 최근 새 소식을 먼저 보여주고, 아래에 나라별 ETF 등락이 이어져요."],
     ["종목을 누르면 상세가 열려요", "어디서든 종목을 누르면 누가 사고 팔았는지, 관련 공시와 뉴스가 한 화면에 나와요. 위쪽 검색으로 바로 찾을 수도 있어요."],
+    ["ETF 탭에서 등락 순위를 보세요", "미국·중국·인도 ETF 중 많이 오르고 내린 20개를 1일부터 1년까지 기간별로 바꿔 볼 수 있어요. 아래 히트맵과 테마별 흐름으로 단기·장기 추세도 비교해요."],
     ["☆로 관심 목록을 만드세요", "관심 탭에 투자자·종목·키워드를 넣으면 관련 소식만 모아 봐요. 새 소식은 NEW 표시와 탭 숫자로 알려드려요. 낯선 용어는 ⓘ를 눌러 보세요."],
   ];
   function showOnb(i, focus = true) {
@@ -748,6 +874,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   }
   function renderOverview() {
     renderBrief();
+    if (typeof renderEtfHome === "function") renderEtfHome();
     const nf = cleared.f ? 0 : fresh.f.size, nn = cleared.n ? 0 : fresh.n.size;
     $("#since").innerHTML = nf + nn ? `<div class="since"><span class="newdot"></span><span>지난 방문 이후 ${nf ? `<a href="#timeline">새 공시 ${nf}건</a>` : ""}${nf && nn ? " · " : ""}${nn ? `<a href="#news">새 기사 ${nn}건</a>` : ""}</span></div>` : "";
     const sec = D.sectors || {};
@@ -986,6 +1113,13 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     if (ticks.length) groups.push(`<div class="grp"><h3>종목</h3><div class="list">${ticks.map((o) =>
       `<div class="item" data-ticker="${esc(o.ticker)}" role="button" tabindex="0">${av(o.ticker)}<div class="l1"><span class="tk">${esc(o.ticker)}</span><span class="name">${esc(o.issuer)}</span></div>
         <div class="r"><small>보유 ${o.holders.length}명</small></div><div class="l2">${esc(o.sector || "")}${o.news.length ? ` · 뉴스 ${o.news.length}건` : ""}</div></div>`).join("")}</div></div>`);
+    if (E) {
+      const ef = E.rows.filter((r) => r.t.toUpperCase().startsWith(qu) || r.y.toUpperCase().startsWith(qu) || r.n.toLowerCase().includes(ql) || r.th.includes(q))
+        .sort((a, b) => (b.t.toUpperCase() === qu) - (a.t.toUpperCase() === qu) || b.tv - a.tv).slice(0, 6);
+      if (ef.length) groups.push(`<div class="grp"><h3>ETF</h3><div class="list">${ef.map((r) =>
+        `<div class="item" data-etf="${esc(r.y)}" role="button" tabindex="0">${av(r.t)}<div class="l1"><span class="tk">${esc(r.t)}</span><span class="name">${esc(r.n)}</span></div>
+          <div class="r"><span class="num ${pcls(r.r[0])}" style="font-weight:600">${pct(r.r[0])}</span><small>1일</small></div><div class="l2">${esc(CTRY[r.c])} · ${esc(r.th)} · ${esc(where(r))}</div></div>`).join("")}</div></div>`);
+    }
     if (arts.length) groups.push(`<div class="grp"><h3>기사</h3><div class="list">${arts.map((n) =>
       `<a class="item link" href="${esc(n.url)}" target="_blank" rel="noopener"><span class="av" style="--h:${hue(n.investor)}" aria-hidden="true">${esc((KIND[n.kind] || "뉴스").slice(0, 2))}</span>
         <div class="l1"><span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(n.title_ko || n.title)}</span></div><div class="r"></div>
@@ -994,8 +1128,218 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     out.innerHTML = groups.join("") || `<div class="hint">"${esc(q)}"에 맞는 투자자·종목·기사가 없습니다.</div>`;
   }
 
+  /* ---------- ETF 등락 ---------- */
+  const PER = ["1d", "7d", "14d", "30d", "90d", "180d", "ytd", "1y"];
+  const PER_KO = ["1일", "7일", "14일", "30일", "90일", "180일", "YTD", "1년"];
+  const PER_SCALE = [3, 8, 12, 15, 25, 35, 40, 50]; // 히트맵 색이 가장 진해지는 수익률(%)
+  const CTRY = { us: "미국", cn: "중국", in: "인도" };
+  const TOPN = 20;
+  let E = null, EN = { summary: {}, notes: {} }, ES = null, esReq = null, etfFailed = false;
+  try { Object.assign(state, { etfC: "us", etfL: "all", etfP: 0, etfDir: "up", etfTheme: "" }, JSON.parse(store.get("radar.etf") || "{}")); } catch (e) {}
+  const saveEtf = () => store.set("radar.etf", JSON.stringify({ etfC: state.etfC, etfL: state.etfL, etfP: state.etfP, etfDir: state.etfDir }));
+  const pct = (v, d = 1) => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(Math.abs(v) >= 100 ? 0 : d) + "%";
+  const pnum = (v) => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(Math.abs(v) >= 10 ? 0 : 1);
+  const pcls = (v) => v == null ? "" : v > 0 ? "up" : v < 0 ? "dn" : "";
+  function heatBg(v, i) {
+    if (v == null) return "transparent";
+    const k = Math.min(1, Math.abs(v) / PER_SCALE[i]);
+    return `color-mix(in oklab, var(${v >= 0 ? "--up" : "--down"}) ${Math.round(4 + k * 42)}%, var(--surface))`;
+  }
+  function money(v, cur) {
+    if (v == null || !isFinite(v)) return "—";
+    const sym = { USD: "$", HKD: "HK$", CNY: "¥", INR: "₹" }[cur || "USD"] || "";
+    const a = Math.abs(v);
+    if (cur === "INR" && a >= 1e7) return sym + (a / 1e7).toFixed(a >= 1e9 ? 0 : 1) + "크로르";
+    if (a >= 1e12) return sym + (a / 1e12).toFixed(1) + "조";
+    if (a >= 1e8) return sym + (a / 1e8).toFixed(a >= 1e10 ? 0 : 1) + "억";
+    if (a >= 1e4) return sym + Math.round(a / 1e4) + "만";
+    return sym + Math.round(a);
+  }
+  const shortDate = (iso) => iso ? `${+iso.slice(5, 7)}/${+iso.slice(8, 10)}` : "";
+  const etfNote = (r) => { const n = (EN.notes || {})[r.y]; return n && n.k && (!n.d || n.d >= daysAgoFrom(r.d, 7)) ? n : null; };
+  function daysAgoFrom(iso, n) { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - n); return d.toISOString().slice(0, 10); }
+  function etfPool(c, l, theme) { return E.rows.filter((r) => r.c === c && (l === "all" || r.l === l) && (!theme || r.th === theme)); }
+  function ranked(pool, i, dir, key = "r") {
+    const xs = pool.filter((r) => r[key][i] != null);
+    xs.sort((a, b) => dir === "up" ? b[key][i] - a[key][i] : a[key][i] - b[key][i]);
+    return xs;
+  }
+  function etfTop() {
+    const pool = etfPool(state.etfC, state.etfL, state.etfTheme), i = state.etfP, dir = state.etfDir;
+    const prev = {}; ranked(pool, i, dir, "rp").forEach((r, k) => (prev[r.y] = k + 1));
+    return ranked(pool, i, dir).slice(0, TOPN).map((r, k) => ({ r, rank: k + 1, prev: prev[r.y] || null }));
+  }
+  function sparkSvg(v) {
+    if (!v || v.length < 2) return `<span></span>`;
+    const w = 60, h = 24, mn = Math.min(...v), mx = Math.max(...v), rg = mx - mn || 1;
+    const pts = v.map((y, k) => `${(k / (v.length - 1) * (w - 2) + 1).toFixed(1)},${(h - 2 - (y - mn) / rg * (h - 4)).toFixed(1)}`).join(" ");
+    return `<svg class="spark" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="var(${v[v.length - 1] >= v[0] ? "--up" : "--down"})" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+  }
+  const where = (r) => r.l === "us" ? (r.c === "us" ? r.x : "미국 상장") : r.x;
+  function moveTag(x) {
+    if (!x.prev || x.prev > TOPN) return `<span class="mv new" title="새로 진입">NEW</span>`;
+    if (x.prev === x.rank) return `<span class="mv" title="순위 그대로">–</span>`;
+    return x.prev > x.rank ? `<span class="mv up" title="어제 ${x.prev}위">▲${x.prev - x.rank}</span>` : `<span class="mv dn" title="어제 ${x.prev}위">▼${x.rank - x.prev}</span>`;
+  }
+  function etfRow(x) {
+    const r = x.r, v = r.r[state.etfP], note = etfNote(r);
+    return `<div class="erow" data-etf="${esc(r.y)}" role="button" tabindex="0" aria-label="${x.rank}위 ${esc(r.t)} ${esc(r.n)} ${PER_KO[state.etfP]} ${pct(v)}">
+      <div class="rk"><b class="num">${x.rank}</b>${moveTag(x)}</div>
+      <div class="m"><div class="l1"><span class="tk">${esc(r.t)}</span><span class="name">${esc(r.n)}</span></div>
+        <div class="l2">${esc(r.th)} · ${esc(where(r))}${note ? ` · <span class="nt">${esc(note.k)}</span>` : ""}</div></div>
+      ${sparkSvg(r.sp)}<div class="rv num ${pcls(v)}">${pct(v)}</div></div>`;
+  }
+  function heatRows(items, labelFn, attr) {
+    return `<div class="hm" role="table"><div class="hr hh" role="row"><span role="columnheader">${attr === "etf" ? "ETF" : "테마"}</span>${PER_KO.map((p, i) => `<span role="columnheader" class="${i === state.etfP ? "on" : ""}">${p}</span>`).join("")}</div>
+      ${items.map((it) => `<div class="hr" role="row" data-${attr === "etf" ? "etf" : "etheme"}="${esc(it.key)}"${attr === "theme" ? ` aria-pressed="${state.etfTheme === it.key}"` : ""}>
+        <span role="rowheader" class="${attr === "etf" ? "tk" : "lb"}">${labelFn(it)}</span>
+        ${it.r.map((v, i) => `<span role="cell" class="hc" style="background:${heatBg(v, i)}" title="${esc(it.key)} ${PER_KO[i]} ${pct(v)}">${pnum(v)}</span>`).join("")}</div>`).join("")}</div>`;
+  }
+  function etfThemes() {
+    const pool = etfPool(state.etfC, state.etfL, ""), g = {};
+    pool.forEach((r) => { (g[r.th] = g[r.th] || []).push(r); });
+    return Object.entries(g).filter(([, xs]) => xs.length >= 2).map(([k, xs]) => ({
+      key: k, n: xs.length,
+      r: PER.map((_, i) => { const v = xs.map((x) => x.r[i]).filter((x) => x != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; }),
+    })).sort((a, b) => (b.r[state.etfP] ?? -1e9) - (a.r[state.etfP] ?? -1e9));
+  }
+  function setPressed(sel, attr, val) { $$(sel + " button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset[attr] === String(val)))); }
+  function renderEtf() {
+    $("#etf-demo").hidden = !(E && E.demo);
+    if (!E) {
+      $("#etf-list").innerHTML = etfFailed ? `<div class="empty">ETF 데이터를 아직 불러오지 못했습니다. GitHub Actions의 ETF 수집 기록을 확인해 주세요.</div>` : `<div class="sk" style="height:300px;margin:8px"></div>`;
+      return;
+    }
+    if (state.etfC === "us") state.etfL = "all";
+    setPressed("#etf-c", "c", state.etfC); setPressed("#etf-l", "l", state.etfL); setPressed("#etf-p", "p", state.etfP); setPressed("#etf-dir", "dir", state.etfDir);
+    $("#etf-l-row").hidden = state.etfC === "us";
+    const asof = E.as_of || {};
+    const dates = Object.entries(asof).filter(([k]) => k.startsWith(state.etfC + "-") && (state.etfL === "all" || k.endsWith("-" + state.etfL))).map(([, v]) => v).sort();
+    const gen = new Date(E.generated_at);
+    const pool = etfPool(state.etfC, state.etfL, "");
+    $("#etf-meta").innerHTML = `<span>기준일 <span class="num">${esc([...new Set(dates)].map(shortDate).join(" · ") || "—")}</span></span><span>대상 ${pool.length.toLocaleString()}개</span><span>수집 <span class="num">${isNaN(gen) ? "—" : gen.toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })}</span></span>`;
+    $("#etf-chips").innerHTML = state.etfTheme ? `<span class="qchip">테마: ${esc(state.etfTheme)}<button type="button" id="etf-clear-theme" aria-label="테마 필터 해제">×</button></span>` : "";
+    const top = etfTop();
+    const fresh = top.filter((x) => !x.prev || x.prev > TOPN), jump = top.filter((x) => x.prev && x.prev <= TOPN && x.prev - x.rank >= 3).sort((a, b) => (b.prev - b.rank) - (a.prev - a.rank))[0];
+    const sum = (EN.summary || {})[state.etfC];
+    const moves = `${fresh.length ? `새로 진입 ${fresh.length}개: ${fresh.slice(0, 4).map((x) => esc(x.r.t)).join(", ")}${fresh.length > 4 ? " 외" : ""}` : "새로 진입한 ETF 없음"}${jump ? ` · 가장 크게 오른 순위: ${esc(jump.r.t)} ▲${jump.prev - jump.rank}` : ""}`;
+    $("#etf-sum").innerHTML = `<div class="etf-sum">${sum ? `<div class="eyebrow">오늘의 해설 · Claude${EN.as_of_label ? " · " + esc(EN.as_of_label) : ""}</div><div>${esc(sum)}</div>` : ""}<div class="moves">${PER_KO[state.etfP]} ${state.etfDir === "up" ? "상승" : "하락"} 순위 · ${moves}</div></div>`;
+    $("#etf-list").innerHTML = top.length ? top.map(etfRow).join("") : `<div class="empty">이 조건에 맞는 ETF가 없습니다${state.etfP >= 4 ? " (상장 기간이 짧으면 장기 수익률이 비어 있어요)" : ""}.</div>`;
+    $("#etf-hm").innerHTML = top.length ? heatRows(top.map((x) => ({ key: x.r.y, r: x.r.r, t: x.r.t })), (it) => esc(it.t), "etf") : `<div class="empty">—</div>`;
+    const th = etfThemes();
+    $("#etf-theme").innerHTML = th.length ? heatRows(th, (it) => `${esc(it.key)}<small>${it.n}개</small>`, "theme") : `<div class="empty">테마를 묶을 만큼 ETF가 많지 않습니다.</div>`;
+    const ex = E.excluded || {};
+    const nf = (n) => (n || 0).toLocaleString();
+    $("#etf-excl").textContent = `제외한 ETF(미국 상장 기준): 레버리지 ${nf(ex.leveraged)} · 인버스 ${nf(ex.inverse)} · VIX ${nf(ex.vix)} · 저유동성 ${nf(ex.illiquid)} · 소형 ${nf(ex.small)} · 다른 나라 ${nf(ex.other_country)} · 상장 20일 미만 ${nf(ex.short_history)}개.`;
+  }
+  function renderEtfHome() {
+    const sec = $(".ov-etf");
+    if (!E) { sec.hidden = true; return; }
+    sec.hidden = false;
+    const li = (r, i) => `<li data-etf="${esc(r.y)}" role="button" tabindex="0" style="cursor:pointer"><span class="tk">${esc(r.t)}</span><span class="t muted">${esc(r.n)}</span><span class="v ${pcls(r.r[i])}">${pct(r.r[i])}</span></li>`;
+    $("#etf-home").innerHTML = ["us", "cn", "in"].map((c) => {
+      const pool = etfPool(c, "all", "");
+      if (!pool.length) return "";
+      const up = ranked(pool, 0, "up").slice(0, 3), dn = ranked(pool, 0, "down").slice(0, 3), s = (EN.summary || {})[c];
+      return `<div class="bcard"><span class="eyebrow">${CTRY[c]} ETF · 1일 <a href="#etf" data-etfgo="${c}" style="margin-left:auto;font-weight:500">Top 20 →</a></span>
+        <div class="split"><ul>${up.map((r) => li(r, 0)).join("")}</ul><ul>${dn.map((r) => li(r, 0)).join("")}</ul></div>
+        ${s ? `<span class="note">${esc(s)}</span>` : ""}</div>`;
+    }).join("");
+  }
+  function loadSeries() {
+    if (ES) return Promise.resolve(ES);
+    if (!esReq) esReq = (window.__RADAR_ETF_SERIES__ ? Promise.resolve(window.__RADAR_ETF_SERIES__) : fetch("data/etf-series.json", { cache: "no-store" }).then((r) => r.json()))
+      .then((s) => (ES = s)).catch(() => { esReq = null; return null; });
+    return esReq;
+  }
+  function etfChart(r, w) {
+    const v = (w && w.v) || [];
+    if (v.length < 3) return `<div class="empty">추이 데이터가 없습니다.</div>`;
+    const W = 600, H = 190, L = 44, R = 10, T = 12, B = 24;
+    const mn = Math.min(...v, 1000), mx = Math.max(...v, 1000), rg = mx - mn || 1;
+    const X = (k) => L + k / (v.length - 1) * (W - L - R), Y = (y) => T + (mx - y) / rg * (H - T - B);
+    const pts = v.map((y, k) => `${X(k).toFixed(1)},${Y(y).toFixed(1)}`).join(" ");
+    const col = v[v.length - 1] >= v[0] ? "--up" : "--down";
+    const end = new Date(w.end + "T00:00:00Z");
+    const dOf = (k) => { const d = new Date(end); d.setUTCDate(d.getUTCDate() - 7 * (v.length - 1 - k)); return d.toISOString().slice(0, 10); };
+    const lab = (y) => pct((y / 1000 - 1) * 100, 0);
+    return `<div class="echart" data-w='${esc(JSON.stringify(v))}' data-end="${esc(w.end)}"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(r.t)} 최근 1년 주간 추이, 시작 대비 ${lab(v[v.length - 1])}">
+      <line x1="${L}" x2="${W - R}" y1="${Y(1000).toFixed(1)}" y2="${Y(1000).toFixed(1)}" stroke="var(--line)" stroke-dasharray="3 4"/>
+      <text class="ax" x="${L - 6}" y="${(Y(mx) + 4).toFixed(1)}" text-anchor="end">${lab(mx)}</text>
+      <text class="ax" x="${L - 6}" y="${(Y(1000) + 4).toFixed(1)}" text-anchor="end">0%</text>
+      <text class="ax" x="${L - 6}" y="${(Y(mn) + 4).toFixed(1)}" text-anchor="end">${lab(mn)}</text>
+      <text class="ax" x="${L}" y="${H - 6}">${esc(dOf(0))}</text><text class="ax" x="${W - R}" y="${H - 6}" text-anchor="end">${esc(w.end)}</text>
+      <polyline points="${pts}" fill="none" stroke="var(${col})" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <g class="hov" visibility="hidden"><line y1="${T}" y2="${H - B}" stroke="var(--muted)" stroke-width="1"/><circle r="4.5" fill="var(${col})" stroke="var(--surface)" stroke-width="2"/></g>
+      <rect x="${L}" y="0" width="${W - L - R}" height="${H}" fill="transparent" class="hit"/></svg><div class="tt" hidden></div></div>`;
+  }
+  function wireChart(box) {
+    const svg = box.querySelector("svg"), v = JSON.parse(box.dataset.w), end = new Date(box.dataset.end + "T00:00:00Z");
+    const g = svg.querySelector(".hov"), tt = box.querySelector(".tt"), W = 600, L = 44, R = 10;
+    const pts = svg.querySelector("polyline").getAttribute("points").split(" ").map((p) => p.split(",").map(Number));
+    const move = (e) => {
+      const b = svg.getBoundingClientRect(), x = (e.clientX - b.left) / b.width * W;
+      const k = Math.max(0, Math.min(v.length - 1, Math.round((x - L) / (W - L - R) * (v.length - 1))));
+      const [px, py] = pts[k];
+      g.setAttribute("visibility", "visible"); g.querySelector("line").setAttribute("x1", px); g.querySelector("line").setAttribute("x2", px);
+      g.querySelector("circle").setAttribute("cx", px); g.querySelector("circle").setAttribute("cy", py);
+      const d = new Date(end); d.setUTCDate(d.getUTCDate() - 7 * (v.length - 1 - k));
+      tt.hidden = false; tt.style.left = (px / W * 100) + "%"; tt.textContent = `${shortDate(d.toISOString().slice(0, 10))} 주 · 시작 대비 ${pct((v[k] / 1000 - 1) * 100)}`;
+    };
+    svg.addEventListener("pointermove", move); svg.addEventListener("pointerdown", move);
+    svg.addEventListener("pointerleave", () => { g.setAttribute("visibility", "hidden"); tt.hidden = true; });
+  }
+  function openEtf(y) {
+    const r = E && E.rows.find((x) => x.y === y);
+    if (!r) return;
+    if (!$("#search").hidden) closeSearch();
+    lastFocus = document.activeElement;
+    const inf = (E.info || {})[y] || {}, note = etfNote(r);
+    const hold = (inf.hold || []).filter((h) => h[2] > 0);
+    $("#sheet").innerHTML = `<div class="grab" aria-hidden="true"></div>
+      <div class="wrap">
+        <div class="hd">${av(r.t, "lg")}<div><h2 id="sheet-title" class="tk">${esc(r.t)}</h2><p>${esc(r.n)} · ${esc(r.th)} · ${esc(CTRY[r.c])} ${r.l === "us" ? "미국 상장" : "현지 상장"}</p></div>
+          <button type="button" class="iconbtn" data-close aria-label="닫기">${icon("x")}</button></div>
+        <div class="body">
+          ${note ? `<div class="claude-note"><small>Claude 해설 · ${esc(shortDate(note.d))}</small>${esc(note.k)}</div>` : ""}
+          <div><h4>기간별 수익률</h4><dl class="estrip">${r.r.map((v, i) => `<div style="background:${heatBg(v, i)}"><dt>${PER_KO[i]}</dt><dd>${pct(v)}</dd></div>`).join("")}</dl></div>
+          <div><h4>최근 1년 추이 (주간, 시작=0%)</h4><div id="etf-chart"><div class="sk" style="height:190px"></div></div></div>
+          <dl class="stats">
+            <div><dt>종가 (${esc(shortDate(r.d))})</dt><dd>${r.cur === "USD" ? "$" : ""}${esc(r.p.toLocaleString(undefined, { maximumFractionDigits: 2 }))}${r.cur !== "USD" ? `<small class="muted" style="font-size:.7rem"> ${esc(r.cur)}</small>` : ""}</dd></div>
+            <div><dt>운용자산</dt><dd>${esc(money(inf.aum, r.l === "us" ? "USD" : r.cur))}</dd></div>
+            <div><dt>총보수</dt><dd>${inf.er != null ? esc(inf.er.toFixed(2)) + "%" : "—"}</dd></div>
+          </dl>
+          <dl class="stats">
+            <div><dt>20일 평균 거래대금</dt><dd>${esc(money(r.tv, r.cur))}</dd></div>
+            <div><dt>운용사</dt><dd style="font-size:.86rem">${esc(inf.fam || "—")}</dd></div>
+            <div><dt>거래소</dt><dd style="font-size:.86rem">${esc(r.x || "—")}</dd></div>
+          </dl>
+          ${hold.length ? `<div><h4>상위 보유종목</h4><div class="list holds"><ul>${hold.map((h) => `<li><span class="tk">${esc(String(h[0]).slice(0, 9))}</span><span class="nm">${esc(h[1])}</span><span class="w">${esc(h[2].toFixed(1))}%</span></li>`).join("")}</ul></div></div>` : ""}
+          <p class="sub" style="margin:0"><a href="https://finance.yahoo.com/quote/${encodeURIComponent(r.y)}" target="_blank" rel="noopener">Yahoo Finance에서 보기 ${icon("ext")}</a></p>
+        </div>
+      </div>`;
+    $("#sheet").hidden = false; $("#scrim").hidden = false; $("#sheet").scrollTop = 0;
+    document.body.classList.add("locked");
+    $("#sheet [data-close]").focus();
+    loadSeries().then((s) => {
+      const box = $("#etf-chart");
+      if (!box || $("#sheet").hidden) return;
+      box.innerHTML = s ? etfChart(r, (s.w || {})[y]) : `<div class="empty">추이 데이터를 불러오지 못했습니다.</div>`;
+      const ec = box.querySelector(".echart"); if (ec) wireChart(ec);
+    });
+  }
+  function bootEtf(data, notes) {
+    E = data && Array.isArray(data.rows) ? data : null;
+    etfFailed = !E;
+    if (notes && typeof notes === "object") {
+      EN = { summary: notes.summary || {}, notes: notes.notes || {}, as_of_label: notes.generated_at ? new Date(notes.generated_at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) : "" };
+    }
+    renderEtfHome();
+    if (current() === "etf") renderEtf();
+  }
+
   /* ---------- 라우팅 / 이벤트 ---------- */
-  const VIEWS = { overview: renderOverview, investors: renderInvestors, timeline: renderTimeline, news: renderNews, watch: renderWatch };
+  const VIEWS = { overview: renderOverview, investors: renderInvestors, timeline: renderTimeline, etf: renderEtf, news: renderNews, watch: renderWatch };
   const current = () => VIEWS[location.hash.slice(1)] ? location.hash.slice(1) : "overview";
   function route() {
     const v = current();
@@ -1026,6 +1370,14 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
       if ($("#sheet").hidden) VIEWS[current()]();
       return;
     }
+    if ((x = el("[data-etfgo]"))) { e.preventDefault(); state.etfC = x.dataset.etfgo; state.etfTheme = ""; saveEtf(); go("etf"); return; }
+    if ((x = el("[data-etf]"))) { openEtf(x.dataset.etf); return; }
+    if ((x = el("[data-etheme]"))) { state.etfTheme = state.etfTheme === x.dataset.etheme ? "" : x.dataset.etheme; renderEtf(); $("#etf-list").scrollIntoView({ block: "nearest" }); return; }
+    if (el("#etf-clear-theme")) { state.etfTheme = ""; renderEtf(); return; }
+    if ((x = el("#etf-c button"))) { state.etfC = x.dataset.c; state.etfTheme = ""; saveEtf(); renderEtf(); return; }
+    if ((x = el("#etf-l button"))) { state.etfL = x.dataset.l; state.etfTheme = ""; saveEtf(); renderEtf(); return; }
+    if ((x = el("#etf-p button"))) { state.etfP = +x.dataset.p; saveEtf(); renderEtf(); return; }
+    if ((x = el("#etf-dir button"))) { state.etfDir = x.dataset.dir; saveEtf(); renderEtf(); return; }
     if ((x = el("[data-suggest]"))) { $("#search-input").value = x.dataset.suggest; renderSearch(); return; }
     if ((x = el("[data-goinv]"))) { state.inv = x.dataset.goinv; store.set("radar.inv", state.inv); closeSearch(); go("investors"); return; }
     if ((x = el("[data-allnews]"))) { e.preventDefault(); state.newsQ = x.dataset.allnews; state.newsDays = 0; closeSearch(); go("news"); return; }
@@ -1054,7 +1406,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   $("#search-input").addEventListener("input", renderSearch);
   $("#search-input").addEventListener("keydown", (e) => {
     if (e.key !== "Enter") return;
-    const first = $("#search-results [data-ticker], #search-results [data-goinv]");
+    const first = $("#search-results [data-ticker], #search-results [data-goinv], #search-results [data-etf]");
     if (first) first.click();
     else if ($("#search-input").value.trim()) { state.newsQ = $("#search-input").value.trim(); state.newsDays = 0; closeSearch(); go("news"); }
   });
@@ -1090,12 +1442,19 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   }
 
   applyTheme(theme, theme !== "auto");
-  if (window.__RADAR_DATA__) boot(window.__RADAR_DATA__, window.__RADAR_NEWS__);
+  function loadEtf() {
+    if (window.__RADAR_ETF__) { bootEtf(window.__RADAR_ETF__, window.__RADAR_ETF_NOTES__); return; }
+    Promise.all([
+      fetch("data/etf.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null),
+      fetch("notes/etf-notes.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([d, n]) => bootEtf(d, n));
+  }
+  if (window.__RADAR_DATA__) { boot(window.__RADAR_DATA__, window.__RADAR_NEWS__); loadEtf(); }
   else {
     Promise.all([
       fetch("data/dashboard.json", { cache: "no-store" }).then((r) => r.json()),
       fetch("data/news.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null),
-    ]).then(([d, n]) => boot(d, n))
+    ]).then(([d, n]) => { boot(d, n); loadEtf(); })
       .catch(() => { $("#brief").innerHTML = `<div class="bcard"><span class="note">데이터를 불러오지 못했습니다. GitHub Actions 실행 기록을 확인해 주세요.</span></div>`; });
     if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
   }

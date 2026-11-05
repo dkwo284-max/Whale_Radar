@@ -1,4 +1,4 @@
-# Whale Radar (웨일 레이더) 설정 — 거물 투자자의 SEC 공시와 뉴스를 매일 모아 보여줍니다.
+# Market Radar (마켓 레이더, 옛 이름 웨일 레이더) 설정 — 거물 투자자의 SEC 공시와 뉴스를 매일 모아 보여줍니다. ETF 등락 설정은 etf.yaml.
 
 app_url: "https://dkwo284-max.github.io/Whale_Radar/"
 

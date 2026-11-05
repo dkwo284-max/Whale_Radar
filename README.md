@@ -1,6 +1,6 @@
-# 웨일 레이더 · Whale Radar
+# 마켓 레이더 · Market Radar
 
-버핏·애크먼·버리 등 **거물 투자자의 SEC 공시와 인터뷰·뉴스를 매일 한국어로** 모아 보는 앱입니다.
+(옛 이름: 웨일 레이더) 버핏·애크먼·버리 등 **거물 투자자의 SEC 공시와 인터뷰·뉴스**, 그리고 **미국·중국·인도 ETF 등락 순위**를 매일 한국어로 모아 보는 앱입니다.
 https://dkwo284-max.github.io/Whale_Radar/
 
 | 화면 | 내용 |
@@ -8,6 +8,7 @@ https://dkwo284-max.github.io/Whale_Radar/
 | 홈 | 오늘의 브리핑(가장 큰 순매수 종목·가장 많이 겹친 종목·최근 새 소식), 섹터 흐름, 거물 컨센서스, 최근 인터뷰·뉴스 |
 | 투자자 | 투자자별 13F 보유 종목, 섹터 비중, 이번 분기 큰 변화, BUY·HOLD·SELL |
 | 공시 | 13F·Form 4(장내 매매)·13D/G(5% 이상 지분) 타임라인 |
+| ETF | 미국·중국·인도 ETF 상승/하락 Top 20 (1일·7일·14일·30일·90일·180일·YTD·1년 전환), 어제 대비 순위 변동(▲▼·NEW), 기간별 히트맵, 테마별 흐름, Claude 한국어 해설, ETF 상세(1년 추이·운용사·AUM·보수·보유종목) |
 | 뉴스 | 인터뷰·뉴스·서한을 AI 가 한국어 제목·3줄 요약·종목 논조로 정리 |
 | 관심 | 관심 투자자·종목·키워드만 모아 보기 (이 기기에만 저장) |
 
@@ -19,13 +20,23 @@ https://dkwo284-max.github.io/Whale_Radar/
   - **Google 뉴스 RSS** → **Gemini 무료 등급**으로 한국어 요약(새 기사만, 하루 최대 40건을 요청 1회로. 하루 첫 실행에서 AI 를 쓰고, 같은 날 다른 실행은 새 기사가 `news.min_new_extra_run`(6)건 이상일 때만 다시 씀 — 건너뛴 기사는 다음 실행으로 이월, 내 보장량 3회 + 공유 예비분, 하루는 오클랜드 00시 기준 — `web/data/ai-usage.json`, `scripts/budget.py`)
 - 결과는 `web/data/dashboard.json`, `web/data/news.json` 에 커밋되고 `web/` 폴더가 GitHub Pages 로 배포됩니다.
 
+### ETF 등락 (`.github/workflows/etf.yml` → `scripts/build_etf.py`, 설정 `etf.yaml`)
+
+- 매일 UTC 21:13(미국장 마감 뒤, 뉴질랜드 오전 9~10시대) 실행. 키 불필요
+  - **미국 상장**: 나스닥 심볼 목록(nasdaqtraded.txt)의 모든 ETF → 이름으로 나라 분류(미국 / 중국 / 인도, 그 밖의 나라는 제외)
+  - **현지 상장**: `etf.yaml` 의 중국(상해·심천·홍콩)·인도(NSE) 목록 — 한 줄 추가로 늘릴 수 있음
+  - 시세는 **Yahoo Finance(yfinance)** 수정종가. 기간 수익률과 "하루 전 기준" 수익률을 함께 저장해 화면에서 어제 대비 순위 변동을 계산
+  - **제외**: 레버리지·인버스·VIX(이름 규칙 + `exclude` 목록), 20일 평균 거래대금이 작은 ETF(통화별 기준), 운용자산 $50M 미만, 상장 20거래일 미만
+  - 순위에 오를 후보만 운용사·AUM·보수·보유종목을 받아 `cache/etf_info.json` 에 14일 보관
+- **한국어 해설**: 매일 오전 11시(오클랜드) Claude 예약 작업이 `web/data/etf.json` 을 읽고 상·하위 ETF 의 원인을 뉴스로 찾아 `web/notes/etf-notes.json` 에 써서 푸시 → `update.yml` 의 push 배포로 반영
+
 ## 처음 설정
 
 1. Settings → Pages → Source 를 **GitHub Actions** 로
 2. Settings → Secrets and variables → Actions 에
    - `GEMINI_API_KEY`: Gemini 키 (Daily Brief 와 같은 키를 써도 되지만 무료 한도를 함께 씁니다)
    - `SEC_USER_AGENT`(선택): `이름 이메일` 형식. SEC 는 연락처가 있는 요청 헤더를 권장합니다
-3. Actions → Whale Radar update → Run workflow
+3. Actions → Market Radar update (투자자·뉴스) → Run workflow, Actions → Market Radar ETF update → Run workflow
 
 ## 투자자 추가·변경
 
