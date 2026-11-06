@@ -578,6 +578,10 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
           </div>
         </div>
         <div id="etf-div-row" hidden style="display:grid;gap:8px">
+          <div class="seg wide" id="etf-tr" role="group" aria-label="1년 총수익 구분">
+            <button type="button" data-tr="pos" aria-pressed="true">총수익 ＋ (번 ETF)</button>
+            <button type="button" data-tr="neg" aria-pressed="false">총수익 − (잃은 ETF)</button>
+          </div>
           <div class="seg wide" id="etf-ds" role="group" aria-label="배당 순위 기준">
             <button type="button" data-ds="dy" aria-pressed="true">연배당률</button><button type="button" data-ds="tot" aria-pressed="false">1년 총수익</button><button type="button" data-ds="px" aria-pressed="false">1년 주가</button>
           </div>
@@ -1175,8 +1179,8 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   const CTRY = { us: "미국", cn: "중국", in: "인도" };
   const TOPN = 20;
   let E = null, EN = { summary: {}, notes: {} }, ES = null, esReq = null, etfFailed = false;
-  try { Object.assign(state, { etfC: "us", etfL: "all", etfP: 0, etfDir: "up", etfTheme: "", etfMode: "move", etfDs: "dy", etfFq: "all" }, JSON.parse(store.get("radar.etf") || "{}")); } catch (e) {}
-  const saveEtf = () => store.set("radar.etf", JSON.stringify({ etfC: state.etfC, etfL: state.etfL, etfP: state.etfP, etfDir: state.etfDir, etfMode: state.etfMode, etfDs: state.etfDs, etfFq: state.etfFq }));
+  try { Object.assign(state, { etfC: "us", etfL: "all", etfP: 0, etfDir: "up", etfTheme: "", etfMode: "move", etfDs: "dy", etfFq: "all", etfTr: "pos" }, JSON.parse(store.get("radar.etf") || "{}")); } catch (e) {}
+  const saveEtf = () => store.set("radar.etf", JSON.stringify({ etfC: state.etfC, etfL: state.etfL, etfP: state.etfP, etfDir: state.etfDir, etfMode: state.etfMode, etfDs: state.etfDs, etfFq: state.etfFq, etfTr: state.etfTr }));
   const pct = (v, d = 1) => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(Math.abs(v) >= 100 ? 0 : d) + "%";
   const pnum = (v) => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(Math.abs(v) >= 10 ? 0 : 1);
   const pcls = (v) => v == null ? "" : v > 0 ? "up" : v < 0 ? "dn" : "";
@@ -1251,9 +1255,12 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   const fqBadge = (fq) => fq ? `<span class="fqb ${fq}">${FQ_KO[fq]}</span>` : "";
   const lossFlag = (r) => { const p = (r.pr || [])[1]; return p != null && p <= -10 ? `<span class="warnb" title="1년 동안 주가가 ${pct(p)} 움직였어요">원금 감소</span>` : ""; };
   function divPool() { return etfPool(state.etfC, state.etfL, "").filter(isDiv); }
+  // 1년 총수익(상장 1년 미만이면 YTD)으로 번 ETF / 잃은 ETF 구분
+  const totOf = (r) => r.r[7] != null ? r.r[7] : r.r[6];
+  const trOk = (r) => { const t = totOf(r); return t != null && (state.etfTr === "pos" ? t >= 0 : t < 0); };
   function divTop() {
     const f = DS[state.etfDs].f;
-    return divPool().filter(fqOk).filter((r) => f(r) != null).sort((a, b) => f(b) - f(a)).slice(0, TOPN);
+    return divPool().filter(fqOk).filter(trOk).filter((r) => f(r) != null).sort((a, b) => f(b) - f(a)).slice(0, TOPN);
   }
   function dbar(label, v, scale) {
     if (v == null) return `<div class="dbar"><span>${label}</span><span class="tr"></span><b>—</b></div>`;
@@ -1276,10 +1283,14 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     const pool = divPool(), top = divTop();
     const cnt = { w: 0, m: 0, q: 0, h: 0, a: 0 }; pool.forEach((r) => { if (r.dv.fq) cnt[r.dv.fq]++; });
     const loss = pool.filter((r) => ((r.pr || [])[1] ?? 0) <= -10).length;
-    $("#etf-sum").innerHTML = `<div class="etf-sum"><div class="eyebrow">배당 ETF ${pool.length.toLocaleString()}개 · 연배당률 2% 이상 주식형</div>
+    const nPos = pool.filter((r) => (totOf(r) ?? -1) >= 0).length, nNeg = pool.filter((r) => totOf(r) != null && totOf(r) < 0).length;
+    $$("#etf-tr button").forEach((b) => (b.textContent = b.dataset.tr === "pos" ? `총수익 ＋ ${nPos}개` : `총수익 − ${nNeg}개`));
+    $("#etf-sum").innerHTML = `<div class="etf-sum"><div class="eyebrow">배당 ETF ${pool.length.toLocaleString()}개 · 연배당률 2% 이상 주식형 · ${state.etfTr === "pos" ? "1년 총수익이 플러스인 ETF" : "1년 총수익이 마이너스인 ETF"}</div>
       <div class="moves">주배당 ${cnt.w} · 월배당 ${cnt.m} · 분기 ${cnt.q} · 반기 ${cnt.h} · 연 ${cnt.a}${loss ? ` · 1년 주가 −10% 이하 ${loss}개` : ""}</div>
       <div class="moves">막대는 1년 기준 — 주가 수익률, 연배당률, 둘을 합친 총수익</div></div>`;
     $("#etf-list").innerHTML = top.length ? top.map(divRow).join("") : `<div class="empty">조건에 맞는 배당 ETF가 없습니다${state.etfC !== "us" ? ". 중국·인도는 배당 ETF가 적어요" : ""}.</div>`;
+    const young = pool.filter((r) => r.r[7] == null && r.r[6] != null).length;
+    if (young) $("#etf-list").insertAdjacentHTML("beforeend", `<p class="sub" style="margin:0;padding:8px 12px;border-top:1px solid var(--line)">상장 1년 미만 ${young}개는 1년 총수익 대신 올해(YTD) 총수익으로 구분했어요.</p>`);
   }
   function setPressed(sel, attr, val) { $$(sel + " button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset[attr] === String(val)))); }
   function renderEtf() {
@@ -1476,6 +1487,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     if ((x = el("#etf-p button"))) { state.etfP = +x.dataset.p; saveEtf(); renderEtf(); return; }
     if ((x = el("#etf-mode button"))) { state.etfMode = x.dataset.mode; saveEtf(); renderEtf(); return; }
     if ((x = el("#etf-ds button"))) { state.etfDs = x.dataset.ds; saveEtf(); renderEtf(); return; }
+    if ((x = el("#etf-tr button"))) { state.etfTr = x.dataset.tr; saveEtf(); renderEtf(); return; }
     if ((x = el("#etf-fq button"))) { state.etfFq = x.dataset.fq; saveEtf(); renderEtf(); return; }
     if ((x = el("#etf-dir button"))) { state.etfDir = x.dataset.dir; saveEtf(); renderEtf(); return; }
     if ((x = el("[data-suggest]"))) { $("#search-input").value = x.dataset.suggest; renderSearch(); return; }
