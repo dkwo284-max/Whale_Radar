@@ -234,27 +234,77 @@ def has_glitch(closes: list[float], limit: float = 0.45) -> bool:
 
 # ---------------------------------------------------------------- 행 만들기
 
-def make_row(meta: dict, dates: list[str], closes: list[float], volumes: list[float]) -> dict | None:
-    """meta: {t, y, n, c, l, x, cur, th?}. 이력이 20일 미만이면 None."""
-    pts = [(d, c, v) for d, c, v in zip(dates, closes, volumes) if c is not None and c == c and c > 0]
+FREQ = {"w": "주", "m": "월", "q": "분기", "h": "반기", "a": "연"}
+
+
+def dividend_stats(dates: list[str], raw: list[float], divs: list[tuple[str, float]]) -> dict:
+    """배당 지표: 연배당률(최근 12개월 배당 ÷ 현재가, %), 지급 주기, 최근 배당, 상장 1년 미만이면 연환산(추정).
+
+    divs: [(배당락일 ISO, 1주당 배당액)] — 원가격(raw)과 같은 통화·같은 분할 기준.
+    """
+    out = {"dy": None, "fq": None, "dn": 0, "ld": None, "lx": None, "ya": False}
+    divs = sorted((d, a) for d, a in divs if a and a > 0)
+    if not dates or not raw or not raw[-1] or not divs:
+        return out
+    d_end = date.fromisoformat(dates[-1])
+    since = (d_end - timedelta(days=365)).isoformat()
+    last12 = [(d, a) for d, a in divs if since < d <= dates[-1]]
+    out["ld"], out["lx"] = round(divs[-1][1], 6), divs[-1][0]
+    out["dn"] = len(last12)
+    # 주기: 지급 간격의 중앙값(2회 이상), 1회뿐이면 연
+    recent = [d for d, _ in divs if d > (d_end - timedelta(days=550)).isoformat()]
+    if len(recent) >= 2:
+        gaps = sorted((date.fromisoformat(b) - date.fromisoformat(a)).days for a, b in zip(recent, recent[1:]))
+        g = gaps[len(gaps) // 2]
+        out["fq"] = "w" if g <= 10 else "m" if g <= 45 else "q" if g <= 120 else "h" if g <= 240 else "a"
+    elif len(recent) == 1:
+        out["fq"] = "a"
+    if not last12:
+        out["fq"] = None if divs[-1][0] < (d_end - timedelta(days=400)).isoformat() else out["fq"]
+        return out
+    total = sum(a for _, a in last12)
+    history_days = (d_end - date.fromisoformat(dates[0])).days
+    if history_days < 330 and out["fq"] in ("w", "m", "q"):
+        # 상장 1년 미만: 받은 기간만큼 연환산
+        span = max(30, (d_end - date.fromisoformat(max(dates[0], since))).days)
+        total = total * 365 / span
+        out["ya"] = True
+    out["dy"] = round(total / raw[-1] * 100, 2)
+    return out
+
+
+def make_row(meta: dict, dates: list[str], closes: list[float], volumes: list[float],
+             raw: list[float] | None = None, divs: list[tuple[str, float]] | None = None):
+    """meta: {t, y, n, c, l, x, cur, th?}. closes=배당 반영 수정종가, raw=원래 종가(주가 수익률·배당률용).
+    이력이 20일 미만이면 None, 시세 오류면 "glitch"."""
+    raw = raw if raw is not None else closes
+    pts = [(d, c, v, rc) for d, c, v, rc in zip(dates, closes, volumes, raw)
+           if c is not None and c == c and c > 0 and rc is not None and rc == rc and rc > 0]
     if len(pts) < 20:
         return None
     ds = [p[0] for p in pts]
     cs, vs = fix_splits([float(p[1]) for p in pts], [float(p[2] or 0) for p in pts])
+    rs, _ = fix_splits([float(p[3]) for p in pts], [0.0] * len(pts))
     if has_glitch(cs):
         return "glitch"
     now = period_returns(ds, cs)
     prev = period_returns(ds, cs, len(ds) - 2)
+    price = period_returns(ds, rs)
     row = {
         "t": meta["t"], "y": meta.get("y", meta["t"]), "n": meta["n"], "c": meta["c"], "l": meta["l"],
         "x": meta.get("x", ""), "cur": meta.get("cur", "USD"),
         "th": meta.get("th") or theme_of(meta.get("en") or meta["n"]),
-        "p": round(cs[-1], 4), "d": ds[-1],
+        "p": round(rs[-1], 4), "d": ds[-1],
         "r": [now[p] for p in PERIODS], "rp": [prev[p] for p in PERIODS],
-        "tv": round(avg_turnover(cs, vs)),
+        "pr": [price["ytd"], price["1y"]],  # 배당 빼고 주가만 움직인 몫
+        "tv": round(avg_turnover(rs, vs)),
         "sp": spark(cs),
     }
-    return row, weekly(ds, cs)
+    dv = dividend_stats(ds, rs, divs or [])
+    if dv["dy"] is not None or dv["lx"]:
+        row["dv"] = {k: v for k, v in dv.items() if v not in (None, False)}
+    recent_divs = [[d, round(a, 6)] for d, a in sorted(divs or []) if a and a > 0][-24:]
+    return row, {**weekly(ds, cs), "dv": recent_divs}
 
 
 def drop_stale(rows: list[dict], max_lag_days: int = 7) -> tuple[list[dict], int]:
@@ -284,6 +334,24 @@ def rank_union(rows: list[dict], n: int = 25) -> set[str]:
                 have.sort(key=lambda r: r["r"][i])
                 out.update(r["y"] for r in have[:n])
                 out.update(r["y"] for r in have[-n:])
+    return out
+
+
+def is_div_etf(r: dict, min_yield: float = 2.0) -> bool:
+    """배당 순위 대상: 최근 12개월 연배당률 2% 이상인 주식형(채권·현금 테마 제외)."""
+    dy = (r.get("dv") or {}).get("dy")
+    return dy is not None and dy >= min_yield and r.get("th") != "채권·현금"
+
+
+def div_union(rows: list[dict], n: int = 25) -> set[str]:
+    """나라 × 상장별 배당률·1년 총수익·1년 주가 수익률 상위 n — 상세정보 후보."""
+    out: set[str] = set()
+    for c in ("us", "cn", "in"):
+        for lst in ("all", "us", "local"):
+            sub = [r for r in rows if r["c"] == c and (lst == "all" or r["l"] == lst) and is_div_etf(r)]
+            for key in (lambda r: r["dv"]["dy"], lambda r: r["r"][7] if r["r"][7] is not None else -1e9,
+                        lambda r: (r.get("pr") or [None, None])[1] if (r.get("pr") or [None, None])[1] is not None else -1e9):
+                out.update(r["y"] for r in sorted(sub, key=key, reverse=True)[:n])
     return out
 
 

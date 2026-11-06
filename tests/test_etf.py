@@ -156,3 +156,58 @@ def test_glitch_row_dropped():
     ds, cs = _series()
     cs = cs[:-1] + [cs[-1] * 0.23]  # 정수배가 아닌 급락 = 시세 오류
     assert make_row({"t": "X", "n": "x", "c": "us", "l": "us"}, ds, cs, [1] * len(ds)) == "glitch"
+
+
+def _div_series(freq_days, amt, n_days=400, end=date(2026, 11, 5), price=50.0):
+    ds, cs = _series(n_days=n_days, end=end, start_price=price, step=0.0)
+    divs, d = [], date.fromisoformat(ds[-1]) - timedelta(days=3)
+    while d.isoformat() >= ds[0]:
+        divs.append((d.isoformat(), amt))
+        d -= timedelta(days=freq_days)
+    return ds, cs, divs
+
+
+@pytest.mark.parametrize("gap,fq", [(7, "w"), (30, "m"), (91, "q"), (182, "h"), (365, "a")])
+def test_dividend_frequency(gap, fq):
+    from etf import dividend_stats
+    ds, cs, divs = _div_series(gap, 0.1, n_days=800)
+    assert dividend_stats(ds, cs, divs)["fq"] == fq
+
+
+def test_dividend_yield_monthly():
+    from etf import dividend_stats
+    ds, cs, divs = _div_series(30, 0.25)  # 월 0.25 × 12~13회 / 50
+    st = dividend_stats(ds, cs, divs)
+    assert st["fq"] == "m" and 12 <= st["dn"] <= 13 and st["dy"] == pytest.approx(st["dn"] * 0.25 / 50 * 100)
+    assert st["ld"] == 0.25 and st["lx"] == divs[0][0] and not st["ya"]
+
+
+def test_dividend_young_fund_annualized():
+    from etf import dividend_stats
+    ds, cs, divs = _div_series(7, 0.1, n_days=120)
+    st = dividend_stats(ds, cs, divs)
+    assert st["ya"] and st["fq"] == "w" and 9 < st["dy"] < 12  # 주 0.1 × 52 ÷ 50 ≈ 10.4%
+    assert st["dy"] == pytest.approx(0.1 * len(divs) * 365 / 120 / 50 * 100, rel=0.1)
+
+
+def test_dividend_none():
+    from etf import dividend_stats
+    ds, cs = _series()
+    assert dividend_stats(ds, cs, [])["dy"] is None
+
+
+def test_make_row_price_vs_total():
+    ds, adj = _series(step=0.001)
+    raw = [c / (1 + 0.0002 * (len(adj) - i)) for i, c in enumerate(adj)]
+    row, ser = make_row({"t": "D", "n": "Demo Dividend ETF", "c": "us", "l": "us"}, ds, adj, [100] * len(ds), raw, [(ds[-30], 0.5)])
+    assert row["pr"][1] is not None and row["r"][7] is not None and row["dv"]["fq"] == "a" and ser["dv"] == [[ds[-30], 0.5]]
+
+
+def test_div_union_and_filter():
+    from etf import div_union, is_div_etf
+    base = {"c": "us", "l": "us", "r": [1.0] * 8, "pr": [0, 0]}
+    rows = [{**base, "y": f"D{i}", "th": "배당·인컴", "dv": {"dy": float(i)}} for i in range(40)]
+    rows.append({**base, "y": "BOND", "th": "채권·현금", "dv": {"dy": 9.0}})
+    assert not is_div_etf(rows[1]) and is_div_etf(rows[2]) and not is_div_etf(rows[-1])
+    u = div_union(rows, n=5)
+    assert "D39" in u and "BOND" not in u

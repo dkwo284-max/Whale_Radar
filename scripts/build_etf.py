@@ -18,7 +18,7 @@ from datetime import date, datetime, timedelta, timezone
 import yaml
 
 from common import CACHE, DATA, ROOT, log, read_json, write_json
-from etf import PERIODS, drop_stale, exclusion_reason, make_row, market_as_of, rank_union, us_listed_country
+from etf import PERIODS, div_union, drop_stale, exclusion_reason, make_row, market_as_of, rank_union, us_listed_country
 
 SYMDIR = "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqtraded.txt"
 EXCH = {"Q": "NASDAQ", "N": "NYSE", "P": "NYSE Arca", "Z": "Cboe BZX", "A": "NYSE American", "V": "IEX"}
@@ -94,8 +94,8 @@ def local_universe(cfg: dict) -> list[dict]:
 
 # ---------------------------------------------------------------- 가격 (yfinance)
 
-def download(symbols: list[str], start: str, warnings: list[str], chunk: int = 80) -> dict[str, tuple[list, list, list]]:
-    """{yahoo 티커: (dates, closes, volumes)} — 수정종가(배당·분할 반영)."""
+def download(symbols: list[str], start: str, warnings: list[str], chunk: int = 80) -> dict[str, tuple]:
+    """{yahoo 티커: (dates, 수정종가(배당 반영), volumes, 원래 종가, [(배당락일, 배당액)])}."""
     import yfinance as yf
 
     out: dict[str, tuple[list, list, list]] = {}
@@ -104,7 +104,7 @@ def download(symbols: list[str], start: str, warnings: list[str], chunk: int = 8
         df = None
         for attempt in range(4):
             try:
-                df = yf.download(part, start=start, auto_adjust=True, group_by="ticker", threads=True, progress=False, timeout=30)
+                df = yf.download(part, start=start, auto_adjust=False, actions=True, group_by="ticker", threads=True, progress=False, timeout=30)
                 break
             except Exception as e:  # noqa: BLE001
                 log.warning("download %s.. failed (%s), retry %d", part[0], e, attempt + 1)
@@ -124,7 +124,14 @@ def download(symbols: list[str], start: str, warnings: list[str], chunk: int = 8
                 continue
             if sub.empty:
                 continue
-            out[s] = ([d.strftime("%Y-%m-%d") for d in sub.index], [float(x) for x in sub["Close"]], [float(x) if x == x else 0.0 for x in sub["Volume"]])
+            ds = [d.strftime("%Y-%m-%d") for d in sub.index]
+            raw = [float(x) for x in sub["Close"]]
+            adj = [float(x) for x in sub["Adj Close"]] if "Adj Close" in sub else raw
+            adj = [a if a == a else r for a, r in zip(adj, raw)]
+            divs = []
+            if "Dividends" in sub:
+                divs = [(d, float(v)) for d, v in zip(ds, sub["Dividends"]) if v == v and v > 0]
+            out[s] = (ds, adj, [float(x) if x == x else 0.0 for x in sub["Volume"]], raw, divs)
         time.sleep(1.0)
         log.info("prices %d/%d", min(k + chunk, len(symbols)), len(symbols))
     return out
@@ -192,9 +199,9 @@ def build(cfg: dict, limit: int = 0) -> tuple[dict, dict]:
     excl.update(illiquid=skipped_illiquid, short_history=0, stale=0, small=0)
     glitches: list[str] = []
     recheck = (today + timedelta(days=int(cfg.get("illiquid_recheck_days", 7)))).isoformat()
-    for y, (ds, cs, vs) in prices.items():
+    for y, (ds, cs, vs, raw, divs) in prices.items():
         m = metas[y]
-        made = make_row(m, ds, cs, vs)
+        made = make_row(m, ds, cs, vs, raw, divs)
         if made == "glitch":
             glitches.append(m["t"])
             continue
@@ -218,10 +225,10 @@ def build(cfg: dict, limit: int = 0) -> tuple[dict, dict]:
     # 상세정보: 화면에 올라올 후보만, 캐시 우선. AUM 이 작으면 빼고 후보를 다시 뽑는다.
     icache: dict = read_json(CACHE / "etf_info.json", {})
     ttl = (today - timedelta(days=int(cfg.get("info_ttl_days", 14)))).isoformat()
-    budget = int(cfg.get("info_max_per_run", 220))
+    budget = int(cfg.get("info_max_per_run", 320))
     min_aum = float(cfg.get("min_aum_usd", 0))
     for _ in range(3):
-        need = [y for y in sorted(rank_union(rows, int(cfg.get("top_n", 20)) + 5)) if icache.get(y, {}).get("at", "") < ttl]
+        need = [y for y in sorted(rank_union(rows, int(cfg.get("top_n", 20)) + 5) | div_union(rows)) if icache.get(y, {}).get("at", "") < ttl]
         for y in need[:budget]:
             try:
                 icache[y] = {**fetch_info(y), "at": today.isoformat()}
@@ -241,7 +248,7 @@ def build(cfg: dict, limit: int = 0) -> tuple[dict, dict]:
         if len(rows) == before or budget <= 0:
             break
 
-    show = rank_union(rows, int(cfg.get("top_n", 20)) + 5)
+    show = rank_union(rows, int(cfg.get("top_n", 20)) + 5) | div_union(rows)
     info_out = {}
     for y in show:
         i = icache.get(y)
@@ -298,7 +305,11 @@ def demo(cfg: dict) -> tuple[dict, dict]:
         for _ in days:
             p *= 1 + rnd.gauss(drift, vol)
             cs.append(round(p, 2))
-        made = make_row(m, [d.isoformat() for d in days], cs, [1e6] * len(days))
+        iso = [d.isoformat() for d in days]
+        gap = rnd.choice([0, 0, 5, 21, 63, 63, 126, 250])
+        y_ = rnd.choice([0.01, 0.02, 0.035, 0.05, 0.08, 0.12, 0.4])
+        divs = [(iso[k], round(cs[k] * y_ * gap / 252, 4)) for k in range(len(iso) - 3, 0, -gap)] if gap else []
+        made = make_row(m, iso, cs, [1e6] * len(days), cs, divs)
         row, wk = made
         row.pop("en", None)
         rows.append(row)
