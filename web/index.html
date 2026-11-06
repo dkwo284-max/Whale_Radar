@@ -583,7 +583,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
             <button type="button" data-tr="neg" aria-pressed="false">총수익 − (잃은 ETF)</button>
           </div>
           <div class="seg wide" id="etf-ds" role="group" aria-label="배당 순위 기준">
-            <button type="button" data-ds="dy" aria-pressed="true">연배당률</button><button type="button" data-ds="tot" aria-pressed="false">1년 총수익</button><button type="button" data-ds="px" aria-pressed="false">1년 주가</button>
+            <button type="button" data-ds="tot" aria-pressed="true">1년 총수익</button><button type="button" data-ds="dy" aria-pressed="false">연배당률</button><button type="button" data-ds="px" aria-pressed="false">1년 주가</button>
           </div>
           <div class="seg wide" id="etf-fq" role="group" aria-label="배당 주기">
             <button type="button" data-fq="all" aria-pressed="true">전체</button><button type="button" data-fq="w" aria-pressed="false">주</button><button type="button" data-fq="m" aria-pressed="false">월</button><button type="button" data-fq="q" aria-pressed="false">분기</button><button type="button" data-fq="ha" aria-pressed="false">반기·연</button>
@@ -1179,8 +1179,9 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   const CTRY = { us: "미국", cn: "중국", in: "인도" };
   const TOPN = 20;
   let E = null, EN = { summary: {}, notes: {} }, ES = null, esReq = null, etfFailed = false;
-  try { Object.assign(state, { etfC: "us", etfL: "all", etfP: 0, etfDir: "up", etfTheme: "", etfMode: "move", etfDs: "dy", etfFq: "all", etfTr: "pos" }, JSON.parse(store.get("radar.etf") || "{}")); } catch (e) {}
-  const saveEtf = () => store.set("radar.etf", JSON.stringify({ etfC: state.etfC, etfL: state.etfL, etfP: state.etfP, etfDir: state.etfDir, etfMode: state.etfMode, etfDs: state.etfDs, etfFq: state.etfFq, etfTr: state.etfTr }));
+  try { Object.assign(state, { etfC: "us", etfL: "all", etfP: 0, etfDir: "up", etfTheme: "", etfMode: "move", etfDs: "tot", etfFq: "all", etfTr: "pos" }, JSON.parse(store.get("radar.etf") || "{}")); } catch (e) {}
+  if (state.etfDsV !== 2) { state.etfDs = "tot"; state.etfDsV = 2; } // 기본 정렬을 1년 총수익으로 바꾼 뒤 한 번 초기화
+  const saveEtf = () => store.set("radar.etf", JSON.stringify({ etfC: state.etfC, etfL: state.etfL, etfP: state.etfP, etfDir: state.etfDir, etfMode: state.etfMode, etfDs: state.etfDs, etfFq: state.etfFq, etfTr: state.etfTr, etfDsV: 2 }));
   const pct = (v, d = 1) => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(Math.abs(v) >= 100 ? 0 : d) + "%";
   const pnum = (v) => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(Math.abs(v) >= 10 ? 0 : 1);
   const pcls = (v) => v == null ? "" : v > 0 ? "up" : v < 0 ? "dn" : "";
