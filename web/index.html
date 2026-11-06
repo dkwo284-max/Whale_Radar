@@ -89,7 +89,7 @@ svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-widt
 
 /* 하단 탭바 */
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 7; background: color-mix(in oklab, var(--surface) 94%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
-.tabbar .in { max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(6, 1fr); height: var(--nav-h); }
+.tabbar .in { max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: repeat(7, 1fr); height: var(--nav-h); }
 .tabbar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-decoration: none; color: var(--muted); font-size: 0.7rem; font-weight: 600; position: relative; }
 .tabbar a[aria-current="page"] { color: var(--ink); }
 .tabbar a[aria-current="page"] svg.i { stroke-width: 2.3; }
@@ -399,6 +399,99 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 .ehome .bcard .eyebrow { display: flex; align-items: center; gap: 6px; }
 .ehome .bcard .eyebrow a { text-decoration: none; }
 .chiprow { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+/* 글로벌: 패권 이동 지도 · 신호×반응 · 테마×지역 · 관찰 후보 · 환율 */
+.ghero { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 12px 14px; display: grid; gap: 8px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
+.ghero .eyebrow { font-size: 0.72rem; font-weight: 600; color: var(--muted); letter-spacing: 0.03em; }
+.ghero .big { font-family: var(--font-fig); font-size: 1.55rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.ghero .big small { font-size: 0.78rem; font-weight: 500; color: var(--muted); margin-left: 6px; }
+.ghero p { margin: 0; font-size: 0.84rem; color: var(--muted); }
+.gblocs { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.78rem; color: var(--muted); }
+.gblocs b { font-family: var(--font-fig); font-variant-numeric: tabular-nums; margin-left: 3px; }
+.gchips { display: flex; gap: 6px; overflow-x: auto; margin: 0 0 10px; padding-bottom: 2px; scrollbar-width: none; }
+.gchips::-webkit-scrollbar { display: none; }
+.gchips button { flex: none; border: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 0.76rem; font-weight: 600; padding: 5px 11px; border-radius: 999px; cursor: pointer; }
+.gchips button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.gbox { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); overflow: hidden; box-shadow: var(--card-shadow); }
+.grow { display: grid; grid-template-columns: 28px minmax(0, 1fr) 72px 60px; gap: 10px; align-items: center; padding: 10px 12px 10px 8px; border-top: 1px solid var(--line); cursor: pointer; }
+.grow:first-child { border-top: 0; }
+.grow:hover { background: var(--raised); }
+.grow .rk { text-align: center; font-weight: 700; font-family: var(--font-fig); font-size: 0.9rem; }
+.grow .l1 { display: flex; align-items: baseline; gap: 7px; min-width: 0; flex-wrap: wrap; }
+.grow .l1 .nm { font-weight: 600; font-size: 0.93rem; }
+.grow .l1 .tk { color: var(--muted); font-size: 0.74rem; font-family: var(--font-fig); }
+.grow .l2 { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+.grow .rv { text-align: right; font-weight: 700; font-size: 0.98rem; font-family: var(--font-fig); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.grow .rv small { display: block; font-weight: 500; font-size: 0.66rem; color: var(--muted); }
+@media (max-width: 380px) { .grow { grid-template-columns: 26px minmax(0, 1fr) 70px; } .grow .spark { display: none; } }
+.gbadge { flex: none; display: inline-block; font-size: 0.66rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; color: var(--accent); border: 1px solid color-mix(in oklab, var(--accent) 45%, var(--line)); background: color-mix(in oklab, var(--accent) 9%, var(--surface)); white-space: nowrap; }
+.gbadge.rg { color: var(--muted); border-color: var(--line); background: var(--raised); font-weight: 600; }
+.gmore { display: block; width: 100%; border: 0; border-top: 1px solid var(--line); background: transparent; color: var(--accent); font-size: 0.84rem; font-weight: 600; padding: 11px; cursor: pointer; }
+.gq { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 8px 8px 4px; box-shadow: var(--card-shadow); }
+.gq svg { display: block; width: 100%; height: auto; }
+.gq .ax { font-size: 10px; fill: var(--muted); font-family: var(--font-fig); }
+.gq .ql { font-size: 11.5px; font-weight: 600; fill: var(--muted); }
+.gq .pl { font-size: 13px; font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+.gqrow { display: grid; grid-template-columns: minmax(0, 1fr) 46px 64px; gap: 8px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--line); cursor: pointer; font-size: 0.84rem; }
+.gqrow:first-child { border-top: 0; }
+.gqrow:hover { background: var(--raised); }
+.gqrow .nm { font-weight: 600; }
+.gqrow .sub2 { display: block; font-size: 0.72rem; color: var(--muted); font-weight: 400; margin-top: 2px; }
+.gqrow .sc, .gqrow .rl { text-align: right; font-family: var(--font-fig); font-weight: 700; font-variant-numeric: tabular-nums; }
+.gqrow .sc small, .gqrow .rl small { display: block; font-size: 0.64rem; color: var(--muted); font-weight: 500; }
+.gdot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 0; }
+.q-trend { --qc: var(--buy); } .q-early { --qc: var(--accent); } .q-heat { --qc: var(--caution); } .q-avoid { --qc: var(--hold); }
+.gdot { background: var(--qc, var(--hold)); }
+.gm { min-width: 0; padding: 6px; display: grid; gap: 2px; }
+.gmr { display: grid; grid-template-columns: 66px repeat(6, minmax(0, 1fr)); gap: 2px; align-items: stretch; }
+.gmr > span { font-size: 0.74rem; padding: 5px 1px; text-align: center; border-radius: 5px; min-width: 0; display: grid; align-content: center; }
+.gmr > span:first-child { text-align: left; padding-left: 5px; font-weight: 600; font-size: 0.72rem; line-height: 1.25; }
+.gmr.gh > span { color: var(--muted); font-size: 0.68rem; font-weight: 600; padding: 3px 0; }
+.gcell { font-family: var(--font-fig); font-variant-numeric: tabular-nums; color: var(--ink); cursor: pointer; }
+.gcell b { font-size: 0.78rem; font-weight: 700; }
+.gcell small { display: block; font-size: 0.56rem; color: var(--muted); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gcell.none { background: var(--raised); color: var(--muted); cursor: default; }
+.gcell:not(.none):hover { outline: 2px solid var(--ink); outline-offset: -2px; }
+.gmr .sm { font-size: 0.68rem; color: var(--muted); font-family: var(--font-fig); }
+.gmr .sm i { font-style: normal; font-weight: 700; }
+.gwhy { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 0.78rem; color: var(--muted); }
+.gwhy b { color: var(--ink); font-weight: 600; }
+.gcand { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); box-shadow: var(--card-shadow); margin-bottom: 8px; }
+.gcand summary { list-style: none; cursor: pointer; padding: 11px 12px; display: grid; gap: 7px; }
+.gcand summary::-webkit-details-marker { display: none; }
+.gcand .l1 { display: flex; align-items: baseline; gap: 7px; min-width: 0; flex-wrap: wrap; }
+.gcand .l1 .tk { font-weight: 700; font-size: 0.98rem; }
+.gcand .l1 .name { color: var(--muted); font-size: 0.82rem; min-width: 0; }
+.gcand .l1 .sc { margin-left: auto; font-family: var(--font-fig); font-weight: 700; font-size: 0.9rem; }
+.gcand .l2 { font-size: 0.78rem; color: var(--muted); }
+.gcand .l2 b { font-family: var(--font-fig); font-variant-numeric: tabular-nums; }
+.chks { display: flex; flex-wrap: wrap; gap: 5px; }
+.gchk { font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap; }
+.gchk.ok { color: var(--buy); border-color: color-mix(in oklab, var(--buy) 50%, var(--line)); background: color-mix(in oklab, var(--buy) 9%, var(--surface)); }
+.gchk.no { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+.gchk.na { color: var(--muted); border-style: dashed; }
+.gcand .gbody { border-top: 1px solid var(--line); padding: 10px 12px 12px; display: grid; gap: 8px; font-size: 0.85rem; }
+.gcand .gbody h5 { margin: 0; font-size: 0.74rem; font-weight: 700; color: var(--muted); letter-spacing: 0.03em; }
+.gcand .gbody ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+.gcand .gbody p { margin: 0; }
+.gcand .gbody .con { color: var(--caution); }
+.gcand .gbody .ghost { justify-self: start; }
+.gmx { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.gmx > div { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 9px 10px; box-shadow: var(--card-shadow); }
+.gmx dt { font-size: 0.7rem; color: var(--muted); }
+.gmx dd { margin: 2px 0 0; font-family: var(--font-fig); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 1.02rem; }
+.gmx dd small { display: block; font-size: 0.74rem; font-weight: 600; }
+.gfx { display: grid; grid-template-columns: 86px minmax(0, 1fr) 60px; gap: 8px; align-items: center; padding: 8px 12px; border-top: 1px solid var(--line); font-size: 0.84rem; }
+.gfx:first-child { border-top: 0; }
+.gfx .bar { height: 10px; position: relative; background: var(--raised); border-radius: 5px; overflow: hidden; }
+.gfx .bar i { position: absolute; top: 0; bottom: 0; border-radius: 5px; }
+.gfx .bar i.p { left: 50%; background: var(--up); } .gfx .bar i.n { right: 50%; background: var(--down); }
+.gfx .v { text-align: right; font-family: var(--font-fig); font-weight: 700; font-variant-numeric: tabular-nums; }
+.gnote { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--raised); font-size: 0.82rem; }
+.ghome { display: grid; gap: 10px; }
+.ghome .rgs { display: flex; flex-wrap: wrap; gap: 6px; }
+.ghome .rg { border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 0.8rem; background: var(--surface); }
+.ghome .rg b { font-family: var(--font-fig); margin-left: 4px; }
+.gsheet-rs .echart { margin-top: 0; }
 /* 배당 순위 */
 :root { --caution: #a86200; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --caution: #f0b43c; } }
@@ -435,6 +528,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3v5h5"/><path d="M8.5 13h7M8.5 17h5"/></symbol>
   <symbol id="i-news" viewBox="0 0 24 24"><rect x="3" y="4" width="14" height="16" rx="1.5"/><path d="M17 8h3v10.5A1.5 1.5 0 0 1 18.5 20H6"/><path d="M6.5 8h7M6.5 12h7M6.5 16h4"/></symbol>
   <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3.2 3 3.2 15 0 18M12 3c-3.2 3-3.2 15 0 18"/></symbol>
   <symbol id="i-etf" viewBox="0 0 24 24"><path d="M3.5 20.5h17"/><path d="M6.5 17v-5M11 17V7.5M15.5 17v-7M20 17V4.5"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.3-4.3"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
@@ -467,6 +561,11 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
       <h2>ETF 등락 한눈에 <a href="#etf">순위 보기</a></h2>
       <p class="sub" id="etf-home-sub">전일 대비 가장 많이 오르고 내린 ETF (레버리지·인버스·VIX 제외)</p>
       <div class="ehome" id="etf-home"></div>
+    </section>
+    <section class="ov-global" hidden>
+      <h2>패권 이동 한눈에 <a href="#global">글로벌 보기</a></h2>
+      <p class="sub">패권 레이더 신호와 시장 반응을 함께 본 요약이에요.</p>
+      <div class="ghome" id="g-home"></div>
     </section>
     <div class="ov-split">
     <section class="ov-sector">
@@ -612,6 +711,58 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     <p class="sub" id="etf-excl" style="margin:0"></p>
   </div>
 
+  <div class="panel" data-panel="global" hidden>
+    <div class="demo" id="g-demo" hidden><b>예시 데이터</b> · 실제 시세가 아닌 화면 확인용 데이터입니다. 다음 ETF 수집이 돌면 실제 시세로 바뀝니다.</div>
+    <section>
+      <h2>패권 이동 지도<button type="button" class="tip" data-tip="gmap" aria-label="패권 이동 지도 설명">ⓘ</button></h2>
+      <div class="meta" id="g-meta" style="margin:0 0 12px"></div>
+      <div class="etf-ctl">
+        <div class="seg wide" id="g-p" role="group" aria-label="기간"></div>
+        <div class="seg wide" id="g-cur" role="group" aria-label="환산 통화">
+          <button type="button" data-cur="usd" aria-pressed="true">달러 기준</button>
+          <button type="button" data-cur="nzd" aria-pressed="false">뉴질랜드달러 기준</button>
+        </div>
+      </div>
+      <div id="g-empty" class="empty" style="padding:18px 4px">불러오는 중…</div>
+      <div id="g-note"></div>
+    </section>
+    <div id="g-body" hidden style="display:grid;gap:28px">
+      <section>
+        <h2>① 돈의 이동 지도<button type="button" class="tip" data-tip="glead" aria-label="미국 추월 설명">ⓘ</button></h2>
+        <p class="sub" id="g-s1-sub">미국(S&amp;P 500)보다 더 오른 나라일수록 위에 나옵니다. 숫자는 미국 대비 수익률 차이(%p)예요.</p>
+        <div id="g-hero"></div>
+        <div class="gchips" id="g-reg" role="group" aria-label="지역"></div>
+        <div class="gbox" id="g-list"></div>
+      </section>
+      <section>
+        <h2>② 패권 신호 × 시장 반응<button type="button" class="tip" data-tip="gq" aria-label="신호와 시장 반응 설명">ⓘ</button></h2>
+        <p class="sub">가로는 패권 레이더의 지역 점수(▲ 수 − ▼ 수), 세로는 미국 대비 90일 수익이에요. 꼬리는 4주 전 위치입니다.</p>
+        <div class="gq" id="g-quad"></div>
+        <div class="gbox" id="g-quadlist" style="margin-top:10px"></div>
+      </section>
+      <section>
+        <h2>③ 테마 × 지역 기회 지도</h2>
+        <p class="sub" id="g-s3-sub">칸 숫자는 선택한 기간의 미국 대비 수익(%p), 아래 작은 글씨는 대표 ETF·종목이에요. 누르면 상세가 열립니다.</p>
+        <div class="hmwrap"><div class="gm" id="g-theme"></div></div>
+        <ul class="gwhy" id="g-why"></ul>
+      </section>
+      <section>
+        <h2>④ 관찰 후보<button type="button" class="tip" data-tip="gcand" aria-label="관찰 후보 기준 설명">ⓘ</button></h2>
+        <p class="sub">네 가지 조건(지역 신호 · 상대수익 · 큰손/거래대금 · 유동성)으로 거른 후보예요. 매수 추천이 아니라 직접 살펴볼 대상을 좁히는 목록입니다.</p>
+        <div class="seg wide" id="g-st" role="group" aria-label="후보 구분" style="margin-bottom:10px"></div>
+        <div id="g-cands"></div>
+      </section>
+      <section>
+        <h2>⑤ 달러·환율 레이어<button type="button" class="tip" data-tip="gnzd" aria-label="환율 레이어 설명">ⓘ</button></h2>
+        <p class="sub" id="g-s5-sub">달러가 약해지면 미국 자산의 수익이 환율 때문에 줄어들 수 있어요.</p>
+        <dl class="gmx" id="g-mx"></dl>
+        <div class="gbox" id="g-fx"></div>
+        <div class="gnote" id="g-fxnote"></div>
+      </section>
+      <p class="sub" style="margin:0">패권 신호는 Claude가 공개 자료로 매긴 평가이고, 후보는 규칙으로 거른 목록이에요. 투자 권유가 아니며 최종 판단과 책임은 본인에게 있어요.</p>
+    </div>
+  </div>
+
   <div class="panel" data-panel="watch" hidden>
     <div class="watchbox">
       <div>
@@ -646,6 +797,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
       <li>Form 4는 10% 이상 대주주의 장내 거래, 13D·13G는 5% 이상 지분 신고입니다.</li>
       <li>뉴스의 한국어 요약과 종목 논조는 AI가 기사에서 뽑은 추정치입니다. 중요한 내용은 원문으로 확인하세요.</li>
       <li>ETF 수익률은 Yahoo Finance 수정종가(배당·분할 반영) 기준이며, 7·14·30·90·180일과 1년은 달력일, YTD는 지난해 마지막 거래일 대비입니다. 순위 옆 ▲▼·NEW는 하루 전 같은 기준 순위와 비교한 변화입니다.</li>
+      <li>글로벌 탭의 나라별 수익은 대표 ETF(수정종가) 기준이고, 패권 신호는 Claude가 공개 자료로 매긴 주간 평가입니다. 관찰 후보는 네 가지 규칙으로 거른 목록이며 매수 추천이 아닙니다.</li>
       <li>ETF 해설은 Claude가 매일 아침 뉴스를 찾아 쓴 요약입니다. 원인을 단정하지 않으니 참고로만 보세요.</li>
       <li>모든 데이터는 SEC EDGAR·공개 뉴스·공개 시세이며 투자 권유가 아닙니다.</li>
     </ul>
@@ -660,6 +812,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     <a href="#investors" data-view="investors"><svg class="i"><use href="#i-users"/></svg>투자자</a>
     <a href="#timeline" data-view="timeline"><svg class="i"><use href="#i-doc"/></svg>공시</a>
     <a href="#etf" data-view="etf"><svg class="i"><use href="#i-etf"/></svg>ETF</a>
+    <a href="#global" data-view="global"><svg class="i"><use href="#i-globe"/></svg>글로벌</a>
     <a href="#news" data-view="news"><svg class="i"><use href="#i-news"/></svg>뉴스</a>
     <a href="#watch" data-view="watch"><svg class="i"><use href="#i-star"/></svg>관심</a>
   </div>
@@ -768,6 +921,11 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     "13DG": ["13D · 13G", "한 회사 지분을 5% 넘게 가지면 내는 신고예요. 13D는 경영 참여 가능, 13G는 단순 투자 목적이에요."],
     flow: ["추정 순매수", "직전 분기 대비 보유 수량 변화에 분기말 주가를 곱한 추정 금액이에요. 실제 매매 가격과는 다를 수 있어요."],
     etfdiv: ["배당 순위 기준", "최근 12개월에 받은 배당을 현재가로 나눈 연배당률 2% 이상인 주식형 ETF예요(채권·현금 ETF 제외). 주기는 최근 지급 간격으로 판정하고, 상장 1년 미만이면 받은 기간만큼 연환산해 '추정'으로 표시해요. 총수익 = 주가 수익률 + 배당 재투자 효과예요. 1년 주가가 10% 넘게 빠졌으면 '원금 감소'를 붙여요. 연배당률이 높아도 주가가 함께 빠지면 실제 수익은 작을 수 있어요."],
+    gmap: ["패권 이동 지도", "미국 패권이 다른 나라로 흘러가는지를 시장 가격으로 확인하는 화면이에요. 나라별 대표 ETF 수익을 미국(S&P 500)과 비교해요. 패권 자체를 측정하는 게 아니라 '시장이 그렇게 반응하고 있는지'를 보는 참고 자료예요."],
+    glead: ["미국 추월", "최근 30일과 90일 모두 미국(S&P 500)보다 수익이 높으면 '미국 추월'이에요. '새로 추월'은 4주 전에는 90일 기준으로 미국에 뒤져 있다가 지금 앞선 경우예요."],
+    gq: ["신호 × 시장 반응", "가로 점수는 패권 레이더가 5개 항목(성장·증시·통화금융·안보군사·기술무역)에서 ▲를 +1, ▼를 −1로 센 값이에요(미확인 칸은 0). 세로는 그 지역 대표 ETF의 미국 대비 90일 수익이에요. 신호는 강화인데 주가가 아직 약한 칸이 '관찰 1순위'예요. 신호는 Claude의 평가라 틀릴 수 있어요."],
+    gcand: ["관찰 후보 기준", "① 지역 패권 신호 점수가 +1 이상(금은 미국 통화·금융이 ▼) ② 미국 대비 90일 수익이 플러스 ③ 큰손 13F 매수가 매도보다 많거나 최근 거래대금이 120일 평균의 1.15배 이상 ④ 20일 평균 거래대금 500만 달러 이상. 네 가지를 모두 통과하면 '후보', 세 가지면 '관찰 대기'예요. 투자 권유가 아니에요."],
+    gnzd: ["뉴질랜드달러 기준", "미국 자산은 달러로 거래돼요. 뉴질랜드달러가 달러 대비 강해지면 같은 수익도 뉴질랜드달러로 바꿀 때 줄어들어요. 위쪽 '뉴질랜드달러 기준' 버튼을 누르면 모든 수익률이 이 기준으로 바뀌어요(미국 대비 격차는 거의 그대로예요)."],
     etf: ["ETF 순위 기준", "레버리지·인버스·VIX(공포지수) ETF와 거래대금이 적거나 운용자산이 작은 ETF는 뺐어요. 미국 탭은 미국 시장 ETF, 중국·인도 탭은 미국에 상장된 중국·인도 ETF와 현지(상해·심천·홍콩·NSE) 상장 ETF예요."],
     consensus: ["거물 컨센서스", "같은 분기에 두 명 이상이 같은 종목을 사거나 판 경우만 모았어요. 여러 명이 같은 방향이면 신호가 더 강해요."],
     signal: ["BUY · HOLD · SELL", "13F 기준 직전 분기보다 보유 수량이 5% 이상 늘거나 새로 샀으면 BUY, 5% 이상 줄거나 다 팔았으면 SELL, 그 사이는 HOLD예요."],
@@ -919,6 +1077,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   function renderOverview() {
     renderBrief();
     if (typeof renderEtfHome === "function") renderEtfHome();
+    if (typeof renderGlobalHome === "function") renderGlobalHome();
     const nf = cleared.f ? 0 : fresh.f.size, nn = cleared.n ? 0 : fresh.n.size;
     $("#since").innerHTML = nf + nn ? `<div class="since"><span class="newdot"></span><span>지난 방문 이후 ${nf ? `<a href="#timeline">새 공시 ${nf}건</a>` : ""}${nf && nn ? " · " : ""}${nn ? `<a href="#news">새 기사 ${nn}건</a>` : ""}</span></div>` : "";
     const sec = D.sectors || {};
@@ -1365,9 +1524,9 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     const lab = (y) => pct((y / 1000 - 1) * 100, 0);
     return `<div class="echart" data-w='${esc(JSON.stringify(v))}' data-end="${esc(w.end)}"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(r.t)} 최근 1년 주간 추이, 시작 대비 ${lab(v[v.length - 1])}">
       <line x1="${L}" x2="${W - R}" y1="${Y(1000).toFixed(1)}" y2="${Y(1000).toFixed(1)}" stroke="var(--line)" stroke-dasharray="3 4"/>
-      <text class="ax" x="${L - 6}" y="${(Y(mx) + 4).toFixed(1)}" text-anchor="end">${lab(mx)}</text>
+      ${Y(1000) - Y(mx) > 12 ? `<text class="ax" x="${L - 6}" y="${(Y(mx) + 4).toFixed(1)}" text-anchor="end">${lab(mx)}</text>` : ""}
       <text class="ax" x="${L - 6}" y="${(Y(1000) + 4).toFixed(1)}" text-anchor="end">0%</text>
-      <text class="ax" x="${L - 6}" y="${(Y(mn) + 4).toFixed(1)}" text-anchor="end">${lab(mn)}</text>
+      ${Y(mn) - Y(1000) > 12 ? `<text class="ax" x="${L - 6}" y="${(Y(mn) + 4).toFixed(1)}" text-anchor="end">${lab(mn)}</text>` : ""}
       <text class="ax" x="${L}" y="${H - 6}">${esc(dOf(0))}</text><text class="ax" x="${W - R}" y="${H - 6}" text-anchor="end">${esc(w.end)}</text>
       <polyline points="${pts}" fill="none" stroke="var(${col})" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
       <g class="hov" visibility="hidden"><line y1="${T}" y2="${H - B}" stroke="var(--muted)" stroke-width="1"/><circle r="4.5" fill="var(${col})" stroke="var(--surface)" stroke-width="2"/></g>
@@ -1447,8 +1606,235 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     if (current() === "etf") renderEtf();
   }
 
+  /* ---------- 글로벌: 패권 이동 ---------- */
+  let G = null, GM = {}, GN = { summary: "", cands: {}, regions: {} }, gFailed = false;
+  try { Object.assign(state, { gP: 2, gCur: "usd", gReg: "", gAll: false, gSt: "cand" }, JSON.parse(store.get("radar.global") || "{}")); } catch (e) {}
+  const saveG = () => store.set("radar.global", JSON.stringify({ gP: state.gP, gCur: state.gCur, gReg: state.gReg, gSt: state.gSt }));
+  const G_KO = ["7일", "30일", "90일", "180일", "연초 대비", "1년"];
+  const G_SCALE = [4, 8, 15, 25, 30, 35]; // 색이 가장 진해지는 미국 대비 격차(%p)
+  const G_RG = ["us", "eu", "cn", "in", "la", "ot"];
+  const G_RG_SHORT = { us: "미국", eu: "유럽", cn: "중국", in: "인도", la: "중남미", ot: "아태" };
+  const Q_INFO = { trend: ["추세 진행", "신호도 강화, 주가도 미국보다 강함"], early: ["아직 반영 안 됨", "신호는 강화인데 주가는 아직 미국보다 약함 · 관찰 1순위"], heat: ["과열 주의", "신호는 약화·중립인데 주가만 강함"], avoid: ["회피", "신호도 약하고 주가도 미국보다 약함"] };
+  const pp = (v) => v == null ? "—" : pct(v).replace(/%$/, "%p");
+  const rgName = (id) => id === "gl" ? "글로벌" : ((G && G.regions[id]) || {}).n || id || "";
+  const gAbsArr = (it) => state.gCur === "nzd" && it.rn && it.rn.some((v) => v != null) ? it.rn : it.r;
+  const gAbs = (it, i = state.gP) => it ? gAbsArr(it)[i] : null;
+  const gRel = (it, i = state.gP) => {
+    const s = GM[G.base], a = gAbs(it, i), b = gAbs(s, i);
+    return a == null || b == null ? null : Math.round((a - b) * 100) / 100;
+  };
+  const gHeat = (v, i = state.gP) => v == null ? "transparent" : `color-mix(in oklab, var(${v >= 0 ? "--up" : "--down"}) ${Math.round(4 + Math.min(1, Math.abs(v) / G_SCALE[i]) * 42)}%, var(--surface))`;
+  const gSpark = (v) => {
+    if (!v || v.length < 3) return "";
+    const mn = Math.min(...v), mx = Math.max(...v), r = mx - mn || 1;
+    const pts = v.map((y, k) => `${(k / (v.length - 1) * 60).toFixed(1)},${(22 - (y - mn) / r * 20).toFixed(1)}`).join(" ");
+    return `<svg class="spark" viewBox="0 0 60 24" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="var(${v[v.length - 1] >= v[0] ? "--up" : "--down"})" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+  };
+  const gLead = (it) => it.rl && it.rl[1] > 0 && it.rl[2] > 0;
+  const gFlip = (it) => it.rp != null && it.rp <= 0 && it.rl && it.rl[2] > 0;
+
+  function gHero() {
+    const ac = GM.ACWX, sp = GM[G.base], rel = ac && gRel(ac);
+    const blocs = G.items.filter((x) => x.k === "bloc" && x.y !== "ACWX" || ["VGK", "ILF", "AAXJ"].includes(x.y));
+    const seen = new Set();
+    const chips = blocs.filter((b) => !seen.has(b.y) && seen.add(b.y)).map((b) => `<span>${esc(b.n)}<b class="${pcls(gRel(b))}">${pp(gRel(b))}</b></span>`).join("");
+    if (!ac || !sp) return chips ? `<div class="ghero"><div class="gblocs">${chips}</div></div>` : "";
+    const tone = rel > 0 ? "미국 밖 시장이 미국보다 앞서고 있어요" : rel < 0 ? "아직은 미국이 앞서고 있어요" : "비슷한 흐름이에요";
+    return `<div class="ghero"><span class="eyebrow">미국 제외 전세계(ACWX) vs 미국(S&amp;P 500) · ${esc(G_KO[state.gP])}</span>
+      <div class="big ${pcls(rel)}">${pp(rel)}<small>${esc(tone)}</small></div>
+      <p>ACWX ${pct(gAbs(ac))} · 미국 ${pct(gAbs(sp))} (${state.gCur === "nzd" ? "뉴질랜드달러" : "달러"} 기준)</p>
+      ${chips ? `<div class="gblocs">${chips}</div>` : ""}</div>`;
+  }
+  function gRows() {
+    const all = G.items.filter((x) => x.ctry && (!state.gReg || x.rg === state.gReg)).map((x) => ({ x, rel: gRel(x) })).filter((o) => o.rel != null);
+    all.sort((a, b) => b.rel - a.rel);
+    const lim = state.gAll ? all.length : 12;
+    const rows = all.slice(0, lim).map((o, i) => {
+      const it = o.x, flag = gFlip(it) ? `<span class="gbadge">새로 추월</span>` : gLead(it) ? `<span class="gbadge">미국 추월</span>` : "";
+      return `<div class="grow" data-gc="${esc(it.y)}" role="button" tabindex="0" aria-label="${esc(it.n)} 상세">
+        <span class="rk">${i + 1}</span>
+        <div><div class="l1"><span class="nm">${esc(it.n)}</span><span class="tk">${esc(it.y)}</span>${flag}</div>
+          <div class="l2">${esc(rgName(it.rg))} · ${esc(G_KO[state.gP])} <span class="${pcls(gAbs(it))}">${pct(gAbs(it))}</span></div></div>
+        <div class="rv ${pcls(o.rel)}">${pp(o.rel)}<small>미국 대비</small></div>${gSpark(it.rs)}</div>`;
+    }).join("");
+    return rows + (all.length > lim ? `<button type="button" class="gmore" id="g-more">나머지 ${all.length - lim}개 나라 더 보기</button>` : "") || `<div class="empty">표시할 나라가 없습니다.</div>`;
+  }
+  function gQuad() {
+    const regs = G.regions, us = regs.us;
+    const pts = Object.entries(regs).filter(([id, r]) => id !== "us" && r.score != null && r.r90 != null);
+    if (!pts.length) return `<div class="empty">신호와 시세가 함께 있는 지역이 아직 없습니다.</div>`;
+    const ys = pts.flatMap(([, r]) => [r.r90, r.rp == null ? r.r90 : r.rp]);
+    const ym = Math.max(10, Math.ceil(Math.max(...ys.map(Math.abs)) / 5) * 5);
+    const W = 420, H = 320, L = 30, R = 10, T = 12, B = 34, pw = W - L - R, ph = H - T - B;
+    const X = (s) => L + (s + 5) / 10 * pw, Y = (v) => T + (ym - v) / (2 * ym) * ph, mid = X(0.5), my = Y(0);
+    const qc = { trend: "--buy", early: "--accent", heat: "--caution", avoid: "--hold" };
+    const rect = (x, y, w, h, q) => `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="var(${qc[q]})" opacity="${q === "early" ? 0.14 : 0.07}"/>`;
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="지역별 패권 신호 점수와 미국 대비 90일 수익 산점도: ${pts.map(([, r]) => `${r.n} 점수 ${r.score} 수익 ${r.r90}%p`).join(", ")}">
+      <defs><marker id="gar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L8 4L0 8z" fill="var(--muted)"/></marker></defs>
+      ${rect(mid, T, L + pw - mid, my - T, "trend")}${rect(mid, my, L + pw - mid, T + ph - my, "early")}${rect(L, T, mid - L, my - T, "heat")}${rect(L, my, mid - L, T + ph - my, "avoid")}
+      <line x1="${mid.toFixed(1)}" x2="${mid.toFixed(1)}" y1="${T}" y2="${T + ph}" stroke="var(--line)"/><line x1="${L}" x2="${L + pw}" y1="${my.toFixed(1)}" y2="${my.toFixed(1)}" stroke="var(--muted)" stroke-dasharray="3 4" opacity=".6"/>
+      <text class="ql" x="${(L + pw - 6).toFixed(1)}" y="${T + 13}" text-anchor="end">추세 진행</text><text class="ql" x="${(L + pw - 6).toFixed(1)}" y="${T + ph - 7}" text-anchor="end">아직 반영 안 됨</text>
+      <text class="ql" x="${L + 6}" y="${T + 13}">과열 주의</text><text class="ql" x="${L + 6}" y="${T + ph - 7}">회피</text>`;
+    for (let k = -5; k <= 5; k += 1) s += `<text class="ax" x="${X(k).toFixed(1)}" y="${H - 16}" text-anchor="middle">${k > 0 ? "+" + k : k}</text>`;
+    s += `<text class="ax" x="${(L + pw / 2).toFixed(1)}" y="${H - 2}" text-anchor="middle">← 약화  ·  패권 신호 점수  ·  강화 →</text>`;
+    [ym, 0, -ym].forEach((v) => { s += `<text class="ax" x="${L - 5}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${v > 0 ? "+" + v : v}</text>`; });
+    const labels = [];
+    pts.forEach(([id, r]) => {
+      const x = X(r.score), y = Y(r.r90), px = X(r.prev == null ? r.score : r.prev), py = Y(r.rp == null ? r.r90 : r.rp);
+      if (Math.hypot(x - px, y - py) > 7) s += `<line x1="${px.toFixed(1)}" y1="${py.toFixed(1)}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#gar)" opacity=".85"/>`;
+      s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="8.5" fill="var(${qc[r.q] || "--hold"})" stroke="var(--surface)" stroke-width="2"/>`;
+      labels.push({ x, y, t: r.n });
+    });
+    s += `<circle cx="${X(us.score ?? 0).toFixed(1)}" cy="${my.toFixed(1)}" r="7" fill="var(--surface)" stroke="var(--ink)" stroke-width="2" stroke-dasharray="3 2"/>`;
+    labels.push({ x: X(us.score ?? 0), y: my, t: "미국(기준)" });
+    labels.sort((a, b) => a.y - b.y);
+    let lastY = -99;
+    labels.forEach((l) => { const ty = Math.max(l.y + 4, lastY + 14); lastY = ty; const right = l.x < L + pw - 80; s += `<text class="pl" x="${(right ? l.x + 13 : l.x - 13).toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="${right ? "start" : "end"}">${esc(l.t)}</text>`; });
+    return s + "</svg>";
+  }
+  function gQuadList() {
+    const order = ["eu", "cn", "in", "la", "ot"];
+    return order.filter((id) => G.regions[id]).map((id) => {
+      const r = G.regions[id], q = r.q, info = q ? Q_INFO[q] : null;
+      const sm = r.sm && (r.sm.buy || r.sm.sell) ? `큰손 13F 매수 ${r.sm.buy}명 · 매도 ${r.sm.sell}명` : "";
+      const sig = r.score == null ? "패권 레이더 평가 없음" : `▲ ${r.ups.join("·") || "없음"}${r.downs.length ? " · ▼ " + r.downs.join("·") : ""}`;
+      return `<div class="gqrow ${q ? "q-" + q : ""}" data-gc="${esc(r.etf)}" role="button" tabindex="0">
+        <div><span class="nm">${q ? `<i class="gdot"></i>` : ""}${esc(r.n)}</span> <span class="tk" style="color:var(--muted);font-size:.72rem">${esc(r.etf)}</span>
+          <span class="sub2">${info ? `<b>${esc(info[0])}</b> · ` : ""}${esc(sig)}${sm ? " · " + esc(sm) : ""}</span></div>
+        <div class="sc">${r.score == null ? "—" : (r.score > 0 ? "+" : "") + r.score}<small>점수${r.prev != null ? ` (이전 ${r.prev > 0 ? "+" : ""}${r.prev})` : ""}</small></div>
+        <div class="rl ${pcls(r.r90)}">${pp(r.r90)}<small>90일</small></div></div>`;
+    }).join("");
+  }
+  function gTheme() {
+    const th = G.themes, sp = GM[G.base];
+    let h = `<div class="gmr gh"><span></span>${G_RG.map((r) => `<span>${G_RG_SHORT[r]}</span>`).join("")}</div>`;
+    th.forEach((t) => {
+      h += `<div class="gmr"><span>${esc(t.n)}</span>${G_RG.map((r) => {
+        const y = t.cells[r], it = y && GM[y], v = it && gRel(it);
+        if (!it || v == null) return `<span class="gcell none">—</span>`;
+        return `<span class="gcell" data-gc="${esc(y)}" role="button" tabindex="0" aria-label="${esc(t.n)} ${esc(G_RG_SHORT[r])} ${esc(y)} 미국 대비 ${pp(v)}" style="background:${gHeat(v)}"><b>${y === G.base ? "기준" : pnum(v)}</b><small>${esc(y)}</small></span>`;
+      }).join("")}</div>`;
+    });
+    h += `<div class="gmr"><span>큰손 13F<br><small style="font-weight:400;color:var(--muted)">매수·매도</small></span>${G_RG.map((r) => {
+      const sm = (G.regions[r] || {}).sm;
+      return sm && (sm.buy || sm.sell) ? `<span class="sm"><i class="up">▲${sm.buy}</i> <i class="dn">▼${sm.sell}</i></span>` : `<span class="sm">—</span>`;
+    }).join("")}</div>`;
+    return h;
+  }
+  const gChk = (v, lab) => `<span class="gchk ${v === true ? "ok" : v === false ? "no" : "na"}">${v === true ? "✓" : v === false ? "✕" : "–"} ${lab}</span>`;
+  const gCandChecks = (c) => `<div class="chks">${gChk(c.checks.sig, "신호")}${gChk(c.checks.rel, "상대수익")}${gChk(c.checks.flow, "큰손·거래")}${gChk(c.checks.liq, "유동성")}</div>`;
+  const gCandText = (c) => `<h5>근거</h5>${c.pros.length ? `<ul>${c.pros.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>` : `<p>충족한 조건이 없어요.</p>`}
+    <h5>반대 근거</h5><p class="con">${esc(c.con)}</p><h5>리스크</h5><ul>${c.risk.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>`;
+  function gCandCard(c) {
+    const it = GM[c.y], note = (GN.cands || {})[c.y];
+    return `<details class="gcand"><summary><div class="l1"><span class="tk">${esc(c.y)}</span><span class="name">${esc(c.n)}</span><span class="gbadge rg">${esc(rgName(c.rg))}</span><span class="sc">${c.pass}/4</span></div>
+      ${gCandChecks(c)}<div class="l2">미국 대비 90일 <b class="${pcls(c.r90)}">${pp(c.r90)}</b> · ${esc(G_KO[state.gP])} <b class="${pcls(gAbs(it))}">${pct(gAbs(it))}</b></div></summary>
+      <div class="gbody">${note ? `<div class="claude-note"><small>Claude 해설 · ${esc(shortDate(note.d))}</small>${esc(note.k)}</div>` : ""}${gCandText(c)}
+        <button type="button" class="ghost" data-gc="${esc(c.y)}">추이·기간별 수익률 보기</button></div></details>`;
+  }
+  function gFx() {
+    const fx = G.fx.filter((f) => f.r[state.gP] != null).sort((a, b) => b.r[state.gP] - a.r[state.gP]);
+    const mxv = Math.max(5, ...fx.map((f) => Math.abs(f.r[state.gP])));
+    return fx.map((f) => { const v = f.r[state.gP], w = Math.min(50, Math.abs(v) / mxv * 50);
+      return `<div class="gfx"><span>${esc(f.n)}</span><div class="bar" aria-hidden="true"><i class="${v >= 0 ? "p" : "n"}" style="width:${w.toFixed(1)}%"></i></div><span class="v ${pcls(v)}">${pct(v)}</span></div>`; }).join("") || `<div class="empty">환율 데이터가 없습니다.</div>`;
+  }
+  function gMx() {
+    return G.mx.map((m) => {
+      const v = m.r[state.gP], lvl = m.u === "usd" ? "$" + m.v.toLocaleString(undefined, { maximumFractionDigits: 2 }) : m.u === "pct" ? m.v.toFixed(2) + "%" : m.v.toFixed(1);
+      return `<div><dt>${esc(m.n)}</dt><dd>${esc(lvl)}<small class="${pcls(v)}">${esc(G_KO[state.gP])} ${m.diff ? (v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(2) + "%p") : pct(v)}</small></dd></div>`;
+    }).join("");
+  }
+  function renderGlobal() {
+    const ok = !!G;
+    $("#g-body").hidden = !ok; $("#g-empty").hidden = ok;
+    $("#g-p").innerHTML = G_KO.map((k, i) => `<button type="button" data-p="${i}" aria-pressed="${state.gP === i}">${k.replace(" 대비", "")}</button>`).join("");
+    $$("#g-cur button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.cur === state.gCur));
+    if (!ok) { $("#g-empty").textContent = gFailed ? "글로벌 데이터는 다음 ETF 수집(매일 오전 10시경, 뉴질랜드 시간) 때 처음 만들어집니다." : "불러오는 중…"; $("#g-meta").textContent = ""; $("#g-note").innerHTML = ""; $("#g-demo").hidden = true; return; }
+    $("#g-demo").hidden = !G.demo;
+    $("#g-meta").innerHTML = `<span>시세 <span class="num">${esc(shortDate(G.as_of))}</span></span><span>패권 신호 <span class="num">${esc(G.heg_asof ? shortDate(G.heg_asof) : "—")}</span></span><span>${state.gCur === "nzd" ? "뉴질랜드달러" : "달러"} 기준</span>`;
+    $("#g-note").innerHTML = GN.summary ? `<div class="claude-note"><small>Claude 주간 해설${GN.generated_at ? " · " + esc(shortDate(GN.generated_at.slice(0, 10))) : ""}</small>${esc(GN.summary)}</div>` : "";
+    $("#g-hero").innerHTML = gHero();
+    $("#g-reg").innerHTML = [["", "전체"], ...G_RG.filter((r) => r !== "us").map((r) => [r, rgName(r)])].map(([r, n]) => `<button type="button" data-reg="${r}" aria-pressed="${state.gReg === r}">${esc(n)}</button>`).join("");
+    $("#g-list").innerHTML = gRows();
+    $("#g-quad").innerHTML = gQuad();
+    $("#g-quadlist").innerHTML = gQuadList();
+    $("#g-theme").innerHTML = gTheme();
+    $("#g-why").innerHTML = G.themes.filter((t) => t.why).map((t) => `<li><b>${esc(t.n)}</b> · ${esc(t.why)}</li>`).join("");
+    const cs = (st) => G.cands.filter((c) => c.status === st);
+    $("#g-st").innerHTML = [["cand", `후보 ${cs("cand").length}`], ["watch", `관찰 대기 ${cs("watch").length}`]].map(([k, n]) => `<button type="button" data-st="${k}" aria-pressed="${state.gSt === k}">${n}</button>`).join("");
+    const list = cs(state.gSt);
+    $("#g-cands").innerHTML = list.length ? list.map(gCandCard).join("") + (state.gSt === "watch" ? `<p class="sub" style="margin:4px 2px 0">관찰 대기: 네 조건 중 세 가지를 통과하고 한 가지가 부족한 종목이에요. 부족한 조건은 카드를 열면 보여요.</p>` : "")
+      : `<div class="empty">${state.gSt === "cand" ? "네 조건을 모두 통과한 종목이 아직 없어요. '관찰 대기'를 확인해 보세요." : "관찰 대기 종목이 없어요."}</div>`;
+    $("#g-mx").innerHTML = gMx();
+    $("#g-fx").innerHTML = gFx();
+    const sp = GM[G.base], nz = G.fx.find((f) => f.k === "NZD"), i = state.gP;
+    $("#g-fxnote").innerHTML = sp && sp.rn && sp.rn[i] != null && nz && nz.r[i] != null
+      ? `<b>내 기준(뉴질랜드달러)으로 보면</b> · 같은 기간 미국 S&amp;P 500은 달러 기준 <b class="${pcls(sp.r[i])}">${pct(sp.r[i])}</b>, 뉴질랜드달러 기준 <b class="${pcls(sp.rn[i])}">${pct(sp.rn[i])}</b>예요. 뉴질랜드달러가 달러 대비 ${pct(nz.r[i])} 움직였기 때문이에요.`
+      : "뉴질랜드달러 환산 자료가 아직 없어요.";
+  }
+  function renderGlobalHome() {
+    const sec = $(".ov-global");
+    if (!sec) return;
+    if (!G) { sec.hidden = true; return; }
+    sec.hidden = false;
+    const regs = ["eu", "cn", "in", "la", "us"].map((id) => G.regions[id]).filter((r) => r && r.score != null);
+    const top = G.items.filter((x) => x.ctry).map((x) => ({ x, rel: x.rl[2] })).filter((o) => o.rel != null).sort((a, b) => b.rel - a.rel).slice(0, 3);
+    const nc = G.cands.filter((c) => c.status === "cand").length;
+    $("#g-home").innerHTML = `<div class="bcard"><span class="eyebrow">지역 패권 신호 점수 <a href="#global" style="margin-left:auto;font-weight:500">자세히 →</a></span>
+      <div class="rgs">${regs.map((r) => `<span class="rg">${esc(r.n)}<b class="${r.score > 0 ? "up" : r.score < 0 ? "dn" : ""}">${r.score > 0 ? "+" : ""}${r.score}</b></span>`).join("")}</div>
+      <span class="note">미국 대비 90일 앞선 나라: ${top.map((o) => `${esc(o.x.n)} ${pp(o.rel)}`).join(" · ") || "—"}${nc ? ` · 관찰 후보 ${nc}개` : ""}</span></div>`;
+  }
+  function openGlobal(y) {
+    const it = GM[y], c = G && G.cands.find((x) => x.y === y);
+    if (!it) return;
+    if (!$("#search").hidden) closeSearch();
+    lastFocus = document.activeElement;
+    const note = (GN.cands || {})[y], reg = G.regions[it.rg], i = state.gP;
+    $("#sheet").innerHTML = `<div class="grab" aria-hidden="true"></div>
+      <div class="wrap">
+        <div class="hd">${av(it.y, "lg")}<div><h2 id="sheet-title" class="tk">${esc(it.y)}</h2><p>${esc(it.n)} · ${esc(rgName(it.rg))}${it.d ? " · " + esc(shortDate(it.d)) : ""}</p></div>
+          <button type="button" class="iconbtn" data-close aria-label="닫기">${icon("x")}</button></div>
+        <div class="body">
+          ${note ? `<div class="claude-note"><small>Claude 해설 · ${esc(shortDate(note.d))}</small>${esc(note.k)}</div>` : ""}
+          <div><h4>기간별 수익률 (${state.gCur === "nzd" ? "뉴질랜드달러" : "달러"} 기준)</h4>
+            <dl class="estrip" style="grid-template-columns:repeat(3,minmax(0,1fr))">${G_KO.map((k, j) => { const v = gAbs(it, j); return `<div style="background:${gHeat(gRel(it, j), j)}"><dt>${esc(k)}</dt><dd>${pct(v)}</dd><dt style="font-size:.62rem">미국 대비 ${pp(gRel(it, j))}</dt></div>`; }).join("")}</dl></div>
+          <div class="gsheet-rs"><h4>미국 대비 상대강도 (주간, 시작=0%) <small class="muted" style="font-weight:400">올라가면 미국보다 강한 구간</small></h4>
+            ${it.rs && it.rs.length > 2 ? etfChart({ t: it.y }, { v: it.rs.map((v) => v * 10), end: it.d || G.as_of }) : `<div class="empty">추이 데이터가 없습니다.</div>`}</div>
+          ${reg && reg.score != null ? `<div><h4>${esc(reg.n)} 패권 신호</h4><p class="sub" style="margin:0">점수 ${reg.score > 0 ? "+" : ""}${reg.score} · ▲ ${esc(reg.ups.join("·") || "없음")}${reg.downs.length ? " · ▼ " + esc(reg.downs.join("·")) : ""}${reg.unknown.length ? " · 미확인 " + esc(reg.unknown.join("·")) : ""}${reg.q ? ` · <b>${esc(Q_INFO[reg.q][0])}</b>` : ""}</p></div>` : ""}
+          ${c ? `<div class="gcand" style="margin:0"><div class="gbody" style="border:0"><div class="l1" style="display:flex;gap:8px;align-items:baseline"><b>관찰 후보 점검</b><span class="gbadge">${c.status === "cand" ? "후보" : c.status === "watch" ? "관찰 대기" : "조건 부족"} ${c.pass}/4</span></div>${gCandChecks(c)}${gCandText(c)}
+            <h5>조건별 근거</h5><ul>${Object.values(c.detail).map((d) => `<li>${esc(d)}</li>`).join("")}</ul></div></div>` : ""}
+          <dl class="stats">
+            <div><dt>연 변동성</dt><dd>${it.vol != null ? it.vol.toFixed(0) + "%" : "—"}</dd></div>
+            <div><dt>고점 대비</dt><dd class="${pcls(it.dd)}">${pct(it.dd)}</dd></div>
+            <div><dt>20일 거래대금</dt><dd style="font-size:.9rem">${it.to ? "$" + (it.to >= 1e6 ? (it.to / 1e6).toFixed(1) + "M" : Math.round(it.to / 1e3) + "K") : "—"}</dd></div>
+          </dl>
+          ${it.hold && it.hold.length ? `<div><h4>상위 보유종목</h4><div class="list holds"><ul>${it.hold.filter((h) => h[2] > 0).map((h) => `<li><span class="tk">${esc(String(h[0]).slice(0, 9))}</span><span class="nm">${esc(h[1])}</span><span class="w">${esc(h[2].toFixed(1))}%</span></li>`).join("")}</ul></div></div>` : ""}
+          <p class="sub" style="margin:0"><a href="https://finance.yahoo.com/quote/${encodeURIComponent(it.y)}" target="_blank" rel="noopener">Yahoo Finance에서 보기 ${icon("ext")}</a></p>
+        </div>
+      </div>`;
+    $("#sheet").hidden = false; $("#scrim").hidden = false; $("#sheet").scrollTop = 0;
+    document.body.classList.add("locked");
+    $("#sheet [data-close]").focus();
+    const ec = $("#sheet .echart"); if (ec) wireChart(ec);
+  }
+  function bootGlobal(data, notes) {
+    G = data && Array.isArray(data.items) && data.items.length ? data : null;
+    gFailed = !G; GM = {};
+    if (G) G.items.forEach((x) => (GM[x.y] = x));
+    if (notes && typeof notes === "object") GN = { summary: notes.summary || "", generated_at: notes.generated_at || "", cands: notes.cands || {}, regions: notes.regions || {} };
+    renderGlobalHome();
+    if (current() === "global") renderGlobal();
+  }
+  function loadGlobal() {
+    if (window.__RADAR_MACRO__) { bootGlobal(window.__RADAR_MACRO__, window.__RADAR_MACRO_NOTES__); return; }
+    Promise.all([
+      fetch("data/macro.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null),
+      fetch("notes/macro-notes.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([d, n]) => bootGlobal(d, n));
+  }
+
   /* ---------- 라우팅 / 이벤트 ---------- */
-  const VIEWS = { overview: renderOverview, investors: renderInvestors, timeline: renderTimeline, etf: renderEtf, news: renderNews, watch: renderWatch };
+  const VIEWS = { overview: renderOverview, investors: renderInvestors, timeline: renderTimeline, etf: renderEtf, global: renderGlobal, news: renderNews, watch: renderWatch };
   const current = () => VIEWS[location.hash.slice(1)] ? location.hash.slice(1) : "overview";
   function route() {
     const v = current();
@@ -1491,6 +1877,12 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     if ((x = el("#etf-tr button"))) { state.etfTr = x.dataset.tr; saveEtf(); renderEtf(); return; }
     if ((x = el("#etf-fq button"))) { state.etfFq = x.dataset.fq; saveEtf(); renderEtf(); return; }
     if ((x = el("#etf-dir button"))) { state.etfDir = x.dataset.dir; saveEtf(); renderEtf(); return; }
+    if ((x = el("#g-p button"))) { state.gP = +x.dataset.p; saveG(); renderGlobal(); return; }
+    if ((x = el("#g-cur button"))) { state.gCur = x.dataset.cur; saveG(); renderGlobal(); return; }
+    if ((x = el("#g-reg button"))) { state.gReg = x.dataset.reg; state.gAll = false; saveG(); renderGlobal(); return; }
+    if ((x = el("#g-st button"))) { state.gSt = x.dataset.st; saveG(); renderGlobal(); return; }
+    if (el("#g-more")) { state.gAll = true; renderGlobal(); return; }
+    if ((x = el("[data-gc]"))) { openGlobal(x.dataset.gc); return; }
     if ((x = el("[data-suggest]"))) { $("#search-input").value = x.dataset.suggest; renderSearch(); return; }
     if ((x = el("[data-goinv]"))) { state.inv = x.dataset.goinv; store.set("radar.inv", state.inv); closeSearch(); go("investors"); return; }
     if ((x = el("[data-allnews]"))) { e.preventDefault(); state.newsQ = x.dataset.allnews; state.newsDays = 0; closeSearch(); go("news"); return; }
@@ -1562,12 +1954,12 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
       fetch("notes/etf-notes.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null),
     ]).then(([d, n]) => bootEtf(d, n));
   }
-  if (window.__RADAR_DATA__) { boot(window.__RADAR_DATA__, window.__RADAR_NEWS__); loadEtf(); }
+  if (window.__RADAR_DATA__) { boot(window.__RADAR_DATA__, window.__RADAR_NEWS__); loadEtf(); loadGlobal(); }
   else {
     Promise.all([
       fetch("data/dashboard.json", { cache: "no-store" }).then((r) => r.json()),
       fetch("data/news.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null),
-    ]).then(([d, n]) => { boot(d, n); loadEtf(); })
+    ]).then(([d, n]) => { boot(d, n); loadEtf(); loadGlobal(); })
       .catch(() => { $("#brief").innerHTML = `<div class="bcard"><span class="note">데이터를 불러오지 못했습니다. GitHub Actions 실행 기록을 확인해 주세요.</span></div>`; });
     if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
   }

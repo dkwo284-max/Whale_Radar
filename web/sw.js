@@ -1,5 +1,5 @@
 // 마켓 레이더 서비스 워커: 화면은 캐시 우선, 데이터(JSON)는 네트워크 우선(오프라인이면 마지막 데이터)
-const SHELL = "radar-shell-v2";
+const SHELL = "radar-shell-v3";
 const DATA = "radar-data-v1";
 const SHELL_FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png"];
 

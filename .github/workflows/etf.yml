@@ -1,6 +1,7 @@
 name: Market Radar ETF update
 
 # 매일 미국·중국·인도 ETF 시세를 받아 등락 순위 데이터(web/data/etf.json)를 만들고 GitHub Pages 로 배포합니다.
+# 같은 실행에서 나라·환율·금 시세로 '패권 이동' 화면 데이터(web/data/macro.json)도 만듭니다.
 # 미국 정규장 마감은 UTC 20:00(서머타임) / 21:00(표준시) — 마감 뒤 UTC 21:13 에 돌립니다.
 #   뉴질랜드 시간으로는 오전 9~10시대. 오전 11시에 Claude 예약 작업이 이 데이터로 한국어 해설을 붙입니다.
 # GitHub 예약 실행이 늦거나 건너뛸 때를 대비해 예비 시각을 두고, 이미 갱신됐으면 곧바로 끝냅니다.
@@ -10,6 +11,9 @@ on:
     - cron: "43 21 * * *"
     - cron: "23 23 * * *"
   workflow_dispatch:
+  push:   # 패권 신호(주 1회 Claude 가 갱신)나 글로벌 대상 목록이 바뀌면 점수를 바로 다시 계산
+    branches: [main]
+    paths: [web/data/hegemony.json, macro.yaml]
 
 permissions:
   contents: write
@@ -53,14 +57,19 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: pip }
       - run: pip install -r requirements.txt -r requirements-etf.txt pytest
-      - run: python -m pytest -q tests/test_etf.py
+      - run: python -m pytest -q tests/test_etf.py tests/test_macro.py
       - name: Collect ETF prices
+        if: github.event_name != 'push'   # 신호 파일만 바뀐 실행은 글로벌 점수만 다시 계산
         run: python scripts/build_etf.py
+      - name: Collect global (country·FX) data
+        continue-on-error: true   # 글로벌 계산이 실패해도 ETF 순위 갱신은 그대로 배포
+        run: python scripts/build_macro.py
       - name: Commit data
         run: |
           git config user.name "market-radar-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add web/data/etf.json web/data/etf-series.json cache/etf_*.json
+          git add web/data/macro.json cache/macro_info.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "no changes"; exit 0; fi
           git commit -m "etf: $(date -u +%F)"
           for i in 1 2 3; do git pull --rebase -X theirs -q origin main && git push -q origin HEAD:main && exit 0; git rebase --abort 2>/dev/null; sleep 5; done
