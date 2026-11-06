@@ -403,17 +403,17 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 :root { --caution: #a86200; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --caution: #f0b43c; } }
 :root[data-theme="dark"] { --caution: #f0b43c; }
-.drow { display: grid; grid-template-columns: 30px minmax(0, 1fr) 74px; gap: 10px; align-items: center; padding: 11px 12px 11px 8px; border-top: 1px solid var(--line); cursor: pointer; }
-.drow:first-child { border-top: 0; }
-.drow:hover { background: var(--raised); }
-.drow .rk { text-align: center; font-weight: 700; font-family: var(--font-fig); }
-.drow .l1 { display: flex; align-items: baseline; gap: 7px; min-width: 0; }
-.drow .l1 .tk { font-weight: 600; font-size: 0.93rem; flex: none; }
-.drow .l1 .name { color: var(--muted); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-.drow .l2 { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--muted); margin-top: 3px; min-width: 0; white-space: nowrap; overflow: hidden; }
-.drow .yv { text-align: right; }
-.drow .yv b { display: block; font-size: 1.05rem; font-family: var(--font-fig); font-variant-numeric: tabular-nums; }
-.drow .yv small { font-size: 0.68rem; color: var(--muted); }
+.dvrow { display: grid; grid-template-columns: 30px minmax(0, 1fr) 74px; gap: 10px; align-items: center; padding: 11px 12px 11px 8px; border-top: 1px solid var(--line); cursor: pointer; }
+.dvrow:first-child { border-top: 0; }
+.dvrow:hover { background: var(--raised); }
+.dvrow .rk { text-align: center; font-weight: 700; font-family: var(--font-fig); }
+.dvrow .l1 { display: flex; align-items: baseline; gap: 7px; min-width: 0; }
+.dvrow .l1 .tk { font-weight: 600; font-size: 0.93rem; flex: none; }
+.dvrow .l1 .name { color: var(--muted); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.dvrow .l2 { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--muted); margin-top: 3px; min-width: 0; white-space: nowrap; overflow: hidden; }
+.dvrow .yv { text-align: right; }
+.dvrow .yv b { display: block; font-size: 1.05rem; font-family: var(--font-fig); font-variant-numeric: tabular-nums; }
+.dvrow .yv small { font-size: 0.68rem; color: var(--muted); }
 .fqb { flex: none; display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink); background: var(--raised); }
 .fqb.w, .fqb.m { background: color-mix(in oklab, var(--accent) 16%, var(--surface)); border-color: color-mix(in oklab, var(--accent) 40%, var(--line)); }
 .warnb { flex: none; font-size: 0.68rem; font-weight: 700; color: var(--caution); border: 1px solid color-mix(in oklab, var(--caution) 45%, var(--line)); border-radius: 999px; padding: 1px 6px; }
@@ -424,7 +424,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 .dbar .tr i { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
 .dbar b { text-align: right; font-family: var(--font-fig); font-weight: 600; font-variant-numeric: tabular-nums; }
 .divlist li { grid-template-columns: 1fr auto; }
-@media (max-width: 380px) { .drow { grid-template-columns: 26px minmax(0, 1fr) 66px; } }
+@media (max-width: 380px) { .dvrow { grid-template-columns: 26px minmax(0, 1fr) 66px; } }
 </style>
 </head>
 <body>
@@ -1271,8 +1271,8 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   }
   function divRow(r, k) {
     const dv = r.dv, px = (r.pr || [])[1], scale = Math.max(20, Math.abs(px || 0), dv.dy, Math.abs(r.r[7] || 0));
-    const head = state.etfDs === "dy" ? `<b>${dv.dy.toFixed(1)}%</b><small>연배당률${dv.ya ? "·추정" : ""}</small>` : `<b class="${pcls(DS[state.etfDs].f(r))}">${pct(DS[state.etfDs].f(r))}</b><small>${DS[state.etfDs].k} · 배당 ${dv.dy.toFixed(1)}%</small>`;
-    return `<div class="drow" data-etf="${esc(r.y)}" role="button" tabindex="0" aria-label="${k + 1}위 ${esc(r.t)} 연배당률 ${dv.dy}% ${esc(FQ_KO[dv.fq] || "")}">
+    const head = state.etfDs === "dy" ? `<b>${dv.dy.toFixed(1)}%</b><small>연배당률${dv.ya ? "·추정" : ""}</small>` : `<b class="${pcls(DS[state.etfDs].f(r))}">${pct(DS[state.etfDs].f(r))}</b><small>${DS[state.etfDs].k}<br>배당 ${dv.dy.toFixed(1)}%</small>`;
+    return `<div class="dvrow" data-etf="${esc(r.y)}" role="button" tabindex="0" aria-label="${k + 1}위 ${esc(r.t)} 연배당률 ${dv.dy}% ${esc(FQ_KO[dv.fq] || "")}">
       <div class="rk">${k + 1}</div>
       <div class="m"><div class="l1"><span class="tk">${esc(r.t)}</span><span class="name">${esc(r.n)}</span></div>
         <div class="l2">${fqBadge(dv.fq)}${lossFlag(r)}<span style="overflow:hidden;text-overflow:ellipsis">${dv.ld != null ? `최근 ${esc(amt(dv.ld, r.cur))} · ${esc(shortDate(dv.lx))}` : esc(r.th)}</span></div>
