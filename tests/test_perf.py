@@ -38,17 +38,25 @@ def test_chain_metrics_mdd():
 
 
 def test_investor_perf_end_to_end():
-    ds = days("2024-01-01", 800)
-    px = {"AAA": perf.Series(ds, [100 * (1.001 ** i) for i in range(800)]),
-          "SPY": perf.Series(ds, [100 * (1.0005 ** i) for i in range(800)])}
+    ds = days("2024-01-01", 500)
+    px = {"AAA": perf.Series(ds, [100 * (1.001 ** i) for i in range(500)]),
+          "SPY": perf.Series(ds, [100 * (1.0005 ** i) for i in range(500)])}
     qs = [{"period": "2024-03-31", "filed": "2024-05-15", "total": 100, "h": {"C": {"v": 100, "n": "A"}}},
           {"period": "2024-06-30", "filed": "2024-08-14", "total": 100, "h": {"C": {"v": 100, "n": "A"}}},
           {"period": "2024-09-30", "filed": "2024-11-14", "total": 100, "h": {"C": {"v": 100, "n": "A"}}}]
-    out = perf.investor_perf(qs, {"C": "AAA"}, px, ds[-1])
+    out = perf.investor_perf(qs, {"C": "AAA"}, px, "2025-04-15")
     q = out["quarters"]
     assert len(q) == 3 and q[-1]["partial"] and not q[0]["partial"]
     assert all(r["ret"] > r["spy"] for r in q[:2])                     # 매일 0.1% vs 0.05%
     m = out["metrics"]
     assert m["win"] == 1.0 and m["quarters"] == 2 and m["r1y"] > 0 and m["ex1y"] > 0
     assert out["curve"]["d"] and len(out["curve"]["d"]) == len(out["curve"]["inv"]) == len(out["curve"]["spy"])
-    assert out["follow"]["r1y"] is not None
+    assert out["curve"]["follow"] and out["follow"]["mdd"] is not None
+
+
+def test_stale_investor_window_is_capped():
+    ds = days("2023-01-01", 1000)
+    px = {"AAA": perf.Series(ds, [100 + i for i in range(1000)]), "SPY": perf.Series(ds, [100 + i * 0.5 for i in range(1000)])}
+    qs = [{"period": "2023-03-31", "filed": "2023-05-15", "total": 1, "h": {"C": {"v": 1, "n": "A"}}}]
+    out = perf.investor_perf(qs, {"C": "AAA"}, px, ds[-1])
+    assert out["stale"] and out["until"] <= "2023-07-01" and not out["quarters"][-1]["partial"]

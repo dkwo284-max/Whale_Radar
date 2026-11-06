@@ -29,6 +29,7 @@ from sec import ARCHIVE, SUBMISSIONS, filings, find_infotable, parse_infotable
 
 QUARTERS = 21       # 5년(20분기) 수익률 + 시작 분기
 TOP_N = 30
+STALE_DAYS = 200    # 최근 13F 기준일이 이보다 오래되면 '공시 중단'으로 보고 순위에서 뺀다
 BENCH = "SPY"
 CACHE13F = CACHE / "13f"
 
@@ -194,12 +195,16 @@ def metrics(days: list[str], vals: list[float], today: str) -> dict:
 def investor_perf(qs: list[dict], tickers: dict[str, str | None], px: dict[str, Series], today: str) -> dict:
     """qs: 분기 13F (오래된 순). 분기별 성적·누적 곡선·지표."""
     ws = [weights(q["h"], tickers) for q in qs]
+    # 최근 13F 가 오래됐으면(공시 중단·제출 대상 아님) 마지막 분기를 지금까지 늘리지 않고 다음 분기 말(약 3개월)에서 끊는다
+    last_p = qs[-1]["period"] if qs else today
+    stale = (date.fromisoformat(today) - date.fromisoformat(last_p)).days > STALE_DAYS
+    cap = lambda d: min(today, (date.fromisoformat(d) + timedelta(days=92)).isoformat()) if stale else today  # noqa: E731
     bench = px.get(BENCH)
     rows, qe_w, fo_w, bq_w = [], [], [], []
     for i, q in enumerate(qs):
         nxt = qs[i + 1] if i + 1 < len(qs) else None
-        end_qe = nxt["period"] if nxt else today
-        end_fo = nxt["filed"] if nxt else today
+        end_qe = nxt["period"] if nxt else cap(q["period"])
+        end_fo = nxt["filed"] if nxt else cap(q["filed"])
         a = window(ws[i], px, q["period"], end_qe)
         b = window(ws[i], px, q["filed"], end_fo)
         bq = window({BENCH: 1.0}, px, q["period"], end_qe) if bench else None
@@ -211,7 +216,7 @@ def investor_perf(qs: list[dict], tickers: dict[str, str | None], px: dict[str, 
         ranked = sorted(a["contrib"].items(), key=lambda kv: kv[1], reverse=True)
         top10 = sum(x["v"] for x in sorted(q["h"].values(), key=lambda x: x["v"], reverse=True)[:10])
         rows.append({
-            "period": q["period"], "filed": q["filed"], "url": q.get("url", ""), "partial": nxt is None,
+            "period": q["period"], "filed": q["filed"], "url": q.get("url", ""), "partial": nxt is None and not stale,
             "ret": a["ret"], "spy": bq["ret"] if bq else None, "ret_follow": b["ret"], "spy_follow": bf["ret"] if bf else None,
             "cov": round(a["cov"], 3), "top10": round(top10 / q["total"], 3) if q.get("total") else None,
             "best": [{"t": t, "c": round(c, 4), "r": round(a["rets"][t], 4)} for t, c in ranked[:3] if c > 0],
@@ -220,9 +225,10 @@ def investor_perf(qs: list[dict], tickers: dict[str, str | None], px: dict[str, 
     d_qe, v_qe = chain(qe_w)
     d_fo, v_fo = chain(fo_w)
     d_sp, v_sp = chain(bq_w)
-    m = metrics(d_qe, v_qe, today)
-    mf = metrics(d_fo, v_fo, today)
-    ms = metrics(d_sp, v_sp, today)
+    until = d_qe[-1] if d_qe else today  # 지표 기준일 (공시가 끊긴 투자자는 마지막 13F 다음 분기 말)
+    m = metrics(d_qe, v_qe, until)
+    mf = metrics(d_fo, v_fo, d_fo[-1] if d_fo else until)
+    ms = metrics(d_sp, v_sp, until)
     done = [r for r in rows if not r["partial"] and r["ret"] is not None and r["spy"] is not None]
     m["win"] = (sum(1 for r in done if r["ret"] > r["spy"]) / len(done)) if done else None
     m["quarters"] = len(done)
@@ -233,7 +239,7 @@ def investor_perf(qs: list[dict], tickers: dict[str, str | None], px: dict[str, 
     cd, cv = sample(d_qe, v_qe)
     fd, fv = sample(d_fo, v_fo) if d_fo else ([], [])
     sd = dict(zip(d_sp, v_sp))
-    return {"quarters": rows, "metrics": m, "follow": mf, "spy": ms,
+    return {"stale": stale, "until": until, "quarters": rows, "metrics": m, "follow": mf, "spy": ms,
             "curve": {"d": cd, "inv": cv, "spy": [round(sd[d], 4) if d in sd else None for d in cd], "fd": fd, "follow": fv}}
 
 

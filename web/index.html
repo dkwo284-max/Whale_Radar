@@ -228,6 +228,32 @@ select { font: inherit; font-size: 0.82rem; padding: 7px 10px; border-radius: 9p
 .pill[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
 /* 투자자 프로필 */
+.perf { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 14px 16px; margin: 0 0 14px; box-shadow: var(--card-shadow); display: grid; gap: 10px; }
+.perf h3 { margin: 0; font-size: 1.02rem; }
+.perf .note { font-size: .78rem; color: var(--muted); margin: 0; }
+.perf .segs { display: flex; flex-wrap: wrap; gap: 8px; }
+.perf table { width: 100%; border-collapse: collapse; font-size: .86rem; font-variant-numeric: tabular-nums; }
+.perf th, .perf td { padding: 6px 4px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+.perf th:nth-child(2), .perf td:nth-child(2) { text-align: left; white-space: normal; }
+.perf thead th { font-size: .74rem; color: var(--muted); font-weight: 600; }
+.perf tr.bench td { color: var(--muted); font-style: italic; }
+.perf tr.me td { background: color-mix(in oklab, var(--accent, #2563eb) 10%, transparent); }
+.perf .rk { font-weight: 700; width: 1.6em; text-align: center; }
+.perf .nm { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; text-decoration: underline dotted; text-align: left; }
+.perf .up { color: var(--up); } .perf .down { color: var(--down); }
+.perf .wrap { overflow-x: auto; }
+.perf .heat td { text-align: center; font-size: .72rem; padding: 4px 2px; min-width: 42px; }
+.perf .heat td:nth-child(1) { text-align: left; font-size: .8rem; white-space: nowrap; }
+.perf .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 6px; }
+.perf .tile { border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; display: grid; }
+.perf .tile b { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.perf .tile span { font-size: .72rem; color: var(--muted); }
+.perf svg { width: 100%; height: auto; display: block; }
+.perf .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: .76rem; color: var(--muted); }
+.perf .legend i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 4px; }
+.perf .qs td:nth-child(2) { text-align: right; }
+.perf .qs td.ctb { text-align: left; white-space: normal; font-size: .76rem; padding-top: 0; }
+.perf .qs tr:has(+ .ctbr) td { border-bottom: 0; }
 .profile { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 16px; display: grid; gap: 14px; }
 .profile .top { display: flex; gap: 12px; align-items: center; }
 .profile .top > div { flex: 1; min-width: 0; }
@@ -588,8 +614,10 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   </div>
 
   <div class="panel" data-panel="investors" hidden>
+    <section class="perf" id="perf-rank" aria-label="대가 성적 순위"></section>
     <div class="scroller" id="inv-pills" role="group" aria-label="투자자 선택"></div>
     <div class="profile" id="profile"></div>
+    <section class="perf" id="perf-detail" aria-label="기간별 성적" hidden></section>
     <section>
       <div class="controls">
         <div class="seg" id="sig-seg" role="group" aria-label="신호 필터">
@@ -1142,6 +1170,120 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
         <span class="track" aria-hidden="true"><span class="mid"></span><span class="bar ${p.flow > 0 ? "pos" : "neg"}" style="width:${(Math.abs(p.flow) / max * 50).toFixed(2)}%"></span></span>
         <span class="val">${usd(p.flow, true)}</span></button>`).join("")}</div></div>`;
   }
+  /* ---------- 대가 성적 (13F 복제 포트폴리오 추정) ---------- */
+  let P = null;
+  const PERS = { "1y": "1년", "3y": "3년", "5y": "5년" };
+  const pv = (x) => x == null ? "—" : (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(x * 100).toFixed(Math.abs(x) >= 10 ? 0 : 1) + "%";
+  const pc = (x) => x == null ? "" : x > 0 ? "up" : x < 0 ? "down" : "";
+  const perfOf = (id) => (P && P.investors.find((i) => i.id === id)) || null;
+  if (!state.perfPer) state.perfPer = store.get("radar.perfPer") || "3y";
+  if (!state.perfBasis) state.perfBasis = store.get("radar.perfBasis") || "qe";
+  const basisVal = (p, k) => (state.perfBasis === "follow" ? p.follow : p.metrics)[k];
+
+  function renderPerfRank() {
+    const box = $("#perf-rank");
+    if (!box) return;
+    if (!P || !P.investors.length) { box.hidden = true; return; }
+    box.hidden = false;
+    const per = state.perfPer, k = "r" + per;
+    // 최근 13F 가 끊긴 투자자(공시 중단)는 기간이 맞지 않아 순위에서 빼고 맨 아래에 표시
+    const rows = P.investors.map((p) => { const v = p.stale ? null : basisVal(p, k); return { p, v, ex: v != null && p.spy[k] != null ? v - p.spy[k] : null }; })
+      .sort((a, b) => (b.v == null) - (a.v == null) || (b.v ?? 0) - (a.v ?? 0));
+    const spy = P.investors.find((p) => p.spy[k] != null)?.spy || {};
+    const seg = (name, cur, opts) => `<div class="seg" role="group" aria-label="${name}">${Object.entries(opts).map(([v, l]) =>
+      `<button type="button" data-perf-${name}="${v}" aria-pressed="${v === cur}">${l}</button>`).join("")}</div>`;
+    let rank = 0;
+    const body = rows.map(({ p, v, ex }) => {
+      const r = v == null ? "" : String(++rank);
+      const m = p.metrics;
+      return `<tr class="${p.id === state.inv ? "me" : ""}"><td class="rk">${r || "–"}</td>
+        <td><button type="button" class="nm" data-perf-inv="${esc(p.id)}">${pav(p)} ${esc(p.name)}</button>${p.stale ? `<br><small class="muted">13F 공시 끊김 · ${esc((p.until || "").slice(0, 7))}까지만 계산</small>` : ""}</td>
+        <td class="${pc(v)}"><b>${pv(v)}</b>${per !== "1y" && v != null ? `<br><small class="muted">연 ${pv(basisVal(p, "cagr" + per))}</small>` : ""}</td>
+        <td class="${pc(ex)}">${pv(ex)}</td><td>${m.win == null ? "—" : Math.round(m.win * 100) + "%"}</td><td class="down">${pv(m.mdd)}</td></tr>`;
+    }).join("");
+    // 히트맵: 대가 × 최근 12분기 (S&P500 대비 초과수익으로 색)
+    const periods = [...new Set(P.investors.flatMap((p) => p.quarters.map((q) => q.period)))].sort().slice(-12);
+    const heat = P.investors.map((p) => {
+      const by = Object.fromEntries(p.quarters.map((q) => [q.period, q]));
+      return `<tr><td>${esc(p.name)}</td>${periods.map((d) => {
+        const q = by[d];
+        const r = q ? (state.perfBasis === "follow" ? q.ret_follow : q.ret) : null;
+        const s = q ? (state.perfBasis === "follow" ? q.spy_follow : q.spy) : null;
+        if (r == null) return `<td class="muted">·</td>`;
+        const ex = s == null ? 0 : r - s, a = Math.min(0.85, Math.abs(ex) * 4 + 0.08);
+        const col = ex >= 0 ? `rgba(216,52,63,${a})` : `rgba(42,107,216,${a})`;
+        return `<td style="background:${col}" title="${esc(p.name)} ${quarter(d)}${q.partial ? " (진행 중)" : ""}: ${pv(r)} · S&P500 ${pv(s)}">${pv(r)}${q.partial ? "*" : ""}</td>`;
+      }).join("")}</tr>`;
+    }).join("");
+    box.innerHTML = `<h3>🏆 대가 성적 순위 <span class="muted" style="font-size:.78rem;font-weight:400">13F 복제 포트폴리오 추정 · ${esc(P.as_of)} 기준</span></h3>
+      <div class="segs">${seg("per", per, PERS)}${seg("basis", state.perfBasis, { qe: "분기말 기준", follow: "공시 보고 따라 샀다면" })}</div>
+      <div class="wrap"><table><thead><tr><th>순위</th><th>대가</th><th>${PERS[per]} 수익률</th><th>S&P500 대비</th><th>시장 이긴 분기</th><th>최대 낙폭</th></tr></thead>
+      <tbody>${body}<tr class="bench"><td></td><td>S&P500 (SPY)</td><td>${pv(spy[k])}</td><td>—</td><td>—</td><td>${pv(spy.mdd)}</td></tr></tbody></table></div>
+      <h3 style="font-size:.92rem">📅 분기별 성적 <span class="muted" style="font-size:.76rem;font-weight:400">빨강 = S&P500보다 좋음, 파랑 = 나쁨 · * 진행 중 분기</span></h3>
+      <div class="wrap"><table class="heat"><thead><tr><th>대가</th>${periods.map((d) => `<th>${quarter(d).replace(" ", "<br>")}</th>`).join("")}</tr></thead><tbody>${heat}</tbody></table></div>
+      <p class="note">13F 에는 분기 말 미국 주식 롱 포지션만 나와요(현금·공매도·채권·해외 주식·대부분의 옵션 제외, 분기 중 매매는 안 보임). 그래서 실제 펀드 수익률이 아니라 "상위 ${P.top_n}종목을 그 비중대로 들고 있었다면"의 추정치예요. ‘공시 보고 따라 샀다면’은 공시일(분기 말 최대 45일 뒤)에 사서 다음 공시일까지 보유한 값입니다. 배당 포함, 수수료·세금 제외. 투자 권유가 아닙니다.</p>`;
+  }
+
+  function perfChart(p) {
+    const c = p.curve || {};
+    if (!c.d || c.d.length < 2) return `<p class="note">누적 곡선을 그릴 만큼 데이터가 없어요.</p>`;
+    const W = 600, H = 210, L = 36, R = 8, T = 10, B = 22;
+    const t0 = Date.parse(c.d[0]), t1 = Date.parse(c.d[c.d.length - 1]);
+    const fol = (c.fd || []).map((d, i) => [d, c.follow[i]]);
+    const all = [...c.inv, ...c.spy.filter((v) => v != null), ...fol.map((x) => x[1])];
+    const lo = Math.min(...all), hi = Math.max(...all);
+    const x = (d) => L + ((Date.parse(d) - t0) / Math.max(1, t1 - t0)) * (W - L - R);
+    const y = (v) => T + (1 - (v - lo) / Math.max(1e-9, hi - lo)) * (H - T - B);
+    const line = (pts) => pts.filter((q) => q[1] != null && Date.parse(q[0]) >= t0).map((q, i) => `${i ? "L" : "M"}${x(q[0]).toFixed(1)},${y(q[1]).toFixed(1)}`).join("");
+    const ticks = [lo, (lo + hi) / 2, hi].map((v) => `<text x="${L - 4}" y="${y(v) + 3}" text-anchor="end" font-size="10" fill="currentColor" opacity=".6">${pv(v - 1)}</text><line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="currentColor" opacity=".08"/>`).join("");
+    const years = [...new Set(c.d.map((d) => d.slice(0, 4)))].map((yy) => { const d = c.d.find((q) => q.startsWith(yy)); return `<text x="${x(d)}" y="${H - 6}" font-size="10" fill="currentColor" opacity=".6">${yy}</text>`; }).join("");
+    const base = lo <= 1 && hi >= 1 ? `<line x1="${L}" x2="${W - R}" y1="${y(1)}" y2="${y(1)}" stroke="currentColor" opacity=".25" stroke-dasharray="3 3"/>` : "";
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(p.name)} 누적 수익 곡선과 S&P500 비교">${ticks}${base}${years}
+      <path d="${line(c.d.map((d, i) => [d, c.spy[i]]))}" fill="none" stroke="#8b98a7" stroke-width="1.6"/>
+      ${fol.length ? `<path d="${line(fol)}" fill="none" stroke="#7c3aed" stroke-width="1.4" stroke-dasharray="5 4"/>` : ""}
+      <path d="${line(c.d.map((d, i) => [d, c.inv[i]]))}" fill="none" stroke="var(--up)" stroke-width="2.2"/></svg>
+      <div class="legend"><span><i style="background:var(--up)"></i>${esc(p.name)} (분기말 기준)</span><span><i style="background:#7c3aed"></i>공시 보고 따라 샀다면</span><span><i style="background:#8b98a7"></i>S&P500</span></div>`;
+  }
+
+  function renderPerfDetail(inv) {
+    const box = $("#perf-detail");
+    if (!box) return;
+    const p = inv && perfOf(inv.id);
+    if (!p) { box.hidden = true; return; }
+    box.hidden = false;
+    const m = p.metrics, f = p.follow, s = p.spy;
+    const tile = (label, v, cls = "") => `<div class="tile"><b class="${cls}">${v}</b><span>${label}</span></div>`;
+    const qs = [...p.quarters].reverse().slice(0, 8).map((q) => {
+      const ex = q.ret != null && q.spy != null ? q.ret - q.spy : null;
+      const ctb = (arr) => arr.map((c) => `${esc(c.t)} ${pv(c.c)}`).join(", ");
+      return `<tr><td>${quarter(q.period)}${q.partial ? ' <small class="muted">진행 중</small>' : ""}</td><td class="${pc(q.ret)}"><b>${pv(q.ret)}</b></td><td>${pv(q.spy)}</td><td class="${pc(ex)}">${pv(ex)}</td></tr>
+        ${q.best.length || q.worst.length ? `<tr class="ctbr"><td class="ctb" colspan="4">${q.best.length ? `<span class="up">▲ ${ctb(q.best)}</span>` : ""}${q.best.length && q.worst.length ? " · " : ""}${q.worst.length ? `<span class="down">▼ ${ctb(q.worst)}</span>` : ""}</td></tr>` : ""}`;
+    }).join("");
+    box.innerHTML = `<h3>📈 ${esc(p.name)} 기간별 성적 <span class="muted" style="font-size:.76rem;font-weight:400">13F 복제 포트폴리오 추정 · ${esc(p.until || P.as_of)} 기준</span></h3>
+      ${p.stale ? `<p class="note">최근 13F 공시가 없어(${esc(quarter(p.quarters[p.quarters.length - 1]?.period))} 이후) 그다음 분기 말까지만 계산했어요. 순위에서는 뺐습니다.</p>` : ""}
+      ${perfChart(p)}
+      <div class="tiles">
+        ${tile("1년 수익률", pv(m.r1y), pc(m.r1y))}${tile("3년 연평균", pv(m.cagr3y), pc(m.cagr3y))}${tile("5년 연평균", pv(m.cagr5y), pc(m.cagr5y))}
+        ${tile("1년 S&P500 대비", pv(m.ex1y), pc(m.ex1y))}${tile("따라 샀다면 1년", pv(f.r1y), pc(f.r1y))}${tile("따라 샀다면 3년", pv(f.r3y), pc(f.r3y))}
+        ${tile("시장 이긴 분기", m.win == null ? "—" : `${Math.round(m.win * 100)}% <small>(${m.quarters}분기)</small>`)}${tile("최대 낙폭", pv(m.mdd), "down")}${tile("연 변동성", m.vol == null ? "—" : (m.vol * 100).toFixed(0) + "%")}
+        ${tile("상위 10종목 비중", m.top10 == null ? "—" : Math.round(m.top10 * 100) + "%")}${tile("분기 회전율", m.turnover == null ? "—" : Math.round(m.turnover * 100) + "%")}${tile("S&P500 1년", pv(s.r1y), pc(s.r1y))}
+      </div>
+      <div class="wrap"><table class="qs"><thead><tr><th>분기</th><th>수익률</th><th>S&P500</th><th>대비</th></tr></thead><tbody>${qs}</tbody></table></div>
+      <p class="note">▲▼ 는 그 분기 수익에 가장 크게 더하고 뺀 종목(포트폴리오 %p). 분기 수익률 = 그 분기 말 13F 상위 ${P.top_n}종목 비중으로 다음 분기 말까지 보유. 시세를 찾지 못한 종목(상장폐지 등)은 빼고 비중을 다시 나눴어요. 회전율은 분기마다 비중이 바뀐 정도(0% = 그대로, 100% = 전부 교체), 변동성·최대 낙폭은 일별 추정 가치 기준이에요.</p>`;
+  }
+
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest && e.target.closest("[data-perf-per],[data-perf-basis],[data-perf-inv]");
+    if (!b) return;
+    if (b.dataset.perfPer) { state.perfPer = b.dataset.perfPer; store.set("radar.perfPer", state.perfPer); renderPerfRank(); }
+    else if (b.dataset.perfBasis) { state.perfBasis = b.dataset.perfBasis; store.set("radar.perfBasis", state.perfBasis); renderPerfRank(); }
+    else if (b.dataset.perfInv) { state.inv = b.dataset.perfInv; store.set("radar.inv", state.inv); renderInvestors(); $("#profile").scrollIntoView({ behavior: "smooth", block: "start" }); }
+  });
+  fetch("data/performance.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null).then((d) => {
+    P = d;
+    if (D && state.inv && !$("#profile").closest("[hidden]")) renderInvestors();
+  });
+
   function renderInvestors() {
     const inv = invById[state.inv] || D.investors[0];
     if (!inv) { $("#positions").innerHTML = `<div class="empty">수집된 투자자가 없습니다.</div>`; return; }
@@ -1172,6 +1314,8 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     const maxW = Math.max(1, ...inv.positions.map((p) => p.weight));
     const rows = inv.positions.filter((p) => (state.sig === "ALL" || p.signal === state.sig) && (!state.sector || p.sector === state.sector));
     $("#positions").innerHTML = rows.map((p) => positionItem(p, { maxW })).join("") || `<div class="empty">조건에 맞는 종목이 없습니다.</div>`;
+    renderPerfRank();
+    renderPerfDetail(inv);
   }
 
   /* ---------- 공시 ---------- */
