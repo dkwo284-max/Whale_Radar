@@ -237,6 +237,11 @@ select { font: inherit; font-size: 0.82rem; padding: 7px 10px; border-radius: 9p
 .perf th:nth-child(2), .perf td:nth-child(2) { text-align: left; white-space: normal; }
 .perf thead th { font-size: .74rem; color: var(--muted); font-weight: 600; }
 .perf tr.bench td { color: var(--muted); font-style: italic; }
+.perf tr.na td { opacity: .6; }
+.perf td:nth-child(2) { min-width: 118px; }
+.perf .nm .av { width: 20px; height: 20px; font-size: .6rem; vertical-align: middle; }
+@media (max-width: 480px) { .perf th, .perf td { padding: 6px 3px; font-size: .8rem; } .perf .nm .av { display: none; } }
+.perf tr.nah td { text-align: left; background: color-mix(in oklab, var(--muted) 12%, transparent); color: var(--muted); font-size: .76rem; font-weight: 600; white-space: normal; }
 .perf tr.me td { background: color-mix(in oklab, var(--accent, #2563eb) 10%, transparent); }
 .perf .rk { font-weight: 700; width: 1.6em; text-align: center; }
 .perf .nm { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; text-decoration: underline dotted; text-align: left; }
@@ -1188,19 +1193,22 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     const per = state.perfPer, k = "r" + per;
     // 최근 13F 가 끊긴 투자자(공시 중단)는 기간이 맞지 않아 순위에서 빼고 맨 아래에 표시
     const rows = P.investors.map((p) => { const v = p.stale ? null : basisVal(p, k); return { p, v, ex: v != null && p.spy[k] != null ? v - p.spy[k] : null }; })
-      .sort((a, b) => (b.v == null) - (a.v == null) || (b.v ?? 0) - (a.v ?? 0));
+      .sort((a, b) => (a.v == null) - (b.v == null) || (b.v ?? 0) - (a.v ?? 0));  // 측정 불가(null)는 맨 아래로
     const spy = P.investors.find((p) => p.spy[k] != null)?.spy || {};
     const seg = (name, cur, opts) => `<div class="seg" role="group" aria-label="${name}">${Object.entries(opts).map(([v, l]) =>
       `<button type="button" data-perf-${name}="${v}" aria-pressed="${v === cur}">${l}</button>`).join("")}</div>`;
     let rank = 0;
-    const body = rows.map(({ p, v, ex }) => {
+    const row = ({ p, v, ex }) => {
       const r = v == null ? "" : String(++rank);
       const m = p.metrics;
-      return `<tr class="${p.id === state.inv ? "me" : ""}"><td class="rk">${r || "–"}</td>
-        <td><button type="button" class="nm" data-perf-inv="${esc(p.id)}">${pav(p)} ${esc(p.name)}</button>${p.stale ? `<br><small class="muted">13F 공시 끊김 · ${esc((p.until || "").slice(0, 7))}까지만 계산</small>` : ""}</td>
+      const why = p.stale ? `13F 공시 끊김 · ${esc((p.until || "").slice(0, 7))}까지만 계산` : v == null ? `${PERS[per]} 수익률을 계산할 만큼 기록이 없어요` : "";
+      return `<tr class="${p.id === state.inv ? "me" : ""}${v == null ? " na" : ""}"><td class="rk">${r || "–"}</td>
+        <td><button type="button" class="nm" data-perf-inv="${esc(p.id)}">${pav(p)} ${esc(p.name)}</button>${why ? `<br><small class="muted">${why}</small>` : ""}</td>
         <td class="${pc(v)}"><b>${pv(v)}</b>${per !== "1y" && v != null ? `<br><small class="muted">연 ${pv(basisVal(p, "cagr" + per))}</small>` : ""}</td>
-        <td class="${pc(ex)}">${pv(ex)}</td><td>${m.win == null ? "—" : Math.round(m.win * 100) + "%"}</td><td class="down">${pv(m.mdd)}</td></tr>`;
-    }).join("");
+        <td class="${pc(ex)}">${pv(ex)}</td><td>${v == null || m.win == null ? "—" : Math.round(m.win * 100) + "%"}</td><td class="down">${v == null ? "—" : pv(m.mdd)}</td></tr>`;
+    };
+    const ok = rows.filter((r) => r.v != null), na = rows.filter((r) => r.v == null);
+    const body = ok.map(row).join("") + (na.length ? `<tr class="nah"><td colspan="6">측정 불가 ${na.length}명 — 공시가 끊겼거나 ${PERS[per]} 기록이 부족해 순위에서 제외</td></tr>${na.map(row).join("")}` : "");
     // 히트맵: 대가 × 최근 12분기 (S&P500 대비 초과수익으로 색)
     const periods = [...new Set(P.investors.flatMap((p) => p.quarters.map((q) => q.period)))].sort().slice(-12);
     const heat = P.investors.map((p) => {
