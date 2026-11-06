@@ -1,0 +1,56 @@
+name: Investor performance (13F clone portfolios)
+
+# 대가별 13F 복제 포트폴리오의 기간별 성적(1·3·5년, 분기별, S&P500 대비)을 계산해 web/data/performance.json 으로 저장합니다.
+# 매주 일요일 한 번(진행 중 분기 수익률·1년 수익률 갱신) + 수동. 과거 13F 는 cache/13f 에 저장돼 새 분기만 받습니다. AI 는 쓰지 않습니다.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 4 * * 0"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: radar
+  cancel-in-progress: false
+
+jobs:
+  perf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -r requirements.txt -r requirements-etf.txt
+      - name: Compute performance
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: python scripts/perf.py
+      - name: Commit data
+        run: |
+          git config user.name "whale-radar-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/data/performance.json cache
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -m "data: investor performance"
+          for i in 1 2 3; do git pull --rebase -X theirs -q origin main && git push -q origin HEAD:main && exit 0; git rebase --abort 2>/dev/null; sleep 5; done
+          echo "::error::data commit could not be pushed"; exit 1
+
+  deploy:
+    needs: perf
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.pages.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: web }
+      - id: pages
+        uses: actions/deploy-pages@v4
