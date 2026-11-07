@@ -434,6 +434,31 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 .ehome .bcard .eyebrow a { text-decoration: none; }
 .chiprow { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 /* 글로벌: 패권 이동 지도 · 신호×반응 · 테마×지역 · 관찰 후보 · 환율 */
+.gv { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 12px 14px; display: grid; gap: 10px; box-shadow: var(--card-shadow); }
+.gv .eyebrow { display: flex; gap: 8px; align-items: baseline; font-size: 0.72rem; font-weight: 600; color: var(--muted); }
+.gv .eyebrow a { margin-left: auto; font-weight: 500; }
+.gv .vt { font-size: 0.95rem; font-weight: 600; line-height: 1.45; }
+.gvbar { display: flex; gap: 2px; height: 10px; border-radius: 999px; overflow: hidden; }
+.gvbar i { display: block; min-width: 6px; }
+.gvleg { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.74rem; color: var(--muted); }
+.gvleg b { font-family: var(--font-fig); color: var(--ink); }
+.s-w { color: var(--sell); } .s-m { color: var(--cat-4); } .s-h { color: var(--buy); }
+.b-w { background: var(--sell); } .b-m { background: var(--cat-4); } .b-h { background: var(--buy); }
+.gwl { display: grid; gap: 3px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 0.8rem; }
+.gwl .t { display: flex; justify-content: space-between; gap: 8px; }
+.gwl .t b { font-weight: 600; }
+.gwl .t span { font-size: 0.74rem; font-weight: 600; white-space: nowrap; }
+.gtrk { position: relative; height: 6px; border-radius: 999px; background: var(--raised); }
+.gtrk .z { position: absolute; top: 0; bottom: 0; background: color-mix(in oklab, var(--sell) 28%, transparent); }
+.gtrk .ln { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--ink); }
+.gtrk .mk { position: absolute; top: 50%; width: 10px; height: 10px; border-radius: 50%; background: var(--surface); border: 2.5px solid var(--ink); transform: translate(-50%, -50%); }
+.gwl .r { font-size: 0.72rem; color: var(--muted); }
+.gmx .wl { display: block; font-size: 0.68rem; font-weight: 600; margin-top: 3px; }
+.g50 { flex: none; display: inline-block; font-size: 0.64rem; font-weight: 700; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.g50.u { color: var(--buy); border-color: color-mix(in oklab, var(--buy) 40%, var(--line)); }
+.g50.d { color: var(--sell); border-color: color-mix(in oklab, var(--sell) 40%, var(--line)); }
+.gwhy .gind { display: block; margin-top: 1px; font-size: 0.72rem; }
+.gqrow .sc .hs { display: block; margin-top: 2px; }
 .ghero { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 12px 14px; display: grid; gap: 8px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
 .ghero .eyebrow { font-size: 0.72rem; font-weight: 600; color: var(--muted); letter-spacing: 0.03em; }
 .ghero .big { font-family: var(--font-fig); font-size: 1.55rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
@@ -763,6 +788,11 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
       <div id="g-note"></div>
     </section>
     <div id="g-body" hidden style="display:grid;gap:28px">
+      <section id="g-v-sec" hidden>
+        <h2>⓪ 패권 판정<button type="button" class="tip" data-tip="gverdict" aria-label="패권 판정 설명">ⓘ</button></h2>
+        <p class="sub">패권 재편 레이더의 10개 지표와 구조 경고선이에요. 시장(①~⑤)이 이 판정을 따라가는지 함께 보세요.</p>
+        <div id="g-verdict"></div>
+      </section>
       <section>
         <h2>① 돈의 이동 지도<button type="button" class="tip" data-tip="glead" aria-label="미국 추월 설명">ⓘ</button></h2>
         <p class="sub" id="g-s1-sub">미국(S&amp;P 500)보다 더 오른 나라일수록 위에 나옵니다. 숫자는 미국 대비 수익률 차이(%p)예요.</p>
@@ -957,6 +987,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     "13DG": ["13D · 13G", "한 회사 지분을 5% 넘게 가지면 내는 신고예요. 13D는 경영 참여 가능, 13G는 단순 투자 목적이에요."],
     flow: ["추정 순매수", "직전 분기 대비 보유 수량 변화에 분기말 주가를 곱한 추정 금액이에요. 실제 매매 가격과는 다를 수 있어요."],
     etfdiv: ["배당 순위 기준", "최근 12개월에 받은 배당을 현재가로 나눈 연배당률 2% 이상인 주식형 ETF예요(채권·현금 ETF 제외). 주기는 최근 지급 간격으로 판정하고, 상장 1년 미만이면 받은 기간만큼 연환산해 '추정'으로 표시해요. 총수익 = 주가 수익률 + 배당 재투자 효과예요. 1년 주가가 10% 넘게 빠졌으면 '원금 감소'를 붙여요. 연배당률이 높아도 주가가 함께 빠지면 실제 수익은 작을 수 있어요."],
+    gverdict: ["패권 판정", "패권 재편 레이더(Claude가 매주 공개 자료로 평가)의 10개 지표 신호예요. ▼는 미국에 불리, ◆는 엇갈림, ▲는 미국 우위 유지예요. 아래 경고선은 분기·반기 통계라 느리게 바뀌고, 달러인덱스와 10년 금리 경고선은 ⑤의 실시간 시세 칸에 붙어 있어요. 경고선은 판단 기준일 뿐 공식 임계값이 아니에요. 나라 옆 '2050' 배지는 Goldman Sachs의 2050 GDP 순위 예측이 지금보다 오르는지 내리는지예요."],
     gmap: ["패권 이동 지도", "미국 패권이 다른 나라로 흘러가는지를 시장 가격으로 확인하는 화면이에요. 나라별 대표 ETF 수익을 미국(S&P 500)과 비교해요. 패권 자체를 측정하는 게 아니라 '시장이 그렇게 반응하고 있는지'를 보는 참고 자료예요."],
     glead: ["미국 추월", "최근 30일과 90일 모두 미국(S&P 500)보다 수익이 높으면 '미국 추월'이에요. '새로 추월'은 4주 전에는 90일 기준으로 미국에 뒤져 있다가 지금 앞선 경우예요."],
     gq: ["신호 × 시장 반응", "가로 점수는 패권 레이더가 5개 항목(성장·증시·통화금융·안보군사·기술무역)에서 ▲를 +1, ▼를 −1로 센 값이에요(미확인 칸은 0). 세로는 그 지역 대표 ETF의 미국 대비 90일 수익이에요. 신호는 강화인데 주가가 아직 약한 칸이 '관찰 1순위'예요. 신호는 Claude의 평가라 틀릴 수 있어요."],
@@ -1794,6 +1825,61 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   const gLead = (it) => it.rl && it.rl[1] > 0 && it.rl[2] > 0;
   const gFlip = (it) => it.rp != null && it.rp <= 0 && it.rl && it.rl[2] > 0;
 
+  /* 패권 재편 레이더(web/data/hegemony.json)의 지표·경고선·2050 순위 — 시장 데이터와 겹치지 않는 판단 층 */
+  let H = null;
+  const SG = { "약화": ["s-w", "b-w", "▼"], "혼조": ["s-m", "b-m", "◆"], "유지": ["s-h", "b-h", "▲"] };
+  const TH_IND = { core: 4, tech: 6, def: 7, supply: 8, res: 1, gold: 3 };   // 테마 → 근거 지표 순위
+  const LIVE_TH = { "DX-Y.NYB": "dxy", "^TNX": "ust10" };                     // 실시간 시세로 판정할 경고선
+  const hInd = (rank) => H && Array.isArray(H.indicators) ? H.indicators.find((x) => +x.rank === rank) : null;
+  const hTh = (id) => H && Array.isArray(H.thresholds) ? H.thresholds.find((x) => x.id === id) : null;
+  function thState(t, now) {
+    const span = t.max - t.min, dist = t.warn === "below" ? now - t.line : t.line - now;
+    return { dist, cls: dist <= 0 ? "s-w" : dist / span < 0.1 ? "s-m" : "s-h", ic: dist <= 0 ? "▼" : dist / span < 0.1 ? "◆" : "▲",
+      txt: dist <= 0 ? "경고선 넘음" : `경고선까지 ${(+dist.toFixed(2)).toLocaleString()}${t.unit}` };
+  }
+  function gVerdict() {
+    const ind = (H && H.indicators) || [];
+    if (!ind.length) return "";
+    const n = { "약화": 0, "혼조": 0, "유지": 0 };
+    ind.forEach((x) => { if (n[x.signal] != null) n[x.signal]++; });
+    const pctPos = (t, v) => Math.max(0, Math.min(100, (v - t.min) / (t.max - t.min) * 100));
+    const rows = ["usd", "gold", "cnchip"].map(hTh).filter(Boolean).map((t) => {
+      const st = thState(t, t.now);
+      return `<div class="gwl"><div class="t"><b>${esc(t.label)}</b><span class="${st.cls}">${st.ic} ${esc(st.txt)}</span></div>
+        <div class="gtrk" role="img" aria-label="${esc(t.label)} 현재 ${t.now}${esc(t.unit)}, 경고선 ${t.line}${esc(t.unit)}"><i class="z" style="${t.warn === "below" ? `left:0;width:${pctPos(t, t.line)}%` : `left:${pctPos(t, t.line)}%;right:0`}"></i><i class="ln" style="left:${pctPos(t, t.line)}%"></i><i class="mk" style="left:${pctPos(t, t.now)}%"></i></div>
+        <span class="r">현재 ${t.now}${esc(t.unit)} · 경고선 ${t.line}${esc(t.unit)} · ${esc(t.rule || "")}</span></div>`;
+    }).join("");
+    const bar = ["약화", "혼조", "유지"].filter((k) => n[k]).map((k) => `<i class="${SG[k][1]}" style="flex:${n[k]} 1 0"></i>`).join("");
+    return `<div class="gv"><span class="eyebrow">10개 지표 · ${esc(H.asof ? shortDate(H.asof) : "")} 주간 평가${H.artifact ? `<a href="${esc(H.artifact)}" target="_blank" rel="noopener">패권 레이더 ${icon("ext")}</a>` : ""}</span>
+      <div class="vt">${ind.length}개 중 ${n["약화"]}개가 미국에 불리하게, ${n["혼조"]}개는 엇갈리게, ${n["유지"]}개는 미국 우위로 움직여요.</div>
+      <div class="gvbar" role="img" aria-label="약화 ${n["약화"]}, 혼조 ${n["혼조"]}, 유지 ${n["유지"]}">${bar}</div>
+      <div class="gvleg">${ind.map((x) => `<span class="${(SG[x.signal] || [""])[0]}">${(SG[x.signal] || ["", "", "·"])[2]} <b>${esc(x.n)}</b></span>`).join("")}</div>
+      ${rows}</div>`;
+  }
+  const g50Key = (name) => String(name || "").split(" (")[0].trim();
+  function g50(name) {
+    const r = H && H.gdp2050 && H.gdp2050.ranks && H.gdp2050.ranks[g50Key(name)];
+    const g = r && r.gs;
+    if (!g || (g[0] == null && g[1] == null)) return "";
+    const a = g[0], b = g[1];
+    if (a != null && b != null) { const d = a - b; return `<span class="g50 ${d > 0 ? "u" : d < 0 ? "d" : ""}" title="Goldman Sachs 2050 예측: ${a}위 → ${b}위">2050 ${d > 0 ? "▲" + d : d < 0 ? "▼" + -d : "="}</span>`; }
+    if (b != null) return `<span class="g50 u" title="Goldman Sachs 2050 예측: 15위 밖 → ${b}위">2050 ${b}위로</span>`;
+    return `<span class="g50 d" title="Goldman Sachs 2050 예측: ${a}위 → 15위 밖">2050 15위 밖</span>`;
+  }
+  function g50Line(name) {
+    const r = H && H.gdp2050 && H.gdp2050.ranks && H.gdp2050.ranks[g50Key(name)];
+    if (!r) return "";
+    const f = (p, lab, out) => p ? `${lab} ${p[0] == null ? "순위 밖" : p[0] + "위"} → ${p[1] == null ? out : p[1] + "위"}` : "";
+    const parts = [f(r.gs, "Goldman Sachs(명목)", "15위 밖"), f(r.pwc, "PwC(PPP)", "예측 범위 밖")].filter(Boolean);
+    return parts.length ? `<div><h4>2050 GDP 순위 예측</h4><p class="sub" style="margin:0">${esc(parts.join(" · "))} · 2026 순위는 IMF 2026년 4월 전망</p></div>` : "";
+  }
+  function hSpark(rid) {
+    const log = H && Array.isArray(H.log) ? H.log.filter((x) => x.region === rid).sort((a, b) => a.date < b.date ? -1 : 1) : [];
+    if (log.length < 2) return "";
+    const v = log.slice(-12).map((x) => +x.score), W = 40, Hh = 14, x = (k) => (k / (v.length - 1) * W).toFixed(1), y = (s) => (Hh - 1 - (s + 5) / 10 * (Hh - 2)).toFixed(1);
+    return `<svg class="hs" width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" aria-label="주간 점수 ${v.join(", ")}"><polyline points="${v.map((s, k) => x(k) + "," + y(s)).join(" ")}" fill="none" stroke="var(--muted)" stroke-width="1.5"/></svg>`;
+  }
+
   function gHero() {
     const ac = GM.ACWX, sp = GM[G.base], rel = ac && gRel(ac);
     const blocs = G.items.filter((x) => x.k === "bloc" && x.y !== "ACWX" || ["VGK", "ILF", "AAXJ"].includes(x.y));
@@ -1814,7 +1900,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
       const it = o.x, flag = gFlip(it) ? `<span class="gbadge">새로 추월</span>` : gLead(it) ? `<span class="gbadge">미국 추월</span>` : "";
       return `<div class="grow" data-gc="${esc(it.y)}" role="button" tabindex="0" aria-label="${esc(it.n)} 상세">
         <span class="rk">${i + 1}</span>
-        <div><div class="l1"><span class="nm">${esc(it.n)}</span><span class="tk">${esc(it.y)}</span>${flag}</div>
+        <div><div class="l1"><span class="nm">${esc(it.n)}</span><span class="tk">${esc(it.y)}</span>${flag}${g50(it.n)}</div>
           <div class="l2">${esc(rgName(it.rg))} · ${esc(G_KO[state.gP])} <span class="${pcls(gAbs(it))}">${pct(gAbs(it))}</span></div></div>
         <div class="rv ${pcls(o.rel)}">${pp(o.rel)}<small>미국 대비</small></div>${gSpark(it.rs)}</div>`;
     }).join("");
@@ -1862,7 +1948,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
       return `<div class="gqrow ${q ? "q-" + q : ""}" data-gc="${esc(r.etf)}" role="button" tabindex="0">
         <div><span class="nm">${q ? `<i class="gdot"></i>` : ""}${esc(r.n)}</span> <span class="tk" style="color:var(--muted);font-size:.72rem">${esc(r.etf)}</span>
           <span class="sub2">${info ? `<b>${esc(info[0])}</b> · ` : ""}${esc(sig)}${sm ? " · " + esc(sm) : ""}</span></div>
-        <div class="sc">${r.score == null ? "—" : (r.score > 0 ? "+" : "") + r.score}<small>점수${r.prev != null ? ` (이전 ${r.prev > 0 ? "+" : ""}${r.prev})` : ""}</small></div>
+        <div class="sc">${r.score == null ? "—" : (r.score > 0 ? "+" : "") + r.score}<small>점수${r.prev != null ? ` (이전 ${r.prev > 0 ? "+" : ""}${r.prev})` : ""}</small>${hSpark(id)}</div>
         <div class="rl ${pcls(r.r90)}">${pp(r.r90)}<small>90일</small></div></div>`;
     }).join("");
   }
@@ -1902,7 +1988,8 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
   function gMx() {
     return G.mx.map((m) => {
       const v = m.r[state.gP], lvl = m.u === "usd" ? "$" + m.v.toLocaleString(undefined, { maximumFractionDigits: 2 }) : m.u === "pct" ? m.v.toFixed(2) + "%" : m.v.toFixed(1);
-      return `<div><dt>${esc(m.n)}</dt><dd>${esc(lvl)}<small class="${pcls(v)}">${esc(G_KO[state.gP])} ${m.diff ? (v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(2) + "%p") : pct(v)}</small></dd></div>`;
+      const th = LIVE_TH[m.y] && hTh(LIVE_TH[m.y]), st = th && m.v != null ? thState(th, m.v) : null;
+      return `<div><dt>${esc(m.n)}</dt><dd>${esc(lvl)}<small class="${pcls(v)}">${esc(G_KO[state.gP])} ${m.diff ? (v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(2) + "%p") : pct(v)}</small>${st ? `<span class="wl ${st.cls}" title="${esc(th.rule || "")}">${st.ic} ${esc(st.txt)} (${th.line}${esc(th.unit)})</span>` : ""}</dd></div>`;
     }).join("");
   }
   function renderGlobal() {
@@ -1920,7 +2007,11 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     $("#g-quad").innerHTML = gQuad();
     $("#g-quadlist").innerHTML = gQuadList();
     $("#g-theme").innerHTML = gTheme();
-    $("#g-why").innerHTML = G.themes.filter((t) => t.why).map((t) => `<li><b>${esc(t.n)}</b> · ${esc(t.why)}</li>`).join("");
+    const indChip = (k) => { const x = hInd(TH_IND[k]); return x ? `<span class="gind ${(SG[x.signal] || [""])[0]}">근거 지표 · ${esc(x.n)} ${(SG[x.signal] || ["", "", ""])[2]} ${esc(x.signal)} (${esc(x.latest)})</span>` : ""; };
+    $("#g-why").innerHTML = G.themes.filter((t) => t.why).map((t) => `<li><b>${esc(t.n)}</b> · ${esc(t.why)}${indChip(t.id)}</li>`).join("")
+      + (hInd(TH_IND.gold) ? `<li><b>금</b> · 중앙은행이 달러 자산 대신 금을 사는지${indChip("gold")}</li>` : "");
+    $("#g-v-sec").hidden = !gVerdict();
+    $("#g-verdict").innerHTML = gVerdict();
     const cs = (st) => G.cands.filter((c) => c.status === st);
     $("#g-st").innerHTML = [["cand", `후보 ${cs("cand").length}`], ["watch", `관찰 대기 ${cs("watch").length}`]].map(([k, n]) => `<button type="button" data-st="${k}" aria-pressed="${state.gSt === k}">${n}</button>`).join("");
     const list = cs(state.gSt);
@@ -1962,6 +2053,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
           <div class="gsheet-rs"><h4>미국 대비 상대강도 (주간, 시작=0%) <small class="muted" style="font-weight:400">올라가면 미국보다 강한 구간</small></h4>
             ${it.rs && it.rs.length > 2 ? etfChart({ t: it.y }, { v: it.rs.map((v) => v * 10), end: it.d || G.as_of }) : `<div class="empty">추이 데이터가 없습니다.</div>`}</div>
           ${reg && reg.score != null ? `<div><h4>${esc(reg.n)} 패권 신호</h4><p class="sub" style="margin:0">점수 ${reg.score > 0 ? "+" : ""}${reg.score} · ▲ ${esc(reg.ups.join("·") || "없음")}${reg.downs.length ? " · ▼ " + esc(reg.downs.join("·")) : ""}${reg.unknown.length ? " · 미확인 " + esc(reg.unknown.join("·")) : ""}${reg.q ? ` · <b>${esc(Q_INFO[reg.q][0])}</b>` : ""}</p></div>` : ""}
+          ${g50Line(it.n)}
           ${c ? `<div class="gcand" style="margin:0"><div class="gbody" style="border:0"><div class="l1" style="display:flex;gap:8px;align-items:baseline"><b>관찰 후보 점검</b><span class="gbadge">${c.status === "cand" ? "후보" : c.status === "watch" ? "관찰 대기" : "조건 부족"} ${c.pass}/4</span></div>${gCandChecks(c)}${gCandText(c)}
             <h5>조건별 근거</h5><ul>${Object.values(c.detail).map((d) => `<li>${esc(d)}</li>`).join("")}</ul></div></div>` : ""}
           <dl class="stats">
@@ -1978,7 +2070,8 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     $("#sheet [data-close]").focus();
     const ec = $("#sheet .echart"); if (ec) wireChart(ec);
   }
-  function bootGlobal(data, notes) {
+  function bootGlobal(data, notes, heg) {
+    if (heg && typeof heg === "object") H = heg;
     G = data && Array.isArray(data.items) && data.items.length ? data : null;
     gFailed = !G; GM = {};
     if (G) G.items.forEach((x) => (GM[x.y] = x));
@@ -1987,11 +2080,12 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     if (current() === "global") renderGlobal();
   }
   function loadGlobal() {
-    if (window.__RADAR_MACRO__) { bootGlobal(window.__RADAR_MACRO__, window.__RADAR_MACRO_NOTES__); return; }
+    if (window.__RADAR_MACRO__) { bootGlobal(window.__RADAR_MACRO__, window.__RADAR_MACRO_NOTES__, window.__RADAR_HEG__); return; }
     Promise.all([
       fetch("data/macro.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null),
       fetch("notes/macro-notes.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null),
-    ]).then(([d, n]) => bootGlobal(d, n));
+      fetch("data/hegemony.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([d, n, h]) => bootGlobal(d, n, h));
   }
 
   /* ---------- 라우팅 / 이벤트 ---------- */
