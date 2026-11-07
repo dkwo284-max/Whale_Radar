@@ -1,21 +1,21 @@
 {
- "generated_at": "2026-11-07T11:07:23+13:00",
+ "generated_at": "2026-11-08T11:10:48+13:00",
  "as_of": {
-  "us-us": "2026-11-05",
-  "cn-us": "2026-11-05",
-  "in-us": "2026-11-05",
-  "cn-local": "2026-11-06",
+  "us-us": "2026-11-06",
+  "cn-us": "2026-11-06",
+  "in-us": "2026-11-06",
+  "cn-local": "2026-11-05",
   "in-local": "2026-11-06"
  },
  "summary": {
-  "us": "민주당 중간선거 압승 후 AI 데이터센터 투자 둔화 우려로 나스닥 5.5% 급락. 반도체·메모리·AMD 관련 ETF가 폭락하고 헤지·금광·유가 ETF는 올랐습니다.",
-  "cn": "현지 1일 수익률은 11/5·6 이틀 합산으로 보입니다. 5일 AI→중국 기술주 순환매로 항셍테크 급등, 6일엔 미 AI주 폭락 여파로 창업판이 3.96% 급락했습니다.",
-  "in": "6일 니프티가 2% 올라 25,000을 회복(7일 연속 상승), 외국인 순매수 속 은행·금융주가 주도했습니다. 소형·방산은 약세였습니다(이틀 합산 수치)."
+  "us": "전일 폭락 후 AMD 11% 등 반도체·AI주가 반등해 나스닥 1.1% 상승. 10월 고용 16.5만명 호조로 12월 금리인상 전망이 강화됐습니다.",
+  "cn": "현지 ETF는 11/5·6 이틀 합산 수치로, 항셍테크 급등·창업판 급락이 섞여 있습니다. 6일 미국 상장 중국 ETF는 보합권이었습니다.",
+  "in": "6일 니프티가 2% 올라 25,000을 회복, 은행·자동차주가 주도했습니다. 미국 상장 INDA도 1.7% 올랐습니다(현지 일부는 이틀 합산)."
  },
  "notes": {
   "BTAL": {
-   "d": "2026-11-05",
-   "k": "증시 급락에 저변동 롱·고베타 숏 구조가 수혜"
+   "d": "2026-11-06",
+   "k": "고베타 기술주 반등에 롱 저변동·숏 고베타 역풍"
   },
   "TAIL": {
    "d": "2026-11-05",
@@ -38,8 +38,8 @@
    "k": "AI·반도체 급락에 커버드콜 기초주 동반 급락"
   },
   "AMDY": {
-   "d": "2026-11-05",
-   "k": "AMD 17% 급락에 AMD 커버드콜 ETF 동반 하락"
+   "d": "2026-11-06",
+   "k": "AMD 11% 반등에 AMD 커버드콜 ETF 동반 상승"
   },
   "DISK": {
    "d": "2026-11-05",
@@ -50,134 +50,178 @@
    "k": "샌디스크·마이크론 폭락에 메모리 ETF 급락"
   },
   "AMDW": {
-   "d": "2026-11-05",
-   "k": "AMD 17% 급락(AI 투자 둔화 우려) 직격"
+   "d": "2026-11-06",
+   "k": "AMD 11% 반등(전일 17% 급락 후 반도체 되돌림)"
   },
   "513050.SS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "5일 AI→中인터넷 순환매 급등, 6일 일부 반납(11/5·6 이틀 합산)"
   },
   "3032.HK": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "5일 항셍 3.7% 급등 후 6일 차익실현(11/5·6 이틀 합산)"
   },
   "513180.SS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "5일 中기술주 순환매 급등, 6일 AI 매도로 반락(11/5·6 이틀 합산)"
   },
   "3067.HK": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "5일 급등·6일 미 기술주 폭락 여파 하락(11/5·6 이틀 합산)"
   },
   "3033.HK": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "5일 급등 후 6일 미 AI주 폭락에 반락(11/5·6 이틀 합산)"
   },
   "3147.HK": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "6일 창업판 3.96% 급락, 연산력 하드웨어 약세(11/5·6 이틀 합산)"
   },
   "159819.SZ": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "6일 AI 하드웨어주 하한가 속출, 미 AI주 폭락 여파(11/5·6 이틀 합산)"
   },
   "159915.SZ": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "6일 창업판 3.96% 급락(5일 +0.87%)(11/5·6 이틀 합산)"
   },
   "515220.SS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "뚜렷한 개별 뉴스 없이 A주 약세와 함께 하락(11/5·6 이틀 합산)"
   },
   "159949.SZ": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "6일 창업판 대형 기술주 급락에 낙폭 확대(11/5·6 이틀 합산)"
   },
   "BANKBEES.NS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "6일 뱅크니프티 8개월 고점, 외국인 대량 순매수(11/5·6 이틀 합산)"
   },
   "AUTOBEES.NS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "마힌드라 2분기 순익 25%↑에 5% 급등 등(11/5·6 이틀 합산)"
   },
   "NIFTYBEES.NS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "6일 니프티 2% 올라 25,000 회복, 7일 연속 상승(11/5·6 이틀 합산)"
   },
   "ITBEES.NS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "글로벌 AI주 이탈 자금 일부 인도 IT로(11/5·6 이틀 합산)"
   },
   "PSUBNKBEES.NS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "은행주 랠리에 국영은행도 동반 상승(11/5·6 이틀 합산)"
   },
   "HDFCSML250.NS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "대형주 쏠림 속 소형주 지수 0.8% 하락(11/5·6 이틀 합산)"
   },
   "CPSEETF.NS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "뚜렷한 개별 뉴스 없이 국영기업주 약보합(11/5·6 이틀 합산)"
   },
   "SILVERBEES.NS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "뚜렷한 개별 뉴스 없이 은 가격 약세 반영(11/5·6 이틀 합산)"
   },
   "ALPHA.NS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "대형주 랠리 속 모멘텀·중소형주 약세(11/5·6 이틀 합산)"
   },
   "MODEFENCE.NS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "뚜렷한 개별 뉴스 없이 방산주 차익실현 하락(11/5·6 이틀 합산)"
   },
   "512980.SS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "6일 상하이필름 등 미디어주 상한가 이어가"
   },
   "515790.SS": {
-   "d": "2026-11-06",
+   "d": "2026-11-05",
    "k": "6일 태양광 테마주 연속 상한가로 강세 지속"
+  },
+  "FOTO": {
+   "d": "2026-11-06",
+   "k": "반도체지수 약 4% 반등에 광통신 기술주 회복"
+  },
+  "WGMI": {
+   "d": "2026-11-06",
+   "k": "AI클라우드 전환 채굴주 아이렌 20% 급등 등 반등"
+  },
+  "NCLD": {
+   "d": "2026-11-06",
+   "k": "아이렌 20%↑, 코어위브·네비우스 낙폭 만회"
+  },
+  "XRPZ": {
+   "d": "2026-11-06",
+   "k": "뚜렷한 개별 뉴스 없이 XRP 가격 약세 반영"
+  },
+  "XRP": {
+   "d": "2026-11-06",
+   "k": "뚜렷한 개별 뉴스 없이 XRP 가격 약세 반영"
+  },
+  "XRPC": {
+   "d": "2026-11-06",
+   "k": "뚜렷한 개별 뉴스 없이 XRP 가격 약세 반영"
+  },
+  "FDD": {
+   "d": "2026-11-06",
+   "k": "뚜렷한 개별 뉴스 없이 유럽 고배당주 약세"
+  },
+  "CNYA": {
+   "d": "2026-11-06",
+   "k": "뚜렷한 개별 뉴스 없이 中A주 ETF 소폭 하락"
+  },
+  "CXSE": {
+   "d": "2026-11-06",
+   "k": "뚜렷한 개별 뉴스 없이 소폭 하락"
+  },
+  "PVTBANIETF.NS": {
+   "d": "2026-11-06",
+   "k": "뱅크니프티 8개월 고점, 민간은행주 랠리"
+  },
+  "GDMN": {
+   "d": "2026-11-06",
+   "k": "주중 금값 2주 고점 영향으로 7일 상승 선두"
+  },
+  "GDXW": {
+   "d": "2026-11-06",
+   "k": "주중 금값 강세에 금광주 주간 급등"
   }
  },
  "sources": [
   {
-   "title": "Reuters Trading Day: A November 5 market bonfire (Investing.com)",
-   "url": "https://www.investing.com/news/economy-news/trading-day-a-november-5-market-bonfire-5005919"
+   "title": "Yahoo Finance: Nasdaq and S&P 500 rebound, Dow slips (Nov 6)",
+   "url": "https://finance.yahoo.com/markets/live/stock-market-today-friday-november-6-dow-sp-500-nasdaq-jobs-report-earnings-135953863.html"
   },
   {
-   "title": "Yahoo Finance: Dow plunges 1,800 points, Nasdaq enters correction",
-   "url": "https://finance.yahoo.com/markets/live/stock-market-today-thursday-november-5-dow-sp-500-nasdaq-plunge-chip-stocks-melt-down-193726491.html"
+   "title": "StockTitan: Chip Stocks Bounced Back, November 6, 2026",
+   "url": "https://www.stocktitan.net/articles/stock-market-today-live-november-6-2026"
   },
   {
-   "title": "CNBC: Gold at more than two-week high as dollar, yields weaken",
-   "url": "https://www.cnbc.com/2026/11/05/gold-hits-two-week-high-as-dollar-yields-ease-after-us-midterms.html"
+   "title": "TheStreet: Stock Market Today (Nov. 6, 2026)",
+   "url": "https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-nov-06-2026"
+  },
+  {
+   "title": "Fox Business: Nasdaq rises as AI and chip stocks recover",
+   "url": "https://www.foxbusiness.com/markets/stocks-11-6-2026"
   },
   {
    "title": "Bloomberg: Hong Kong Stocks Roar Back as Value Rotation Boosts China Tech",
    "url": "https://www.bloomberg.com/news/articles/2026-11-05/hong-kong-stocks-roar-back-as-investors-rotate-away-from-ai"
   },
   {
-   "title": "Hang Seng closes 1.27 percent lower at 24,481.86 points",
-   "url": "https://www.ad-hoc-news.de/boerse/news/marktberichte/hang-seng-closes-1-27-percent-lower-at-24-481-86-points/70471524"
-  },
-  {
    "title": "PANews: A-Share Close: ChiNext Index Falls Nearly 4%",
    "url": "https://panews.io/articles/01a1afaf-a84d-7700-a321-324d453e5098"
   },
   {
-   "title": "PANews: ChiNext Index Trims Gains to Close 0.87% Higher",
-   "url": "https://panews.io/articles/01a1aa87-52d4-77f3-b1e3-8e64709a098a"
-  },
-  {
-   "title": "5paisa: Nifty Tops 25,000, Sensex Reclaims 81,000 as Bank Nifty Hits 8-Month High",
+   "title": "5paisa: Nifty Tops 25,000, Bank Nifty Hits 8-Month High (Nov 6)",
    "url": "https://www.5paisa.com/blog/post-market-update-nifty-sensex-rally-over-2-percent-bank-nifty-closes-at-8-month-high-november-6-2026"
   },
   {
-   "title": "Business Standard: Stock Market Live November 6",
-   "url": "https://www.business-standard.com/amp/markets/news/stock-market-live-november-6-nse-bse-sensex-today-nifty50-gift-nifty-crude-oil-prices-q2-results-today-dhanteras-126110600099_1.html"
+   "title": "CNBC: Gold at more than two-week high as dollar, yields weaken",
+   "url": "https://www.cnbc.com/2026/11/05/gold-hits-two-week-high-as-dollar-yields-ease-after-us-midterms.html"
   }
  ]
 }
