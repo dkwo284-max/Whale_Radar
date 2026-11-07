@@ -246,7 +246,9 @@ select { font: inherit; font-size: 0.82rem; padding: 7px 10px; border-radius: 9p
 .perf .rk { font-weight: 700; width: 1.6em; text-align: center; }
 .perf .nm { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; text-decoration: underline dotted; text-align: left; }
 .perf .up { color: var(--up); } .perf .down { color: var(--down); }
-.perf .wrap { overflow-x: auto; }
+.perf .wrap { overflow-x: auto; min-width: 0; max-width: none; margin: 0; padding: 0; }
+/* 그리드 칸이 안쪽 표·가로 스크롤 줄 너비만큼 늘어나 화면 전체가 옆으로 밀리지 않게 */
+.panel > *, .perf > *, .watchbox > *, .ghero > *, .gv > * { min-width: 0; }
 .perf .heat { table-layout: fixed; }
 .perf .heat td { text-align: center; font-size: .72rem; padding: 4px 1px; }
 .perf .heat th { text-align: center; padding: 4px 1px; font-size: .66rem; line-height: 1.2; }
