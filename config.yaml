@@ -47,3 +47,7 @@ investors:
   - { id: wood,         name: "캐시 우드",        firm: "ARK Invest · 혁신 성장주",          cik: 1697748, expect: "ARK INVESTMENT",     news: '"Cathie Wood" OR "ARK Invest"' }
   - { id: lilu,         name: "리 루",            firm: "Himalaya Capital · 가치투자",       cik: 1709323, expect: "HIMALAYA",           news: '"Li Lu" Himalaya Capital' }
   - { id: einhorn,      name: "데이비드 아인혼",  firm: "Greenlight Capital · 가치·공매도",  cik: 1079114, expect: "GREENLIGHT",         news: '"David Einhorn" OR "Greenlight Capital"' }
+  - { id: glenview,     name: "래리 로빈스",      firm: "Glenview Capital · 헬스케어 롱숏",  cik: 1138995, expect: "GLENVIEW",           news: '"Larry Robbins" Glenview' }
+  - { id: miller,       name: "빌 밀러",          firm: "Miller Value Partners · 가치투자",  cik: 1135778, expect: "MILLER VALUE",       news: '"Bill Miller" "Miller Value"' }
+  - { id: lightstreet,  name: "글렌 카처",        firm: "Light Street Capital · 기술 성장주", cik: 1569049, expect: "LIGHT STREET",       news: '"Glen Kacher" OR "Light Street Capital"' }
+  - { id: viking,       name: "안드레아스 할보르센", firm: "Viking Global · 롱숏 주식",        cik: 1103804, expect: "VIKING GLOBAL",      news: '"Andreas Halvorsen" OR "Viking Global"' }

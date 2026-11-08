@@ -183,6 +183,40 @@ button.bcard:hover { border-color: color-mix(in oklab, var(--ink) 30%, var(--lin
 .mover .val { font-size: 0.82rem; font-weight: 600; text-align: right; }
 @media (max-width: 400px) { .pviz { grid-template-columns: 112px minmax(0, 1fr); } .donut { width: 112px; height: 112px; } }
 
+/* 보유 종목·비중 */
+.hov { display: grid; gap: 8px; margin: 12px 0; }
+.hov .hsum { margin: 0; font-size: .9rem; line-height: 1.5; }
+.hov .conc { display: inline-block; font-size: .7rem; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: color-mix(in oklab, var(--accent, #2563eb) 16%, transparent); }
+.hov .note, #hold-compare .note { margin: 0; font-size: .76rem; color: var(--muted); }
+.stack { display: flex; height: 22px; border-radius: 7px; overflow: hidden; background: var(--raised); gap: 1px; }
+.stack i { display: block; min-width: 2px; position: relative; overflow: hidden; }
+.stack i b { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: .62rem; font-weight: 700; text-shadow: 0 0 3px rgba(0,0,0,.5); }
+.stack i.rest { background: color-mix(in oklab, var(--muted) 35%, transparent); }
+.hlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+.hrow { display: grid; grid-template-columns: 1.4em 10px minmax(0, 1fr) 70px 3.4em auto; gap: 8px; align-items: center; width: 100%; padding: 6px 4px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; border-radius: 8px; cursor: pointer; }
+.hrow:hover { background: var(--raised); }
+.hrow .rk { font-size: .74rem; color: var(--muted); text-align: right; }
+.hrow .sw { width: 10px; height: 10px; border-radius: 3px; }
+.hrow .nm { display: grid; min-width: 0; }
+.hrow .nm b { font-size: .88rem; }
+.hrow .nm small { font-size: .7rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hrow .wb { height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.hrow .wb i { display: block; height: 100%; background: var(--ink); opacity: .55; }
+.hrow .w { font-weight: 700; font-size: .86rem; text-align: right; font-variant-numeric: tabular-nums; }
+.hrow .v { display: none; font-size: .74rem; color: var(--muted); }
+@media (min-width: 560px) { .hrow { grid-template-columns: 1.4em 10px minmax(0, 1.2fr) 1fr 3.6em 5.5em auto; } .hrow .v { display: block; text-align: right; } }
+@media (max-width: 420px) { .hrow > .badge, .hrow > [class*="badge"] { display: none; } }
+#hold-compare h3 { margin: 0; font-size: 1.02rem; }
+.hgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.hcard { display: grid; gap: 6px; text-align: left; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: inherit; font: inherit; cursor: pointer; }
+.hcard[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.hcard .hn { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "av b em" "av s s"; gap: 0 8px; align-items: center; }
+.hcard .hn .av { grid-area: av; width: 30px; height: 30px; font-size: .68rem; }
+.hcard .hn b { grid-area: b; font-size: .9rem; }
+.hcard .hn small { grid-area: s; color: var(--muted); font-size: .72rem; }
+.hcard .hn em { grid-area: em; font-style: normal; font-size: .7rem; font-weight: 700; color: var(--muted); }
+.hcard .ht { font-size: .74rem; color: var(--muted); line-height: 1.4; }
+
 /* 신선도 */
 .newdot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--new); flex: none; }
 .newtag { font-size: 0.64rem; font-weight: 700; letter-spacing: 0.06em; color: var(--new); }
@@ -650,6 +684,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 
   <div class="panel" data-panel="investors" hidden>
     <section class="perf" id="perf-rank" aria-label="대가 성적 순위"></section>
+    <section class="perf" id="hold-compare" aria-label="대가별 보유 비중 비교"></section>
     <div class="scroller" id="inv-pills" role="group" aria-label="투자자 선택"></div>
     <div class="profile" id="profile"></div>
     <section class="perf" id="perf-detail" aria-label="기간별 성적" hidden></section>
@@ -1202,6 +1237,47 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
         <text x="66" y="82" text-anchor="middle" font-size="10.5" style="fill:var(--muted);font-family:var(--font-body)">${esc(top[0])}</text></svg>
       <ul class="legend">${segs.map(([k, v], i) => `<li><i style="background:${color(k, i)}"></i><span>${esc(k)}</span><span class="num">${(v / total * 100).toFixed(1)}%</span></li>`).join("")}</ul></div>`;
   }
+  /* ---------- 보유 종목·비중 한눈에 ---------- */
+  const heldOf = (inv) => inv.positions.filter((p) => p.value > 0).sort((a, b) => b.weight - a.weight);
+  const stackColor = (i) => `hsl(${(i * 47 + 205) % 360} 52% ${i % 2 ? 52 : 44}%)`;
+  const concLabel = (s5) => (s5 >= 70 ? "집중형" : s5 >= 45 ? "중간" : "분산형");
+  function stackBar(held, n) {
+    const top = held.slice(0, n);
+    const rest = Math.max(0, 100 - top.reduce((a, p) => a + p.weight, 0));
+    return `<div class="stack" role="img" aria-label="상위 ${n}개 종목 비중">${top.map((p, i) =>
+      `<i style="width:${p.weight.toFixed(2)}%;background:${stackColor(i)}" title="${esc(p.ticker || p.issuer)} ${p.weight.toFixed(1)}%">${p.weight >= 9 ? `<b>${esc(p.ticker || "")}</b>` : ""}</i>`).join("")}${rest > 0.5 ? `<i class="rest" style="width:${rest.toFixed(2)}%" title="그 밖의 종목 ${rest.toFixed(1)}%"></i>` : ""}</div>`;
+  }
+  function holdingsSummary(inv) {
+    const held = heldOf(inv);
+    if (!held.length) return "";
+    const sum = (n) => held.slice(0, n).reduce((a, p) => a + p.weight, 0);
+    const s1 = held[0].weight, s5 = sum(5), s10 = sum(10);
+    const top = held.slice(0, 10);
+    const maxW = Math.max(1, ...top.map((p) => p.weight));
+    return `<div class="hov"><div class="lab">보유 종목·비중 한눈에 <small class="muted">(${quarter(inv.period)} 13F 기준)</small></div>
+      <p class="hsum"><b>${held.length}개</b> 종목 · 최대 <b>${esc(held[0].ticker || held[0].issuer)} ${s1.toFixed(1)}%</b> · 상위 5개 <b>${s5.toFixed(0)}%</b> · 상위 10개 <b>${s10.toFixed(0)}%</b> <span class="conc">${concLabel(s5)}</span></p>
+      ${stackBar(held, 10)}
+      <ol class="hlist">${top.map((p, i) => `<li><button type="button" class="hrow" data-ticker="${esc(p.ticker || "")}" title="${esc(p.issuer)} · ${esc(p.sector)}">
+        <span class="rk">${i + 1}</span><i class="sw" style="background:${stackColor(i)}" aria-hidden="true"></i>
+        <span class="nm"><b>${esc(p.ticker || p.cusip)}</b><small>${esc(p.issuer)}</small></span>
+        <span class="wb" aria-hidden="true"><i style="width:${(p.weight / maxW * 100).toFixed(1)}%"></i></span>
+        <span class="w">${p.weight.toFixed(1)}%</span><span class="v">${usd(p.value)}</span>${badge(p.signal)}</button></li>`).join("")}</ol>
+      <p class="note">비중은 13F에 보고된 미국 상장 주식 평가액 기준이에요(현금·해외·공매도·채권 제외). 종목을 누르면 다른 대가의 보유 현황도 볼 수 있어요.</p></div>`;
+  }
+  function renderHoldCompare() {
+    const box = $("#hold-compare");
+    if (!box) return;
+    const cards = D.investors.filter((i) => !i.stale).map((i) => {
+      const held = heldOf(i);
+      if (!held.length) return "";
+      const sum = (n) => held.slice(0, n).reduce((a, p) => a + p.weight, 0);
+      return `<button type="button" class="hcard" data-inv="${esc(i.id)}" aria-pressed="${i.id === state.inv}">
+        <span class="hn">${pav(i)}<b>${esc(i.name)}</b><small>${held.length}종목 · ${usd(i.total_value)}</small><em>${concLabel(sum(5))} ${sum(5).toFixed(0)}%</em></span>
+        ${stackBar(held, 5)}
+        <span class="ht">${held.slice(0, 5).map((p) => `${esc(p.ticker || p.issuer)} ${p.weight.toFixed(0)}%`).join(" · ")}</span></button>`;
+    }).join("");
+    box.innerHTML = `<h3>대가별 보유 비중 비교</h3><p class="note">각 대가가 가장 많이 담은 5개 종목과 비중이에요(상위 5개 합계가 클수록 집중 투자). 카드를 누르면 아래에서 자세히 볼 수 있어요.</p><div class="hgrid">${cards}</div>`;
+  }
   function movers(inv) {
     const list = inv.positions.filter((p) => p.flow && p.ticker).sort((a, b) => Math.abs(b.flow) - Math.abs(a.flow)).slice(0, 5);
     if (!list.length) return "";
@@ -1349,6 +1425,8 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
         <div><dt>공시일</dt><dd>${esc(inv.filed || "—")}</dd></div>
         <div><dt>13F 평가액</dt><dd>${usd(inv.total_value)}</dd></div>
       </dl>
+      ${holdingsSummary(inv)}
+      <div class="lab">섹터 비중</div>
       ${sectorDonut(inv)}
       ${movers(inv)}
       <div class="tallies">${["BUY", "HOLD", "SELL"].map((s) => `${badge(s)}<span class="num" style="margin-right:6px">${inv.counts[s]}</span>`).join("")}${tipBtn("signal", "BUY HOLD SELL")}
@@ -1366,6 +1444,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     $("#positions").innerHTML = rows.map((p) => positionItem(p, { maxW })).join("") || `<div class="empty">조건에 맞는 종목이 없습니다.</div>`;
     renderPerfRank();
     renderPerfDetail(inv);
+    renderHoldCompare();
   }
 
   /* ---------- 공시 ---------- */
@@ -2148,7 +2227,7 @@ footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
     if (el("#cons-more")) { state.consAll = true; renderOverview(); return; }
     if ((x = el("[data-winv]"))) { toggle(watch.investors, x.dataset.winv); renderWatch(); return; }
     if ((x = el("[data-unwatch]"))) { toggle(watch.terms, x.dataset.unwatch); renderWatch(); return; }
-    if ((x = el(".pill[data-inv]"))) { state.inv = x.dataset.inv; store.set("radar.inv", state.inv); renderInvestors(); return; }
+    if ((x = el(".pill[data-inv], .hcard[data-inv]"))) { state.inv = x.dataset.inv; store.set("radar.inv", state.inv); renderInvestors(); return; }
     if ((x = el("#sig-seg button"))) { state.sig = x.dataset.sig; renderInvestors(); return; }
     if ((x = el("#tl-seg button"))) { state.tlForm = x.dataset.form; renderTimeline(); return; }
     if ((x = el("#news-kind button"))) { state.newsKind = x.dataset.kind; renderNews(); return; }
