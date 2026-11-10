@@ -25,12 +25,18 @@ def investor_block(sec: SEC, inv: dict, cfg: dict, warnings: list[str]) -> tuple
         warnings.append(f"{inv['name']}: SEC 등록 이름이 '{sub.get('name')}'로 설정(CIK {inv['cik']})과 다를 수 있습니다.")
     rows = filings(sub)
     f13 = latest_13f(sec, inv["cik"], rows)
-    for old in inv.get("prev_ciks", []):  # 공시 주체가 바뀐 대가: 새 번호에 두 분기가 없으면 이전 번호에서 직전 분기를 채운다
-        if len(f13) >= 2:
-            break
-        have = {f["reportDate"] for f in f13}
-        f13 += [f for f in latest_13f(sec, old, filings(sec.json(SUBMISSIONS.format(cik=old)))) if f["reportDate"] not in have]
-        f13 = sorted(f13, key=lambda f: f["reportDate"], reverse=True)[:2]
+    if inv.get("prev_ciks"):
+        # 공시 주체가 바뀐 대가: 새 번호와 이전 번호의 최근 공시를 모아, 분기마다 보유 평가액이 큰 쪽을 쓴다
+        # (새 주체의 첫 공시가 비어 있거나 한쪽에만 있는 분기가 있어도 직전 분기 비교가 이어지게)
+        pool = list(f13)
+        for old in inv["prev_ciks"]:
+            pool += latest_13f(sec, old, filings(sec.json(SUBMISSIONS.format(cik=old))))
+        best: dict[str, dict] = {}
+        for f in pool:
+            tot = sum(h["value"] for h in f["holdings"].values())
+            if f["reportDate"] not in best or tot > best[f["reportDate"]][0]:
+                best[f["reportDate"]] = (tot, f)
+        f13 = [best[k][1] for k in sorted(best, reverse=True)][:2]
     block = {"id": inv["id"], "name": inv["name"], "firm": inv["firm"], "cik": inv["cik"], "positions": [],
              "period": None, "prev_period": None, "filed": None,
              "filing_url": BROWSE.format(cik=inv["cik"], form="13F-HR"), "total_value": 0, "stale": True,
