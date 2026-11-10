@@ -60,3 +60,12 @@ def test_stale_investor_window_is_capped():
     qs = [{"period": "2023-03-31", "filed": "2023-05-15", "total": 1, "h": {"C": {"v": 1, "n": "A"}}}]
     out = perf.investor_perf(qs, {"C": "AAA"}, px, ds[-1])
     assert out["stale"] and out["until"] <= "2023-07-01" and not out["quarters"][-1]["partial"]
+
+
+def test_weight_history_tracks_top_tickers():
+    import perf
+    qs = [{"period": "2026-03-31", "total": 100, "h": {"A": {"v": 60}, "B": {"v": 40}}},
+          {"period": "2026-06-30", "total": 200, "h": {"A": {"v": 50}, "C": {"v": 150}}}]
+    h = perf.weight_history(qs, {"A": "AAA", "B": "BBB", "C": "CCC"})
+    assert h["periods"] == ["2026-03-31", "2026-06-30"]
+    assert h["series"][0] == {"t": "CCC", "w": [0, 75.0]} and h["series"][1] == {"t": "AAA", "w": [60.0, 25.0]}

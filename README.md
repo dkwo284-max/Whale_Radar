@@ -46,6 +46,16 @@ https://dkwo284-max.github.io/Whale_Radar/
    - `SEC_USER_AGENT`(선택): `이름 이메일` 형식. SEC 는 연락처가 있는 요청 헤더를 권장합니다
 3. Actions → Market Radar update (투자자·뉴스) → Run workflow, Actions → Market Radar ETF update → Run workflow
 
+## 13F 시즌·종목 중심·대가 비교 (투자자 화면 보강)
+
+- **13F 시즌 카드**(홈): 가장 최근 분기의 마감(분기 말 + 45일)과 새 공시가 도착한 대가(신규 편입·전량 매도·비중 급변 종목), 아직 기다리는 대가를 보여줍니다(`dashboard.json` 의 `season`).
+- **종목 중심 보기**(투자자 탭): 많이 보유·같이 산 종목·같이 판 종목·비중 합계 순위. **대가 비교**: 2~4명을 골라 평가액·집중도·최대 섹터·성적·겹치는 종목을 나란히.
+- **상위 종목 비중 추이**: 최근 8개 분기 13F 에서 지금 상위 6종목의 비중 변화(`performance.json` 의 `hist`, 주 1회 성적 계산 때 함께).
+- **공시 주체가 바뀐 대가**: `config.yaml` 에 새 `cik` 와 `prev_ciks: [이전 번호]` 를 적으면 직전 분기 비교와 성적 이력이 이어집니다(애크먼 → Pershing Square Inc., 아인혼 → DME Capital Management). 공시를 멈춘 대가는 `note` 로 이유를 표시합니다.
+- **티커 보완**: OpenFIGI 가 못 찾는 해외 등록(CINS) 미국 상장 종목은 `scripts/meta.py` 의 `MANUAL` 표로 채웁니다.
+- **뉴스 고르게**: 하루 AI 요약 한도(40건)에 앞쪽 대가만 들어가지 않게 대가별로 돌아가며 넣고, 최근 기사가 적은 대가를 먼저 넣습니다(`news.fair_order`).
+- **데이터 상태**(화면 맨 아래): 공시·뉴스·성적·ETF·글로벌·해설의 마지막 갱신 시각(`web/data/status.json`, `scripts/status.py`).
+
 ## 투자자 추가·변경
 
 `config.yaml` 의 `investors` 에 `id·name·firm·cik·expect·news` 를 추가합니다. CIK 는 SEC EDGAR 회사 검색에서 찾을 수 있습니다.

@@ -36,8 +36,9 @@ llm:
 # news 는 Google 뉴스 검색어. 실행할 때 SEC 등록 이름과 맞는지 확인해 경고를 남깁니다(expect).
 investors:
   - { id: buffett,      name: "워런 버핏",        firm: "Berkshire Hathaway · 가치투자",     cik: 1067983, expect: "BERKSHIRE HATHAWAY", news: '"Warren Buffett" OR "Berkshire Hathaway"' }
-  - { id: ackman,       name: "빌 애크먼",        firm: "Pershing Square · 행동주의",        cik: 1336528, expect: "PERSHING SQUARE",    news: '"Bill Ackman" OR "Pershing Square"' }
-  - { id: burry,        name: "마이클 버리",      firm: "Scion Asset Management · 역발상",   cik: 1649339, expect: "SCION ASSET",        news: '"Michael Burry"' }
+  # 2026-06 분기부터 13F 를 상장 모회사(Pershing Square Inc., CIK 2026053) 명의로 냄 — 이전 분기는 prev_ciks 에서 읽는다
+  - { id: ackman,       name: "빌 애크먼",        firm: "Pershing Square · 행동주의",        cik: 2026053, prev_ciks: [1336528], expect: "PERSHING SQUARE",    news: '"Bill Ackman" OR "Pershing Square"' }
+  - { id: burry,        name: "마이클 버리",      firm: "Scion Asset Management · 역발상",   cik: 1649339, expect: "SCION ASSET",        news: '"Michael Burry"', note: "2025-09 분기 이후 13F 를 내지 않고 있어요(운용사 등록 해제 보도). 뉴스·인터뷰만 계속 모읍니다." }
   - { id: druckenmiller, name: "스탠리 드러켄밀러", firm: "Duquesne Family Office · 매크로",  cik: 1536411, expect: "DUQUESNE",           news: '"Stanley Druckenmiller" OR "Druckenmiller"' }
   - { id: tepper,       name: "데이비드 테퍼",    firm: "Appaloosa · 이벤트 드리븐",         cik: 1656456, expect: "APPALOOSA",          news: '"David Tepper" Appaloosa' }
   - { id: dalio,        name: "레이 달리오",      firm: "Bridgewater Associates · 매크로",   cik: 1350694, expect: "BRIDGEWATER",        news: '"Ray Dalio" OR "Bridgewater Associates"' }
@@ -46,7 +47,8 @@ investors:
   - { id: icahn,        name: "칼 아이칸",        firm: "Icahn Capital · 행동주의",          cik: 921669,  expect: "ICAHN",              news: '"Carl Icahn"' }
   - { id: wood,         name: "캐시 우드",        firm: "ARK Invest · 혁신 성장주",          cik: 1697748, expect: "ARK INVESTMENT",     news: '"Cathie Wood" OR "ARK Invest"' }
   - { id: lilu,         name: "리 루",            firm: "Himalaya Capital · 가치투자",       cik: 1709323, expect: "HIMALAYA",           news: '"Li Lu" Himalaya Capital' }
-  - { id: einhorn,      name: "데이비드 아인혼",  firm: "Greenlight Capital · 가치·공매도",  cik: 1079114, expect: "GREENLIGHT",         news: '"David Einhorn" OR "Greenlight Capital"' }
+  # 2024 년부터 13F 를 DME Capital Management(CIK 1489933) 명의로 냄 — 이전 분기는 prev_ciks(Greenlight Capital Inc)
+  - { id: einhorn,      name: "데이비드 아인혼",  firm: "Greenlight Capital · 가치·공매도",  cik: 1489933, prev_ciks: [1079114], expect: "DME CAPITAL",        news: '"David Einhorn" OR "Greenlight Capital"' }
   - { id: glenview,     name: "래리 로빈스",      firm: "Glenview Capital · 헬스케어 롱숏",  cik: 1138995, expect: "GLENVIEW",           news: '"Larry Robbins" Glenview' }
   - { id: miller,       name: "빌 밀러",          firm: "Miller Value Partners · 가치투자",  cik: 1135778, expect: "MILLER VALUE",       news: '"Bill Miller" "Miller Value"' }
   - { id: lightstreet,  name: "글렌 카처",        firm: "Light Street Capital · 기술 성장주", cik: 1569049, expect: "LIGHT STREET",       news: '"Glen Kacher" OR "Light Street Capital"' }

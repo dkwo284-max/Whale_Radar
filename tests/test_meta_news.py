@@ -45,3 +45,21 @@ def test_skip_ai_only_for_small_extra_runs():
     assert skip_ai_this_run(3, True, 6) is False        # 그날 첫 실행은 적어도 쓴다
     assert skip_ai_this_run(3, False, 6) is True        # 같은 날 추가 실행 + 새 기사 적음 → 건너뜀
     assert skip_ai_this_run(6, False, 6) is False       # 충분히 쌓였으면 다시 씀
+
+
+def test_fair_order_round_robin_prefers_sparse_investors():
+    import news
+    fresh = [{"id": f"a{i}", "investor": "a"} for i in range(3)] + [{"id": "b0", "investor": "b"}]
+    stored = [{"investor": "a", "date": "2999-01-01"}] * 5
+    got = [x["id"] for x in news.fair_order(fresh, stored)]
+    assert got == ["b0", "a0", "a1", "a2"]
+
+
+def test_season_lists_arrived_and_waiting():
+    from datetime import date
+    import build
+    inv = [{"id": "x", "period": "2026-09-30", "filed": "2026-11-10", "stale": False}, {"id": "y", "period": "2026-06-30", "filed": "2026-08-14", "stale": False},
+           {"id": "z", "period": "2025-09-30", "filed": "2025-11-03", "stale": True}]
+    s = build.season(inv, date(2026, 11, 10))
+    assert s["period"] == "2026-09-30" and s["deadline"] == "2026-11-14" and s["days_left"] == 4
+    assert [a["id"] for a in s["arrived"]] == ["x"] and s["waiting"] == ["y"]

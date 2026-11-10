@@ -70,6 +70,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add web/data/etf.json web/data/etf-series.json cache/etf_*.json
           git add web/data/macro.json cache/macro_info.json 2>/dev/null || true
+          python scripts/status.py && git add web/data/status.json || true
           if git diff --cached --quiet; then echo "no changes"; exit 0; fi
           git commit -m "etf: $(date -u +%F)"
           for i in 1 2 3; do git pull --rebase -X theirs -q origin main && git push -q origin HEAD:main && exit 0; git rebase --abort 2>/dev/null; sleep 5; done

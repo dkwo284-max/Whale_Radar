@@ -243,6 +243,24 @@ def investor_perf(qs: list[dict], tickers: dict[str, str | None], px: dict[str, 
             "curve": {"d": cd, "inv": cv, "spy": [round(sd[d], 4) if d in sd else None for d in cd], "fd": fd, "follow": fv}}
 
 
+def weight_history(qs: list[dict], tickers: dict[str, str | None], n_q: int = 8, n_t: int = 6) -> dict:
+    """최근 n_q 개 분기 동안 '지금 상위 n_t 종목'의 13F 비중(%) 변화: {periods: [...], series: [{t, w: [...]}]} — 언제 사기 시작해 언제 줄였는지."""
+    last = qs[-n_q:]
+    if len(last) < 2:
+        return {"periods": [], "series": []}
+    def pct(q: dict) -> dict[str, float]:
+        tot = q.get("total") or sum(x["v"] for x in q["h"].values()) or 1
+        out: dict[str, float] = {}
+        for c, x in q["h"].items():
+            t = tickers.get(c)
+            if t:
+                out[t] = out.get(t, 0) + x["v"] / tot * 100
+        return out
+    ws = [pct(q) for q in last]
+    top = [t for t, _ in sorted(ws[-1].items(), key=lambda kv: -kv[1])[:n_t]]
+    return {"periods": [q["period"] for q in last], "series": [{"t": t, "w": [round(w.get(t, 0), 1) for w in ws]} for t in top]}
+
+
 # ── 시세 ────────────────────────────────────────────────
 
 def yf_symbol(t: str) -> str:
@@ -297,8 +315,13 @@ def main(argv: list[str] | None = None) -> int:
     per: dict[str, list[dict]] = {}
     for inv in invs:
         try:
-            rows = all_13f_rows(sec, inv["cik"])
-            qs = [q for q in (holdings(sec, inv["cik"], r) for r in rows) if q and q["h"]]
+            rows = [{**r, "_cik": inv["cik"]} for r in all_13f_rows(sec, inv["cik"])]
+            have = {r["reportDate"] for r in rows}
+            for old in inv.get("prev_ciks", []):  # 공시 주체가 바뀐 대가는 이전 번호의 분기도 이어 붙인다
+                rows += [{**r, "_cik": old} for r in all_13f_rows(sec, old) if r["reportDate"] not in have]
+                have = {r["reportDate"] for r in rows}
+            rows = sorted(rows, key=lambda r: r["reportDate"], reverse=True)[:QUARTERS]
+            qs = [q for q in (holdings(sec, r["_cik"], r) for r in rows) if q and q["h"]]
             per[inv["id"]] = sorted(qs, key=lambda q: q["period"])
             log.info("%-14s %d quarters (%s ~ %s)", inv["id"], len(qs), qs[-1]["period"] if qs else "-", qs[0]["period"] if qs else "-")
         except Exception as e:  # noqa: BLE001
@@ -321,12 +344,15 @@ def main(argv: list[str] | None = None) -> int:
         if not qs:
             continue
         p = investor_perf(qs, tickers, px, today)
-        out["investors"].append({"id": inv["id"], "name": inv["name"], "firm": inv["firm"], **p})
+        out["investors"].append({"id": inv["id"], "name": inv["name"], "firm": inv["firm"], **p, "hist": weight_history(qs, tickers)})
     if args.only:
         mine = {i["id"] for i in out["investors"]}
         out["investors"] += [i for i in old.get("investors", []) if i["id"] not in mine]
     write_json(DATA / "performance.json", out)
     log.info("performance: %d investors, as of %s", len(out["investors"]), today)
+    from status import write_status
+
+    write_status()
     return 0
 
 

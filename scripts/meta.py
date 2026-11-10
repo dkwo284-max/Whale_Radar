@@ -95,13 +95,21 @@ class Meta:
         self._load_tickers()
         return self._cik_ticker or {}
 
+    # OpenFIGI 가 못 찾는 해외 등록(CINS: G·H·N·Y·M 으로 시작) 미국 상장 종목 — 직접 확인한 것만
+    MANUAL = {"H1467J104": "CB", "G0896C103": "TBBB", "G7997R103": "STX", "N62509109": "NAMS", "G11448100": "BTDR", "G25508105": "CRH",
+              "N07059210": "ASML", "N6596X109": "NXPI", "G25457105": "CRDO", "Y2573F102": "FLEX", "G0403H108": "AON", "G66721104": "NCLH",
+              "G4412G101": "HLF", "G61188127": "LBTYK", "G0750C108": "AXTA", "H17182108": "CRSP", "G16910120": "BLSH", "G5509L101": "LIVN",
+              "G48833118": "WFRD", "Y2065G121": "DHT", "N00985106": "AER", "G3934V109": "GENI", "G0593M107": "AZN", "G6359F137": "NBR",
+              "M6158M104": "ITRN", "N53745100": "LYB", "M6191J100": "FROG", "M2197Q107": "CLBT", "N3167Y103": "RACE", "G51502105": "JCI",
+              "G7997W102": "SDRL"}
+
     def tickers_for(self, cusips: set[str]) -> dict[str, str | None]:
         todo = sorted(c for c in cusips if c not in self.cusip)
         if todo:
             log.info("OpenFIGI: %d new cusip(s)", len(todo))
             self.cusip.update(figi_lookup(todo, self.client))
             write_json(CACHE / "cusip_ticker.json", self.cusip)
-        return {c: self.cusip.get(c) for c in cusips}
+        return {c: self.cusip.get(c) or self.MANUAL.get(c) for c in cusips}
 
     def sector_for(self, ticker: str | None, name: str = "") -> str:
         if not ticker:

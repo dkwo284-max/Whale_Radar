@@ -34,7 +34,7 @@ jobs:
         run: |
           git config user.name "whale-radar-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add web/data/performance.json cache
+          git add web/data/performance.json web/data/status.json cache
           if git diff --cached --quiet; then echo "no changes"; exit 0; fi
           git commit -m "data: investor performance"
           for i in 1 2 3; do git pull --rebase -X theirs -q origin main && git push -q origin HEAD:main && exit 0; git rebase --abort 2>/dev/null; sleep 5; done

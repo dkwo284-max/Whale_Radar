@@ -25,10 +25,16 @@ def investor_block(sec: SEC, inv: dict, cfg: dict, warnings: list[str]) -> tuple
         warnings.append(f"{inv['name']}: SEC 등록 이름이 '{sub.get('name')}'로 설정(CIK {inv['cik']})과 다를 수 있습니다.")
     rows = filings(sub)
     f13 = latest_13f(sec, inv["cik"], rows)
+    for old in inv.get("prev_ciks", []):  # 공시 주체가 바뀐 대가: 새 번호에 두 분기가 없으면 이전 번호에서 직전 분기를 채운다
+        if len(f13) >= 2:
+            break
+        have = {f["reportDate"] for f in f13}
+        f13 += [f for f in latest_13f(sec, old, filings(sec.json(SUBMISSIONS.format(cik=old)))) if f["reportDate"] not in have]
+        f13 = sorted(f13, key=lambda f: f["reportDate"], reverse=True)[:2]
     block = {"id": inv["id"], "name": inv["name"], "firm": inv["firm"], "cik": inv["cik"], "positions": [],
              "period": None, "prev_period": None, "filed": None,
              "filing_url": BROWSE.format(cik=inv["cik"], form="13F-HR"), "total_value": 0, "stale": True,
-             "counts": {"BUY": 0, "HOLD": 0, "SELL": 0}}
+             "counts": {"BUY": 0, "HOLD": 0, "SELL": 0}, "note": inv.get("note", "")}
     timeline: list[dict] = []
     positions: list[dict] = []
     if f13:
@@ -51,6 +57,19 @@ def investor_block(sec: SEC, inv: dict, cfg: dict, warnings: list[str]) -> tuple
     else:
         warnings.append(f"{inv['name']}: 최근 13F 공시를 찾지 못했습니다.")
     return block, positions, timeline, rows
+
+
+def season(investors: list[dict], today: date) -> dict:
+    """13F 시즌: 가장 최근에 끝난 분기와 마감(분기 말 + 45일), 그 분기 공시가 도착한 대가·기다리는 대가.
+    공시가 끊긴(stale) 대가는 기다리는 목록에서 뺀다."""
+    y, m = today.year, today.month
+    q_end = [date(y - 1, 12, 31), date(y, 3, 31), date(y, 6, 30), date(y, 9, 30), date(y, 12, 31)]
+    period = max(d for d in q_end if d < today)
+    deadline = period + timedelta(days=45)
+    arrived = [{"id": b["id"], "filed": b["filed"]} for b in investors if b.get("period") == period.isoformat()]
+    waiting = [b["id"] for b in investors if not b["stale"] and b.get("period") and b["period"] < period.isoformat()]
+    return {"period": period.isoformat(), "deadline": deadline.isoformat(), "days_left": (deadline - today).days,
+            "arrived": sorted(arrived, key=lambda a: a["filed"] or "", reverse=True), "waiting": waiting}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -128,7 +147,8 @@ def main(argv: list[str] | None = None) -> int:
     timeline.sort(key=lambda t: (t["date"], t["investor"]), reverse=True)
     dashboard = {"demo": False, "generated_at": datetime.now(timezone.utc).isoformat(timespec="minutes"),
                  "threshold_pct": float(scfg.get("threshold_pct", 5)), "investors": investors, "timeline": timeline[:400],
-                 "consensus": consensus, "sectors": dict(sectors), "warnings": warnings}
+                 "consensus": consensus, "sectors": dict(sectors), "warnings": warnings,
+                 "season": season(investors, date.today())}
     if not investors:
         log.error("no investor data — not writing")
         return 1
@@ -156,6 +176,9 @@ def main(argv: list[str] | None = None) -> int:
             if llm.requests:
                 record(out_dir, today, llm.requests, cfg)
     log.info("done: %d investors, %d timeline, %d consensus", len(investors), len(timeline), len(consensus))
+    from status import write_status
+
+    write_status()
     return 0
 
 

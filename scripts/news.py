@@ -120,6 +120,29 @@ def collect(cfg: dict, client: httpx.Client, known: set[str]) -> list[dict]:
     return fresh
 
 
+def fair_order(fresh: list[dict], stored: list[dict], days: int = 30) -> list[dict]:
+    """AI 한도(max_ai_items)에 앞쪽 대가만 계속 들어가지 않게: 대가별로 한 건씩 돌아가며(라운드 로빈),
+    최근 days 일 동안 실린 기사가 적은 대가를 먼저 넣는다."""
+    cutoff = (date.today() - timedelta(days=days)).isoformat()
+    have: dict[str, int] = {}
+    for x in stored:
+        if x.get("date", "") >= cutoff:
+            have[x["investor"]] = have.get(x["investor"], 0) + 1
+    by: dict[str, list[dict]] = {}
+    for x in fresh:
+        by.setdefault(x["investor"], []).append(x)
+    order = sorted(by, key=lambda k: have.get(k, 0))
+    out, i = [], 0
+    while any(by.values()):
+        for k in order:
+            if i < len(by[k]):
+                out.append(by[k][i])
+        i += 1
+        if i > max(len(v) for v in by.values()):
+            break
+    return out
+
+
 def summarize(items: list[dict], cfg: dict, llm: Gemini) -> tuple[list[dict], str | None, list[str]]:
     """AI 요약 → (실을 기사, 경고, AI 가 관련 없다고 본 기사 id). 실패하면 제목만."""
     names = {i["id"]: f"{i['name']} ({i['firm']})" for i in cfg["investors"]}
@@ -171,7 +194,7 @@ def update_news(cfg: dict, old: dict, llm: Gemini, client: httpx.Client | None =
     client = client or httpx.Client(timeout=30, follow_redirects=True, headers={"User-Agent": "Mozilla/5.0 (compatible; WhaleRadar/1.0)"})
     try:
         items = {x["id"]: x for x in old.get("items", [])}
-        fresh = collect(cfg, client, set(items) | set(old.get("dropped", [])))
+        fresh = fair_order(collect(cfg, client, set(items) | set(old.get("dropped", []))), list(items.values()))
         min_new = int(cfg.get("news", {}).get("min_new_extra_run", 6))
         if llm.enabled and skip_ai_this_run(len(fresh), first_of_day, min_new):
             log.info("news: %d new item(s) < %d and AI already used today — skipping AI, they stay queued for the next run", len(fresh), min_new)
