@@ -158,7 +158,15 @@ def main(argv: list[str] | None = None) -> int:
     if not investors:
         log.error("no investor data — not writing")
         return 1
+    old_dash = read_json(out_dir / "dashboard.json", {})
     write_json(out_dir / "dashboard.json", dashboard)
+    if not args.only and not old_dash.get("demo"):
+        try:
+            from notify import notify
+
+            notify(old_dash, dashboard, cfg)
+        except Exception as e:  # noqa: BLE001
+            log.warning("notify failed: %s", e)
 
     if not args.no_news:
         from llm import Gemini

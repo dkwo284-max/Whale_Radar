@@ -1449,10 +1449,14 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
     else if (b.dataset.perfBasis) { state.perfBasis = b.dataset.perfBasis; store.set("radar.perfBasis", state.perfBasis); renderPerfRank(); }
     else if (b.dataset.perfInv) { state.inv = b.dataset.perfInv; store.set("radar.inv", state.inv); renderInvestors(); $("#profile").scrollIntoView({ behavior: "smooth", block: "start" }); }
   });
-  fetch("data/performance.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null).then((d) => {
-    P = d;
-    if (D && state.inv && !$("#profile").closest("[hidden]")) renderInvestors();
-  });
+  let perfReq = null;
+  function ensurePerf() {  // 성적 데이터(약 0.4MB)는 투자자 탭을 처음 열 때 받는다
+    if (P || perfReq) return;
+    perfReq = fetch("data/performance.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null).then((d) => {
+      P = d;
+      if (D && state.inv && !$("#profile").closest("[hidden]")) renderInvestors();
+    });
+  }
 
   /* ---------- 분기별 비중 추이 (지금 상위 종목이 언제부터 늘었나) ---------- */
   function weightHist(inv) {
@@ -1541,6 +1545,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   }
 
   function renderInvestors() {
+    ensurePerf();
     const inv = invById[state.inv] || D.investors[0];
     if (!inv) { $("#positions").innerHTML = `<div class="empty">수집된 투자자가 없습니다.</div>`; return; }
     state.inv = inv.id;
@@ -1696,6 +1701,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   function openSearch() {
     $("#search").hidden = false; document.body.classList.add("locked");
     renderSearch(); setTimeout(() => $("#search-input").focus(), 0);
+    if (!E) ensureEtf().then(() => { if (!$("#search").hidden) renderSearch(); });  // ETF 검색은 전체 목록이 필요
   }
   function closeSearch() {
     $("#search").hidden = true;
@@ -1743,7 +1749,14 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   const PER_SCALE = [3, 8, 12, 15, 25, 35, 40, 50]; // 히트맵 색이 가장 진해지는 수익률(%)
   const CTRY = { us: "미국", cn: "중국", in: "인도" };
   const TOPN = 20;
-  let E = null, EN = { summary: {}, notes: {} }, ES = null, esReq = null, etfFailed = false;
+  let E = null, EH = null, EN = { summary: {}, notes: {} }, ES = null, esReq = null, etfFailed = false, etfReq = null;
+  /* 전체 ETF 데이터(약 1MB)는 ETF 탭·검색·ETF 상세를 열 때만 받는다. 홈은 작은 etf-home.json 으로 그린다. */
+  function ensureEtf() {
+    if (E) return Promise.resolve(E);
+    if (!etfReq) etfReq = (window.__RADAR_ETF__ ? Promise.resolve(window.__RADAR_ETF__) : fetch("data/etf.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null))
+      .then((d) => { bootEtf(d, null); if (!E) etfReq = null; return E; });
+    return etfReq;
+  }
   try { Object.assign(state, { etfC: "us", etfL: "all", etfP: 0, etfDir: "up", etfTheme: "", etfMode: "move", etfDs: "tot", etfFq: "all", etfTr: "pos" }, JSON.parse(store.get("radar.etf") || "{}")); } catch (e) {}
   if (state.etfDsV !== 2) { state.etfDs = "tot"; state.etfDsV = 2; } // 기본 정렬을 1년 총수익으로 바꾼 뒤 한 번 초기화
   const saveEtf = () => store.set("radar.etf", JSON.stringify({ etfC: state.etfC, etfL: state.etfL, etfP: state.etfP, etfDir: state.etfDir, etfMode: state.etfMode, etfDs: state.etfDs, etfFq: state.etfFq, etfTr: state.etfTr, etfDsV: 2 }));
@@ -1899,11 +1912,12 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   }
   function renderEtfHome() {
     const sec = $(".ov-etf");
-    if (!E) { sec.hidden = true; return; }
+    const src = E || EH;
+    if (!src) { sec.hidden = true; return; }
     sec.hidden = false;
     const li = (r, i) => `<li data-etf="${esc(r.y)}" role="button" tabindex="0" style="cursor:pointer"><span class="tk">${esc(r.t)}</span><span class="t muted">${esc(r.n)}</span><span class="v ${pcls(r.r[i])}">${pct(r.r[i])}</span></li>`;
     $("#etf-home").innerHTML = ["us", "cn", "in"].map((c) => {
-      const pool = etfPool(c, "all", "");
+      const pool = src.rows.filter((r) => r.c === c);
       if (!pool.length) return "";
       const up = ranked(pool, 0, "up").slice(0, 3), dn = ranked(pool, 0, "down").slice(0, 3), s = (EN.summary || {})[c];
       return `<div class="bcard"><span class="eyebrow">${CTRY[c]} ETF · 1일 <a href="#etf" data-etfgo="${c}" style="margin-left:auto;font-weight:500">Top 20 →</a></span>
@@ -1956,7 +1970,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   }
   function openEtf(y) {
     const r = E && E.rows.find((x) => x.y === y);
-    if (!r) return;
+    if (!r) { if (!E) ensureEtf().then((d) => { if (d) openEtf(y); }); return; }
     if (!$("#search").hidden) closeSearch();
     lastFocus = document.activeElement;
     const inf = (E.info || {})[y] || {}, note = etfNote(r);
@@ -2311,6 +2325,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
     $$("[data-panel]").forEach((p) => (p.hidden = p.dataset.panel !== v));
     $$(".tabbar a").forEach((a) => { if (a.dataset.view === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
     VIEWS[v]();
+    if (v === "etf") ensureEtf();
     if (v === "timeline") markSeen("f");
     if (v === "news") markSeen("n");
   }
@@ -2422,9 +2437,18 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   function loadEtf() {
     if (window.__RADAR_ETF__) { bootEtf(window.__RADAR_ETF__, window.__RADAR_ETF_NOTES__); return; }
     Promise.all([
-      fetch("data/etf.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null),
+      fetch("data/etf-home.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null),
       fetch("notes/etf-notes.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null),
-    ]).then(([d, n]) => bootEtf(d, n));
+    ]).then(([h, n]) => {
+      if (h && Array.isArray(h.rows) && h.rows.length) {  // 홈 요약만 먼저 (전체는 ensureEtf 가 필요할 때)
+        EH = h;
+        if (n && typeof n === "object") EN = { summary: n.summary || {}, notes: n.notes || {}, as_of_label: n.generated_at ? new Date(n.generated_at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) : "" };
+        renderEtfHome();
+        if (current() === "etf") ensureEtf();
+      } else {  // 요약 파일이 아직 없으면 이전처럼 전체를 받는다
+        fetch("data/etf.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null).then((d) => bootEtf(d, n));
+      }
+    });
   }
   if (window.__RADAR_DATA__) { boot(window.__RADAR_DATA__, window.__RADAR_NEWS__); loadEtf(); loadGlobal(); }
   else {

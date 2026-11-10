@@ -324,6 +324,20 @@ def demo(cfg: dict) -> tuple[dict, dict]:
     return data, {"generated_at": data["generated_at"], "w": series}
 
 
+def home_subset(data: dict, n: int = 3) -> dict:
+    """홈 화면 'ETF 등락 한눈에'에 필요한 것만: 나라별 1일 상승·하락 상위 n 개 (전체 etf.json 은 ETF 탭을 열 때 받는다)."""
+    rows = []
+    for c in ("us", "cn", "in"):
+        pool = [r for r in data.get("rows", []) if r.get("c") == c and r.get("r") and r["r"][0] is not None]
+        pick = sorted(pool, key=lambda r: -r["r"][0])[:n] + sorted(pool, key=lambda r: r["r"][0])[:n]
+        seen = set()
+        for r in pick:
+            if r["y"] not in seen:
+                seen.add(r["y"])
+                rows.append({k: r[k] for k in ("t", "y", "n", "c", "l", "th") if k in r} | {"r": r["r"][:1]})
+    return {"generated_at": data.get("generated_at"), "home": True, "rows": rows}
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--demo", action="store_true")
@@ -340,6 +354,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     write_json(out / "etf.json", data)
     write_json(out / "etf-series.json", ser)
+    write_json(out / "etf-home.json", home_subset(data))
     log.info("etf rows=%d counts=%s excluded=%s", len(data["rows"]), data["counts"], data["excluded"])
     return 0
 

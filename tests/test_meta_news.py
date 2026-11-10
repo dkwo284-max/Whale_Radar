@@ -63,3 +63,19 @@ def test_season_lists_arrived_and_waiting():
     s = build.season(inv, date(2026, 11, 10))
     assert s["period"] == "2026-09-30" and s["deadline"] == "2026-11-14" and s["days_left"] == 4
     assert [a["id"] for a in s["arrived"]] == ["x"] and s["waiting"] == ["y"]
+
+
+def test_notify_diff_only_new_filings():
+    import notify
+    old = {"investors": [{"id": "a", "name": "A", "period": "2026-06-30"}, {"id": "b", "name": "B", "period": "2026-09-30"}],
+           "timeline": [{"url": "u1", "investor": "a", "form": "Form 4", "title": "old"}]}
+    new = {"investors": [{"id": "a", "name": "A", "period": "2026-09-30", "counts": {"BUY": 2, "SELL": 1},
+                          "positions": [{"label": "신규 편입", "ticker": "NVDA", "value": 5}, {"label": "전량 매도", "ticker": "KO", "prev_value": 3}]},
+                         {"id": "b", "name": "B", "period": "2026-09-30", "counts": {}, "positions": []},
+                         {"id": "c", "name": "C", "period": "2026-09-30", "counts": {}, "positions": []}],
+           "timeline": [{"url": "u1", "investor": "a", "form": "Form 4", "title": "old"}, {"url": "u2", "investor": "b", "form": "SC 13D/A", "title": "지분 변경", "ticker": "XYZ"},
+                        {"url": "u3", "investor": "a", "form": "13F-HR", "title": "13F"}]}
+    lines = notify.diff_lines(old, new)
+    assert len(lines) == 2 and "A 2026 Q3 13F" in lines[0] and "신규 NVDA" in lines[0] and "전량 매도 KO" in lines[0] and "B SC 13D/A" in lines[1] and "(XYZ)" in lines[1]
+    assert notify.diff_lines(old, new, only=["b"]) == [lines[1]]
+    assert notify.notify(old, new, {"notify": {"telegram": {"enabled": False}}}) == 0

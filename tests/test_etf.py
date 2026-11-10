@@ -211,3 +211,11 @@ def test_div_union_and_filter():
     assert not is_div_etf(rows[1]) and is_div_etf(rows[2]) and not is_div_etf(rows[-1])
     u = div_union(rows, n=5)
     assert "D39" in u and "BOND" not in u
+
+
+def test_home_subset_keeps_top_and_bottom_per_country():
+    import build_etf
+    rows = [{"t": f"T{i}", "y": f"T{i}", "n": "x", "c": "us", "l": "us", "th": "a", "r": [float(i), 1.0]} for i in range(10)]
+    rows.append({"t": "N", "y": "N", "n": "x", "c": "us", "l": "us", "th": "a", "r": [None, 1.0]})
+    h = build_etf.home_subset({"generated_at": "g", "rows": rows})
+    assert h["home"] and [r["t"] for r in h["rows"]] == ["T9", "T8", "T7", "T0", "T1", "T2"] and h["rows"][0]["r"] == [9.0]

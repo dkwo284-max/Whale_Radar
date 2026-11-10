@@ -56,6 +56,11 @@ https://dkwo284-max.github.io/Whale_Radar/
 - **뉴스 고르게**: 하루 AI 요약 한도(40건)에 앞쪽 대가만 들어가지 않게 대가별로 돌아가며 넣고, 최근 기사가 적은 대가를 먼저 넣습니다(`news.fair_order`).
 - **데이터 상태**(화면 맨 아래): 공시·뉴스·성적·ETF·글로벌·해설의 마지막 갱신 시각(`web/data/status.json`, `scripts/status.py`).
 
+## 알림 · 가벼운 첫 화면
+
+- **알림(선택, 기본 꺼짐)**: 새 13F 가 도착하거나 새 Form 4·13D/G 가 올라오면 텔레그램·이메일로 알립니다(`scripts/notify.py`, 이전 수집과 비교해 새로 생긴 것만). `config.yaml` 의 `notify` 에서 `enabled: true` 로 켜고, 이 저장소 Settings → Secrets 에 `TELEGRAM_BOT_TOKEN`·`TELEGRAM_CHAT_ID`(또는 `SMTP_USER`·`SMTP_PASSWORD`·`EMAIL_TO`)를 넣으세요. `investors` 로 대가를, `forms` 로 공시 종류를 고릅니다.
+- **첫 화면 데이터 줄이기**: 홈의 ETF 요약은 작은 `etf-home.json`(약 3KB)으로 그리고, 전체 `etf.json`(약 1.1MB)은 ETF 탭·검색·ETF 상세를 열 때만 받습니다. 성적 `performance.json`(약 0.4MB)은 투자자 탭을 처음 열 때 받습니다.
+
 ## 투자자 추가·변경
 
 `config.yaml` 의 `investors` 에 `id·name·firm·cik·expect·news` 를 추가합니다. CIK 는 SEC EDGAR 회사 검색에서 찾을 수 있습니다.

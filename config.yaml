@@ -32,6 +32,15 @@ llm:
   expected_per_run: 1        # 보통 하루 1회 (새 기사 40건까지 한 번에)
   timeout_seconds: 240
 
+# ── 알림 (선택, 기본 꺼짐) ─────────────────────────────────
+# 새 13F 가 도착하거나 새 Form 4·13D/G 가 올라오면 알립니다(이전 수집과 비교해 새로 생긴 것만, 없으면 안 보냄).
+# 켜려면 enabled: true 로 바꾸고 이 저장소의 Settings → Secrets 에 값을 넣으세요 (Daily Brief 와 같은 값을 써도 됩니다).
+notify:
+  telegram: { enabled: false }   # Secrets: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+  email:    { enabled: false }   # Secrets: SMTP_USER, SMTP_PASSWORD(Gmail 앱 비밀번호), EMAIL_TO
+  investors: []                  # 알릴 대가 id (예: [buffett, ackman]). 비우면 전체
+  forms: ["13F", "4", "13DG"]    # 알릴 공시 종류
+
 # 추적할 투자자 — cik 는 SEC 기관 번호(https://www.sec.gov/cgi-bin/browse-edgar 에서 검색)
 # news 는 Google 뉴스 검색어. 실행할 때 SEC 등록 이름과 맞는지 확인해 경고를 남깁니다(expect).
 investors:

@@ -70,6 +70,11 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
           # 매일 정해진 시각의 실제 배포(schedule)는 Flash, 수동 실행 같은 테스트는 Flash-Lite
           AI_PROFILE: ${{ github.event_name == 'schedule' && 'production' || 'test' }}
         run: python scripts/build.py ${{ github.event.inputs.news == 'false' && '--no-news' || '' }}
