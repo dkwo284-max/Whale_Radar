@@ -68,6 +68,45 @@ def send_email(subject: str, text: str) -> None:
     log.info("email sent")
 
 
+def strategy_lines(old: dict, new: dict) -> list[str]:
+    """추천 조합이 새 분기 13F 로 다시 짜였을 때만: 추천 조합 이름과 들어온·빠진 종목."""
+    now = (new.get("bases", {}).get("follow") or {}).get("now") or {}
+    was = (old.get("bases", {}).get("follow") or {}).get("now") or {}
+    pick = (new.get("recommend") or {}).get("pick")
+    if not now.get("period") or not was.get("period") or was["period"] >= now["period"] or not pick:
+        return []
+    ch = (now.get("changes") or {}).get(pick) or {}
+    names = lambda rows: ", ".join(r["t"] for r in rows[:8]) + (f" 외 {len(rows) - 8}" if len(rows) > 8 else "")  # noqa: E731
+    top = ", ".join(f"{h['t']} {h['w'] * 100:.0f}%" for h in (now.get("portfolios") or {}).get(pick, [])[:5])
+    lines = [f"🧭 추천 조합 재조정 — {(new.get('labels') or {}).get(pick, pick)} ({_quarter(now['period'])} 13F 반영)"]
+    if ch.get("in"):
+        lines.append(f"➕ 새로 편입: {names(ch['in'])}")
+    if ch.get("out"):
+        lines.append(f"➖ 제외: {names(ch['out'])}")
+    if top:
+        lines.append(f"상위 비중: {top}")
+    return lines
+
+
+def notify_strategy(old: dict, new: dict, cfg: dict) -> int:
+    n = cfg.get("notify") or {}
+    tg, em = (n.get("telegram") or {}).get("enabled"), (n.get("email") or {}).get("enabled")
+    if not (tg or em) or "strategy" not in (n.get("forms") or ["strategy"]):
+        return 0
+    lines = strategy_lines(old, new)
+    if not lines:
+        return 0
+    text = "\n".join(["🐋 마켓 레이더"] + lines + [cfg.get("app_url", "")])
+    for name, on, fn in (("telegram", tg, lambda: send_telegram(text)), ("email", em, lambda: send_email("마켓 레이더 — 추천 조합 재조정", text))):
+        if not on:
+            continue
+        try:
+            fn()
+        except Exception as e:  # noqa: BLE001
+            log.error("%s notify failed: %s", name, e)
+    return len(lines)
+
+
 def notify(old: dict, new: dict, cfg: dict) -> int:
     n = cfg.get("notify") or {}
     tg, em = (n.get("telegram") or {}).get("enabled"), (n.get("email") or {}).get("enabled")

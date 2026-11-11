@@ -328,7 +328,7 @@ def main(argv: list[str] | None = None) -> int:
             log.warning("13F history %s failed: %s", inv["id"], e)
     cusips = {c for qs in per.values() for q in qs for c in sorted(q["h"], key=lambda c: q["h"][c]["v"], reverse=True)[:TOP_N]}
     tickers = meta.tickers_for(cusips)
-    need = sorted({t for t in tickers.values() if t} | {BENCH})
+    need = sorted({t for t in tickers.values() if t} | {BENCH, "KRW=X", "NZD=X"})  # 환율은 투자금 계산기용
     first = min((q["period"] for qs in per.values() for q in qs), default=date.today().isoformat())
     start = (date.fromisoformat(first) - timedelta(days=10)).isoformat()
     log.info("prices: %d tickers since %s", len(need), start)
@@ -354,8 +354,12 @@ def main(argv: list[str] | None = None) -> int:
         try:
             import strategy
 
+            old_st = read_json(DATA / "strategy.json", {})
             st = strategy.build(per, tickers, px, today, {i["id"]: i["name"] for i in invs})
             write_json(DATA / "strategy.json", st)
+            from notify import notify_strategy
+
+            notify_strategy(old_st, st, cfg)
             log.info("strategy: %s", {k: round(v["metrics"]["cagr"] or 0, 3) for k, v in st["bases"].get("follow", {}).get("strategies", {}).items()})
         except Exception as e:  # noqa: BLE001 — 전략 계산 실패가 성적 저장을 막지 않게
             log.warning("strategy failed: %s", e)

@@ -26,6 +26,9 @@ from perf import weights as _weights
 LAG_DAYS = 47       # 분기 말 → 재조정일 (마감 45일 + 주말 여유)
 LOOKBACK = 4        # 성적 상위 대가를 고를 때 보는 분기 수 (모든 조합이 이만큼 지난 뒤 함께 시작)
 MAX_NAMES = 20      # 한 조합의 최대 종목 수
+COST = 0.002        # 사고팔 때마다 거래 금액의 0.2% (수수료·호가 차이·환전 비용의 대략값)
+SIZES = (10, 20, 30)  # 혼합 조합을 몇 종목으로 줄여 따라 할지 비교
+FX = {"KRW": "KRW=X", "NZD": "NZD=X"}  # 1달러 = ? (투자금 계산기용)
 MIN_SHARE = 0.6     # 시뮬레이션은 대가의 60% 이상이 13F 를 낸 분기부터 시작
 MDD_GUARD = 0.15    # 추천 후보: 최대 낙폭이 S&P500 보다 이만큼 넘게 나쁘면 제외
 ALIAS = {"GOOG": "GOOGL", "BRK.A": "BRK.B", "BRK-A": "BRK.B", "FOX": "FOXA", "NWS": "NWSA"}  # 같은 회사의 다른 주식 종류는 하나로
@@ -191,7 +194,10 @@ def portfolios(per, tickers, px, sched, basis, params: dict | None = None) -> li
         last_new = new
         w = {"momentum": mom, "consensus": pick_consensus(ws, p["consensus"]["min_holders"]),
              "conviction": pick_conviction(ws, p["conviction"]["top"]), "newbuy": new, "all": mix(list(ws.values()), 40)}
-        w["blend"] = mix([w[s] for s in ("momentum", "consensus", "conviction", "newbuy")], 30)
+        four = [w[s] for s in ("momentum", "consensus", "conviction", "newbuy")]
+        w["blend"] = mix(four, 30)
+        for n in SIZES[:-1]:  # 같은 혼합을 상위 n 종목만 남겨 다시 100% 로
+            w[f"blend{n}"] = mix(four, n)
         out.append({"period": sched[k]["period"], "date": sched[k]["date"], "w": w, "gurus": gurus, "n": len(ws)})
     return out
 
@@ -204,12 +210,16 @@ def _priced(w: dict[str, float], px: dict[str, Series]) -> dict[str, float]:
 def run(ports: list[dict], px: dict[str, Series], today: str, name: str) -> dict:
     """한 조합의 구간별 수익률·누적 곡선·지표 (S&P500 과 같은 구간으로 비교)."""
     wins, bwins, rows = [], [], []
+    net, prev_w = 1.0, {}
     for k, pf in enumerate(ports):
         end = ports[k + 1]["date"] if k + 1 < len(ports) else today
         w = pf["w"][name] or {BENCH: 1.0}  # 고를 종목이 없으면 지수를 든다
         a, b = window(w, px, pf["date"], end), window({BENCH: 1.0}, px, pf["date"], end)
         wins.append(a)
         bwins.append(b)
+        traded = sum(abs(w.get(t, 0) - prev_w.get(t, 0)) for t in set(w) | set(prev_w))  # 사고판 금액 / 자산 (처음엔 1 = 전부 매수)
+        net *= (1 - COST * traded) * (1 + (a["ret"] or 0))
+        prev_w = w
         rows.append({"period": pf["period"], "date": pf["date"], "ret": a["ret"], "spy": b["ret"], "n": len(pf["w"][name]),
                      "partial": k + 1 == len(ports)})
     d, v = chain(wins)
@@ -221,6 +231,9 @@ def run(ports: list[dict], px: dict[str, Series], today: str, name: str) -> dict
     cagr = lambda r: (1 + r) ** (1 / years) - 1 if r is not None and r > -1 and years > 0 else None  # noqa: E731
     half = len(done) // 2
     ex = lambda rs: (_cum(r["ret"] for r in rs) - _cum(r["spy"] for r in rs)) if rs else None  # noqa: E731
+    net_tot = net - 1 if rows else None
+    m.update({"total_net": net_tot, "cagr_net": cagr(net_tot),
+              "excess_net": (cagr(net_tot) - cagr(btot)) if cagr(net_tot) is not None and cagr(btot) is not None else None})
     m.update({"total": tot, "cagr": cagr(tot), "spy_total": btot, "spy_cagr": cagr(btot), "spy_mdd": ms["mdd"],
               "excess": (cagr(tot) - cagr(btot)) if cagr(tot) is not None and cagr(btot) is not None else None,
               "win": sum(1 for r in done if r["ret"] > r["spy"]) / len(done) if done else None, "quarters": len(done), "years": round(years, 2),
@@ -257,8 +270,23 @@ def sensitivity(per, tickers, px, sched, basis, today) -> dict[str, dict]:
     return out
 
 
-def holdings_now(pf: dict, name: str, snap: dict[str, tuple[dict, dict | None]], tickers, inv_names: dict[str, str]) -> list[dict]:
-    """지금 조합의 종목·비중과 그 종목을 든 대가."""
+def changes(ports: list[dict], name: str, min_move: float = 0.015) -> dict:
+    """직전 재조정과 견준 변화: 새로 들어온 종목·빠진 종목·비중이 크게(1.5%p 이상) 바뀐 종목."""
+    if len(ports) < 2:
+        return {"prev": None, "in": [], "out": [], "up": [], "down": []}
+    new, old = ports[-1]["w"][name], ports[-2]["w"][name]
+    row = lambda t, d: {"t": t, "w": round(new.get(t, 0), 4), "d": round(d, 4)}  # noqa: E731
+    both = [(t, new[t] - old[t]) for t in new if t in old]
+    return {"prev": ports[-2]["period"],
+            "in": [row(t, new[t]) for t in sorted(new, key=lambda t: -new[t]) if t not in old],
+            "out": [{"t": t, "w": 0, "d": round(-old[t], 4)} for t in sorted(old, key=lambda t: -old[t]) if t not in new],
+            "up": [row(t, d) for t, d in sorted(both, key=lambda x: -x[1]) if d >= min_move],
+            "down": [row(t, d) for t, d in sorted(both, key=lambda x: x[1]) if d <= -min_move]}
+
+
+def holdings_now(pf: dict, name: str, snap: dict[str, tuple[dict, dict | None]], tickers, inv_names: dict[str, str],
+                 px: dict[str, Series] | None = None) -> list[dict]:
+    """지금 조합의 종목·비중과 그 종목을 든 대가 (p = 최근 종가, 달러 — 투자금 계산기용)."""
     issuer: dict[str, str] = {}
     holders: dict[str, list[str]] = {}
     for i, (q, _) in snap.items():
@@ -267,7 +295,8 @@ def holdings_now(pf: dict, name: str, snap: dict[str, tuple[dict, dict | None]],
         for c, x in q["h"].items():
             if tickers.get(c):
                 issuer.setdefault(ALIAS.get(tickers[c], tickers[c]), x["n"])
-    return [{"t": t, "w": round(w, 4), "n": issuer.get(t, ""), "by": holders.get(t, [])}
+    last = lambda t: round(px[t].p[-1], 2) if px and t in px and px[t].p else None  # noqa: E731
+    return [{"t": t, "w": round(w, 4), "n": issuer.get(t, ""), "by": holders.get(t, []), "p": last(t)}
             for t, w in sorted(pf["w"][name].items(), key=lambda kv: (-kv[1], kv[0]))]
 
 
@@ -361,7 +390,13 @@ def build(per: dict[str, list[dict]], tickers: dict[str, str | None], px: dict[s
             block["sensitivity"] = sensitivity(per, tickers, px, sched, basis, today)
             block["now"] = {"period": last["period"], "date": last["date"], "next": plus_days(_next_quarter_end(last["period"]), LAG_DAYS),
                             "investors": last["n"], "gurus": last["gurus"],
-                            "portfolios": {name: holdings_now(last, name, snap, tickers, inv_names) for name in ORDER if name != "all"}}
+                            "portfolios": {name: holdings_now(last, name, snap, tickers, inv_names, px)
+                                           for name in [n for n in ORDER if n != "all"] + [f"blend{n}" for n in SIZES[:-1]]},
+                            "changes": {name: changes(ports, name) for name in [n for n in ORDER if n != "all"] + [f"blend{n}" for n in SIZES[:-1]]}}
+            keep = ("cagr", "cagr_net", "total", "mdd", "win", "turnover", "excess", "ex_h1", "ex_h2", "vol", "r1y", "spy_cagr", "spy_mdd")
+            block["sizes"] = {str(n): {k: (run(ports, px, today, "blend" if n == SIZES[-1] else f"blend{n}")["metrics"]).get(k) for k in keep} for n in SIZES}
+            out["fx"] = {c: round(px[s].p[-1], 4) for c, s in FX.items() if s in px and px[s].p}
+            out["cost"] = COST
             block["history"] = [{"period": p["period"], "date": p["date"], "gurus": p["gurus"]} for p in ports]
             out["recommend"] = recommend(strats, block["sensitivity"])
             out["gurus"] = guru_scores(per, tickers, px, sched, today, inv_names)

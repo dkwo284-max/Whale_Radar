@@ -94,3 +94,31 @@ def test_recommend_prefers_steady_and_calm_over_highest_return():
     assert r["pick"] == "blend" and "momentum" in r["failed"]      # 숫자를 바꾸면 시장에 지는 조합은 제외
     r = st.recommend({"newbuy": m(0.4, -0.03, -0.27, 2.0)})
     assert r["pick"] == "newbuy" and not r["robust"] and r["warnings"]
+
+
+def test_costs_sizes_changes_and_calculator_fields():
+    per, px, today = world()
+    px["KRW=X"] = perf.Series(["2026-01-01"], [1400.0])
+    out = st.build(per, TK, px, today, {})
+    f = out["bases"]["follow"]
+    m = f["strategies"]["blend"]["metrics"]
+    assert m["total_net"] < m["total"] and m["cagr_net"] < m["cagr"]          # 비용을 빼면 줄어든다
+    assert set(f["sizes"]) == {"10", "20", "30"} and f["sizes"]["30"]["cagr"] == m["cagr"]
+    assert out["fx"] == {"KRW": 1400.0} and out["cost"] == st.COST
+    assert all(h["p"] for h in f["now"]["portfolios"]["blend"])
+    ch = f["now"]["changes"]["newbuy"]
+    assert ch["prev"] == PERIODS[-2] and "blend10" in f["now"]["portfolios"]
+    ports = [{"period": "a", "w": {"x": {"A": .5, "B": .5}}}, {"period": "b", "w": {"x": {"A": .7, "C": .3}}}]
+    c = st.changes(ports, "x")
+    assert [r["t"] for r in c["in"]] == ["C"] and [r["t"] for r in c["out"]] == ["B"] and [r["t"] for r in c["up"]] == ["A"]
+
+
+def test_strategy_notification_only_on_new_quarter():
+    import notify
+    now = {"period": "2026-06-30", "portfolios": {"blend": [{"t": "A", "w": .5}]}, "changes": {"blend": {"in": [{"t": "C"}], "out": [{"t": "B"}]}}}
+    new = {"labels": {"blend": "네 가지 혼합"}, "recommend": {"pick": "blend"}, "bases": {"follow": {"now": now}}}
+    old = {"bases": {"follow": {"now": {"period": "2026-03-31"}}}}
+    lines = notify.strategy_lines(old, new)
+    assert "네 가지 혼합" in lines[0] and "C" in lines[1] and "B" in lines[2]
+    assert notify.strategy_lines(new, new) == [] and notify.strategy_lines({}, new) == []
+    assert notify.notify_strategy(old, new, {"notify": {"telegram": {"enabled": False}}}) == 0
