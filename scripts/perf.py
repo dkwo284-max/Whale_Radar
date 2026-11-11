@@ -10,7 +10,7 @@
 - 벤치마크: SPY(배당 포함 수정종가)
 - AI 를 쓰지 않는다. 과거 13F 는 cache/13f/ 에 저장해 다시 받지 않고, 시세는 yfinance 로 받는다.
 
-    python scripts/perf.py              # 전체 (최근 21개 분기)
+    python scripts/perf.py              # 전체 (최근 25개 분기) + 조합 전략(strategy.json)
     python scripts/perf.py --only buffett
 """
 from __future__ import annotations
@@ -27,7 +27,7 @@ from common import CACHE, DATA, SEC, load_config, log, read_json, write_json
 from meta import Meta
 from sec import ARCHIVE, SUBMISSIONS, filings, find_infotable, parse_infotable
 
-QUARTERS = 21       # 5년(20분기) 수익률 + 시작 분기
+QUARTERS = 25       # 5년(20분기) 수익률 + 시작 분기 + 조합 전략이 대가 성적을 보는 4개 분기
 TOP_N = 30
 STALE_DAYS = 200    # 최근 13F 기준일이 이보다 오래되면 '공시 중단'으로 보고 순위에서 뺀다
 BENCH = "SPY"
@@ -350,6 +350,15 @@ def main(argv: list[str] | None = None) -> int:
         out["investors"] += [i for i in old.get("investors", []) if i["id"] not in mine]
     write_json(DATA / "performance.json", out)
     log.info("performance: %d investors, as of %s", len(out["investors"]), today)
+    if not args.only:  # 대가 조합(하이브리드) 전략 시뮬레이션 — 같은 13F·시세로 계산
+        try:
+            import strategy
+
+            st = strategy.build(per, tickers, px, today, {i["id"]: i["name"] for i in invs})
+            write_json(DATA / "strategy.json", st)
+            log.info("strategy: %s", {k: round(v["metrics"]["cagr"] or 0, 3) for k, v in st["bases"].get("follow", {}).get("strategies", {}).items()})
+        except Exception as e:  # noqa: BLE001 — 전략 계산 실패가 성적 저장을 막지 않게
+            log.warning("strategy failed: %s", e)
     from status import write_status
 
     write_status()
