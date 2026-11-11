@@ -690,6 +690,8 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
 .st-pick, .st-port, .st-chg, .st-size { grid-template-columns: minmax(0, 1fr); }
 .st-port > *, .st-calc > * { min-width: 0; max-width: 100%; }
 .calc-in { flex-wrap: wrap; } .calc-in select { flex: 1 1 140px; }
+.st-live { display: grid; gap: 6px; padding: 8px 10px; border: 1px dashed color-mix(in oklab, var(--accent) 45%, var(--line)); border-radius: 10px; background: var(--surface); }
+.st-live .lab { font-size: .8rem; font-weight: 700; } .st-live .lab small { font-weight: 400; color: var(--muted); }
 .st-chg { display: grid; gap: 4px; padding-top: 6px; border-top: 1px dashed var(--line); }
 .st-chg .lab { font-weight: 600; font-size: .78rem; color: var(--muted); }
 .st-size { display: grid; gap: 6px; justify-items: start; }
@@ -1401,6 +1403,13 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
       <table class="st-mini"><thead><tr><th>종목 수</th><th>연 수익률</th><th>비용 후</th><th>최대 낙폭</th><th>이긴 분기</th></tr></thead><tbody>${Object.entries(sizes).map(([n, x]) =>
         `<tr class="${+n === state.stSize ? "me" : ""}"><td>${n}</td><td class="${pc(x.cagr)}">${pv(x.cagr)}</td><td>${pv(x.cagr_net)}</td><td class="down">${pv(x.mdd)}</td><td>${x.win == null ? "—" : Math.round(x.win * 100) + "%"}</td></tr>`).join("")}</tbody></table></div>` : "";
     state.calcPort = port;
+    // 추천을 화면에 올린 뒤의 실제 성적 (사후 검증) — 과거 시뮬레이션과 따로 보여 준다
+    const lv = S.live;
+    const liveBox = lv ? `<div class="st-live"><div class="lab">📍 추천 공개 후 실제 성적 <small>${esc(lv.since)}부터 ${lv.days}일째${lv.legs.length > 1 ? ` · 조합 교체 ${lv.legs.length - 1}번` : ""}</small></div>
+      ${lv.days < 5 ? `<p class="desc">추적을 막 시작했어요. 매주 갱신되며, 추천 조합을 그날 종가로 샀다고 가정하고 S&P500 과 비교합니다. 이 값은 나중에 규칙을 바꿔도 고쳐지지 않습니다.</p>`
+        : `<div class="tiles">${tile("추천 조합", pv(lv.ret), pc(lv.ret))}${tile("비용 뺀 뒤", pv(lv.ret_net), pc(lv.ret_net))}${tile("S&P500", pv(lv.spy), pc(lv.spy))}${tile("차이", pv(lv.ret_net - lv.spy), pc(lv.ret_net - lv.spy))}</div>
+          <p class="desc">${lv.days < 90 ? "아직 기간이 짧아 우연의 영향이 큽니다. " : ""}과거 시뮬레이션(위 숫자)과 달리 추천을 공개한 뒤의 값이라, 규칙이 실제로도 통하는지 보는 기준입니다.</p>
+          ${lv.legs.length > 1 ? `<details><summary>구간별 기록 ${lv.legs.length}개</summary><div class="wrap"><table class="st-mini"><thead><tr><th>시작</th><th>조합</th><th>수익률</th><th>S&P500</th></tr></thead><tbody>${lv.legs.map((g) => `<tr><td>${esc(g.start)}</td><td>${esc(S.labels[g.pick] || g.pick)} (${esc(quarter(g.period))})</td><td class="${pc(g.ret)}">${pv(g.ret)}</td><td>${pv(g.spy)}</td></tr>`).join("")}</tbody></table></div></details>` : ""}`}</div>` : "";
     const tile = (label, v, cls = "") => `<div class="tile"><b class="${cls}">${v}</b><span>${label}</span></div>`;
     const isRec = sel === rec.pick;
     const prow = (h, i) => `<li><button type="button" class="st-row" data-ticker="${esc(h.t)}" title="${esc(h.n)} · 보유 대가 ${h.by.length}명"><span class="rk">${i + 1}</span>
@@ -1424,6 +1433,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
           <h3>${esc(S.labels[sel])}</h3>
           <p class="desc">${esc(ST_DESC[sel])}</p>
           <div class="tiles">${tile("연 수익률", pv(fm.cagr), pc(fm.cagr))}${fm.cagr_net != null ? tile(`거래 비용 ${((S.cost || 0) * 100).toFixed(1)}% 뺀 뒤`, pv(fm.cagr_net), pc(fm.cagr_net)) : ""}${tile("S&P500 연 수익률", pv(fm.spy_cagr))}${tile("최대 낙폭", pv(fm.mdd), "down")}${tile(`시장 이긴 분기 (${fm.quarters}개 중)`, fm.win == null ? "—" : Math.round(fm.win * 100) + "%")}</div>
+          ${liveBox}
           ${isRec && (rec.reasons || []).length ? `<ul class="st-why">${rec.reasons.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : `<ul class="st-why"><li>앞 절반 ${pv(fm.ex_h1)}p · 뒤 절반 ${pv(fm.ex_h2)}p (S&P500 대비 누적 초과 수익)</li><li>최근 1년 ${pv(fm.r1y)} · 분기마다 약 ${Math.round((fm.turnover || 0) * 100)}% 교체</li></ul>`}
           ${sens ? `<p class="desc">규칙의 숫자(인원·종목 수)를 조금 바꾸면 연 ${pv(sens.min)} ~ ${pv(sens.max)} — 범위가 넓을수록 우연일 가능성이 커요.</p>` : ""}
           ${warn.length ? `<p class="st-warn">${warn.map((w) => `<span>⚠️ ${esc(w)}</span>`).join("")}</p>` : ""}

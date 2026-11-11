@@ -122,3 +122,19 @@ def test_strategy_notification_only_on_new_quarter():
     assert "네 가지 혼합" in lines[0] and "C" in lines[1] and "B" in lines[2]
     assert notify.strategy_lines(new, new) == [] and notify.strategy_lines({}, new) == []
     assert notify.notify_strategy(old, new, {"notify": {"telegram": {"enabled": False}}}) == 0
+
+
+def test_live_track_starts_at_publication_and_adds_a_leg_only_on_change():
+    per, px, today = world()
+    out = st.build(per, TK, px, today, {})
+    d0 = "2026-01-10"
+    ledger, live = st.live_track({}, out, px, d0)
+    assert live["since"] == d0 and live["days"] == 0 and live["ret"] == 0 and len(ledger["legs"]) == 1
+    ledger2, live2 = st.live_track(ledger, out, px, "2026-03-01")           # 추천·분기가 그대로면 구간을 늘리지 않는다
+    assert len(ledger2["legs"]) == 1 and live2["days"] == 50 and live2["ret"] != 0 and live2["ret_net"] < live2["ret"]
+    first = ledger["legs"][0]["pick"]
+    out["recommend"]["pick"] = "momentum" if first != "momentum" else "consensus"
+    ledger3, live3 = st.live_track(ledger2, out, px, "2026-03-20")          # 추천이 바뀌면 그날부터 새 구간
+    assert [g["pick"] for g in live3["legs"]] == [first, out["recommend"]["pick"]] and live3["legs"][1]["start"] == "2026-03-20"
+    assert ledger3["legs"][0]["w"] == ledger["legs"][0]["w"]                 # 지난 구간의 종목·비중은 기록 그대로
+    assert st.live_track({}, {"bases": {}}, px, d0) == ({"legs": []}, None)

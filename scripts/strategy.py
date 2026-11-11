@@ -404,6 +404,50 @@ def build(per: dict[str, list[dict]], tickers: dict[str, str | None], px: dict[s
     return out
 
 
+def live_track(ledger: dict, st: dict, px: dict[str, Series], today: str) -> tuple[dict, dict | None]:
+    """추천을 화면에 올린 '뒤'의 실제 성적 (과거 시뮬레이션이 아닌 사후 검증).
+    ledger = {legs: [{start, pick, period, w}]}: 추천 조합이나 기준 분기가 바뀔 때마다 그날 종가로 갈아탄 것으로 한 구간을 추가한다.
+    돌려주는 값: (갱신된 ledger, 화면용 요약). 지난 구간의 종목·비중은 기록된 그대로 쓰므로 나중에 규칙을 고쳐도 과거 추적 성적은 바뀌지 않는다."""
+    now = (st.get("bases", {}).get("follow") or {}).get("now") or {}
+    pick = (st.get("recommend") or {}).get("pick")
+    legs = list((ledger or {}).get("legs") or [])
+    if pick and now.get("portfolios", {}).get(pick):
+        w = {h["t"]: h["w"] for h in now["portfolios"][pick]}
+        last = legs[-1] if legs else None
+        if not last or last["pick"] != pick or last["period"] != now["period"]:
+            if last and last["start"] == today:
+                legs.pop()  # 같은 날 두 번 돌면 마지막 것만 남긴다
+            legs.append({"start": today, "pick": pick, "period": now["period"], "w": w})
+    if not legs:
+        return {"legs": []}, None
+    wins, bwins, rows, net, prev_w = [], [], [], 1.0, {}
+    for i, leg in enumerate(legs):
+        end = legs[i + 1]["start"] if i + 1 < len(legs) else today
+        a, b = window(leg["w"], px, leg["start"], end), window({BENCH: 1.0}, px, leg["start"], end)
+        wins.append(a)
+        bwins.append(b)
+        traded = sum(abs(leg["w"].get(t, 0) - prev_w.get(t, 0)) for t in set(leg["w"]) | set(prev_w))
+        net *= (1 - COST * traded) * (1 + (a["ret"] or 0))
+        prev_w = leg["w"]
+        rows.append({"start": leg["start"], "pick": leg["pick"], "period": leg["period"], "n": len(leg["w"]), "ret": _r(a["ret"]), "spy": _r(b["ret"])})
+    d, v = chain(wins)
+    bd, bv = chain(bwins)
+    bmap = dict(zip(bd, bv))
+    days = (date.fromisoformat(today) - date.fromisoformat(legs[0]["start"])).days
+    return {"legs": legs}, {"since": legs[0]["start"], "days": days, "ret": _r(v[-1] - 1) if v else 0.0, "ret_net": _r(net - 1),
+                            "spy": _r(bv[-1] - 1) if bv else 0.0, "mdd": _r(mdd_of(v)), "legs": rows,
+                            "curve": {"d": d, "v": [round(x, 4) for x in v], "spy": [round(bmap[x], 4) if x in bmap else None for x in d]}}
+
+
+def mdd_of(vals: list[float]) -> float | None:
+    peak, worst = 0.0, 0.0
+    for x in vals:
+        peak = max(peak, x)
+        if peak:
+            worst = min(worst, x / peak - 1)
+    return worst if vals else None
+
+
 def _next_quarter_end(p: str) -> str:
     d = date.fromisoformat(p) + timedelta(days=1)   # 다음 분기 첫날
     m = d.month + 3

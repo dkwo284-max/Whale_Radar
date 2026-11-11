@@ -356,6 +356,10 @@ def main(argv: list[str] | None = None) -> int:
 
             old_st = read_json(DATA / "strategy.json", {})
             st = strategy.build(per, tickers, px, today, {i["id"]: i["name"] for i in invs})
+            ledger, live = strategy.live_track(read_json(CACHE / "strategy_track.json", {}), st, px, today)
+            write_json(CACHE / "strategy_track.json", ledger)
+            if live:
+                st["live"] = live
             write_json(DATA / "strategy.json", st)
             from notify import notify_strategy
 
