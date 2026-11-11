@@ -169,7 +169,10 @@ def build(per, tickers, px, today: str, inv_names: dict[str, str], ledger: dict 
     combo = [p["t"] for p in now["picks"] if p["by_top"]][:COMBO_N]
     now["combo"] = combo
     ledger, live = live_track(ledger or {}, "newpick" if combo else None, now["period"], {t: 1 / len(combo) for t in combo}, px, today)
-    out = {"as_of": today, "min_w": MIN_W, "horizons": HORIZONS, "type_ko": TYPE_KO, "gurus": card, "types": types, "now": now,
+    allx = [e["m6"] for evs in ev_by.values() for e in evs if e["m6"] is not None]
+    for r in card:  # 통계적으로 시장과 구별되는가: 95% 신뢰 구간 전체가 0 위에 있을 때만
+        r["significant"] = bool(r["m6"]["ci"] and r["m6"]["ci"][0] > 0)
+    out = {"as_of": today, "overall": stats(allx), "min_w": MIN_W, "horizons": HORIZONS, "type_ko": TYPE_KO, "gurus": card, "types": types, "now": now,
            "n_events": sum(len(v) for v in ev_by.values())}
     if live:
         out["live"] = live

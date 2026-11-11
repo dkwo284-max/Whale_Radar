@@ -69,3 +69,9 @@ def test_weight_history_tracks_top_tickers():
     h = perf.weight_history(qs, {"A": "AAA", "B": "BBB", "C": "CCC"})
     assert h["periods"] == ["2026-03-31", "2026-06-30"]
     assert h["series"][0] == {"t": "CCC", "w": [0, 75.0]} and h["series"][1] == {"t": "AAA", "w": [60.0, 25.0]}
+
+
+def test_pick_fuller_prefers_the_complete_filing_for_a_quarter():
+    qs = [{"period": "2026-03-31", "total": 5, "h": {"a": 1}}, {"period": "2026-03-31", "total": 900, "h": {"b": 1}}, {"period": "2025-12-31", "total": 7, "h": {"c": 1}}]
+    out = perf.pick_fuller(qs)
+    assert [q["period"] for q in out] == ["2025-12-31", "2026-03-31"] and out[1]["total"] == 900

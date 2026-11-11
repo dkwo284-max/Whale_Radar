@@ -79,6 +79,15 @@ def holdings(sec: SEC, cik: int, row: dict) -> dict | None:
     return out
 
 
+def pick_fuller(qs: list[dict]) -> list[dict]:
+    """같은 분기에 13F 가 둘이면(공시 주체가 바뀌는 동안 새 법인은 일부 종목만, 옛 법인은 전체를 냄) 평가액이 큰 쪽을 쓴다. 오래된 순."""
+    best: dict[str, dict] = {}
+    for q in qs:
+        if q["period"] not in best or (q.get("total") or 0) > (best[q["period"]].get("total") or 0):
+            best[q["period"]] = q
+    return [best[p] for p in sorted(best)]
+
+
 # ── 계산 (순수 함수: 테스트 대상) ─────────────────────────
 
 class Series:
@@ -316,12 +325,9 @@ def main(argv: list[str] | None = None) -> int:
     for inv in invs:
         try:
             rows = [{**r, "_cik": inv["cik"]} for r in all_13f_rows(sec, inv["cik"])]
-            have = {r["reportDate"] for r in rows}
-            for old in inv.get("prev_ciks", []):  # 공시 주체가 바뀐 대가는 이전 번호의 분기도 이어 붙인다
-                rows += [{**r, "_cik": old} for r in all_13f_rows(sec, old) if r["reportDate"] not in have]
-                have = {r["reportDate"] for r in rows}
-            rows = sorted(rows, key=lambda r: r["reportDate"], reverse=True)[:QUARTERS]
-            qs = [q for q in (holdings(sec, r["_cik"], r) for r in rows) if q and q["h"]]
+            for old in inv.get("prev_ciks", []):  # 공시 주체가 바뀐 대가는 이전 번호의 분기도 함께 본다
+                rows += [{**r, "_cik": old} for r in all_13f_rows(sec, old)]
+            qs = pick_fuller([q for q in (holdings(sec, r["_cik"], r) for r in rows) if q and q["h"]])[-QUARTERS:]
             per[inv["id"]] = sorted(qs, key=lambda q: q["period"])
             log.info("%-14s %d quarters (%s ~ %s)", inv["id"], len(qs), qs[-1]["period"] if qs else "-", qs[0]["period"] if qs else "-")
         except Exception as e:  # noqa: BLE001

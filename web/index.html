@@ -692,6 +692,14 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
 .calc-in { flex-wrap: wrap; } .calc-in select { flex: 1 1 140px; }
 .st-live { display: grid; gap: 6px; padding: 8px 10px; border: 1px dashed color-mix(in oklab, var(--accent) 45%, var(--line)); border-radius: 10px; background: var(--surface); }
 .st-live .lab { font-size: .8rem; font-weight: 700; } .st-live .lab small { font-weight: 400; color: var(--muted); }
+.nb-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+.nb-it { border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; display: grid; gap: 5px; background: var(--surface); min-width: 0; }
+.nb-head { display: grid; grid-template-columns: 1.4em minmax(0, 1fr) auto; gap: 8px; align-items: center; border: 0; background: none; color: inherit; font: inherit; padding: 0; text-align: left; cursor: pointer; }
+.nb-head .rk { font-size: .74rem; color: var(--muted); text-align: right; } .nb-head .nm { min-width: 0; text-decoration: none; }
+.nb-head .nm b { font-size: .95rem; } .nb-head .nm small { display: block; color: var(--muted); font-size: .72rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nb-head .sc { font-weight: 700; font-variant-numeric: tabular-nums; } .nb-head .sc small { font-weight: 400; font-size: .7rem; }
+.nb-by { display: flex; flex-wrap: wrap; gap: 4px; } .nb-gap { font-size: .76rem; color: var(--muted); }
+.perf .nb-tbl td:nth-child(2), .perf .nb-tbl th:nth-child(2) { text-align: left; white-space: nowrap; } .perf .nb-tbl td:first-child { text-align: center; }
 .st-chg { display: grid; gap: 4px; padding-top: 6px; border-top: 1px dashed var(--line); }
 .st-chg .lab { font-weight: 600; font-size: .78rem; color: var(--muted); }
 .st-size { display: grid; gap: 6px; justify-items: start; }
@@ -737,9 +745,10 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
 
   <div class="panel" data-panel="overview">
     <div class="meta" id="meta" style="margin:0 0 10px"></div>
-    <nav class="ov-jump" aria-label="홈 바로 가기"><a href="#overview" data-jump="strat">따라 할 조합</a><a href="#overview" data-jump="strat-gurus">대가 순위</a><a href="#overview" data-jump="ov-brief">새 소식</a><a href="#overview" data-jump="ov-cons">컨센서스</a><a href="#etf">ETF</a><a href="#global">글로벌</a></nav>
+    <nav class="ov-jump" aria-label="홈 바로 가기"><a href="#overview" data-jump="strat">따라 할 조합</a><a href="#overview" data-jump="strat-gurus">대가 순위</a><a href="#overview" data-jump="newbuy-sec">신규 편입</a><a href="#overview" data-jump="ov-brief">새 소식</a><a href="#overview" data-jump="ov-cons">컨센서스</a><a href="#etf">ETF</a><a href="#global">글로벌</a></nav>
     <section class="perf strat" id="strat" aria-label="지금 따라 할 조합"><div class="sk card"></div></section>
     <section class="perf" id="strat-gurus" aria-label="따라 하기 좋은 대가" hidden></section>
+    <section class="perf" id="newbuy-sec" aria-label="신규 편입 추천" hidden></section>
     <section class="ov-brief" id="ov-brief">
       <h2>새 소식</h2>
       <div id="since"></div>
@@ -1134,6 +1143,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
     gcand: ["관찰 후보 기준", "① 지역 패권 신호 점수가 +1 이상(금은 미국 통화·금융이 ▼) ② 미국 대비 90일 수익이 플러스 ③ 큰손 13F 매수가 매도보다 많거나 최근 거래대금이 120일 평균의 1.15배 이상 ④ 20일 평균 거래대금 500만 달러 이상. 네 가지를 모두 통과하면 '후보', 세 가지면 '관찰 대기'예요. 투자 권유가 아니에요."],
     gnzd: ["뉴질랜드달러 기준", "미국 자산은 달러로 거래돼요. 뉴질랜드달러가 달러 대비 강해지면 같은 수익도 뉴질랜드달러로 바꿀 때 줄어들어요. 위쪽 '뉴질랜드달러 기준' 버튼을 누르면 모든 수익률이 이 기준으로 바뀌어요(미국 대비 격차는 거의 그대로예요)."],
     etf: ["ETF 순위 기준", "레버리지·인버스·VIX(공포지수) ETF와 거래대금이 적거나 운용자산이 작은 ETF는 뺐어요. 미국 탭은 미국 시장 ETF, 중국·인도 탭은 미국에 상장된 중국·인도 ETF와 현지(상해·심천·홍콩·NSE) 상장 ETF예요."],
+    newbuy: ["신규 편입 추천", "직전 분기 13F 에 없다가 새로 생긴 종목(비중 1% 이상), 예전에 팔았다가 다시 산 종목(재진입), 소량 보유하다 3배 이상 키운 종목을 모았어요. 점수는 그 대가의 과거 신규 편입 성적(50)·편입 비중(30)·함께 산 대가 수(20)입니다."],
     strat: ["지금 따라 할 조합", "여러 대가의 13F 를 규칙대로 섞은 포트폴리오예요. 분기마다 13F 마감 직후에 다시 짜고, 과거에 그대로 따라 했다면의 성적을 S&P500 과 비교합니다. 실제 펀드 수익률이 아니라 추정치예요."],
     gscore: ["추종 점수", "최근 3년 초과 수익(가중 3), 분기 승률(2), 최근 1년 흐름(2), 공시 지연으로 놓친 수익(1), 종목 교체 빈도(1)의 순위를 합쳐 0~100점으로 바꿨어요. 과거 기록이라 앞으로도 같다는 뜻은 아닙니다."],
     consensus: ["거물 컨센서스", "같은 분기에 두 명 이상이 같은 종목을 사거나 판 경우만 모았어요. 여러 명이 같은 방향이면 신호가 더 강해요."],
@@ -1360,6 +1370,45 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
       <path d="${line(c.d, c.v)}" fill="none" stroke="var(--up)" stroke-width="2.4"/></svg>
       <div class="legend"><span><i style="background:var(--up)"></i>${esc(S.labels[sel])}</span><span><i style="background:#8b98a7"></i>S&P500</span><span><i style="background:currentColor;opacity:.25"></i>다른 조합</span></div>`;
   }
+  function renderNewbuys() {
+    const box = $("#newbuy-sec"), nb = S && S.newbuys;
+    if (!box) return;
+    if (!nb || !nb.gurus || !nb.gurus.length) { box.hidden = true; return; }
+    box.hidden = false;
+    const nm = (id) => esc((invById[id] && invById[id].name) || (nb.gurus.find((g) => g.id === id) || {}).name || id);
+    const TYPE = nb.type_ko || {}, gById = Object.fromEntries(nb.gurus.map((g) => [g.id, g]));
+    const anySig = nb.gurus.some((g) => g.significant), ov = nb.overall || {};
+    const gap = (p) => {
+      const bits = [];
+      if (p.vs_q != null) bits.push(`분기 평균가 대비 <b class="${pc(p.vs_q)}">${pv(p.vs_q)}</b>`);
+      if (p.vs_filed != null) bits.push(`공시일 대비 <b class="${pc(p.vs_filed)}">${pv(p.vs_filed)}</b>`);
+      const hot = p.vs_q != null && p.vs_q >= 0.2 ? ` <span class="st-tag r">대가보다 20%+ 비싸게 사는 셈</span>` : p.vs_q != null && p.vs_q <= -0.05 ? ` <span class="st-tag">대가보다 싸게 살 수 있음</span>` : "";
+      return bits.join(" · ") + hot;
+    };
+    const picks = nb.now.picks || [], showN = state.nbAll ? picks.length : 8;
+    const row = (p, i) => `<li class="nb-it"><button type="button" class="nb-head" data-ticker="${esc(p.t)}"><span class="rk">${i + 1}</span><span class="nm"><b>${esc(p.t)}</b><small>${esc(p.n)}</small></span>
+        <span class="sc" title="대가의 신규 편입 성적 50 + 편입 비중 30 + 함께 산 대가 수 20">${p.score}<small>점</small></span></button>
+      <div class="nb-by">${p.buyers.map((b) => `<button type="button" class="schip${b.top ? " b" : ""}" data-goinv="${esc(b.id)}" title="${gById[b.id] ? `이 대가의 신규 편입 6개월 평균 ${pv(gById[b.id].m6.mean)} (표본 ${gById[b.id].m6.n}건)` : ""}">${nm(b.id)} ${(b.w * 100).toFixed(1)}% · ${esc(TYPE[b.type] || b.type)}</button>`).join("")}</div>
+      <div class="nb-gap">${gap(p)}</div></li>`;
+    const ci = (s) => s.ci ? `${pv(s.ci[0])} ~ ${pv(s.ci[1])}` : "—";
+    const lv = nb.live;
+    const tile = (label, v, cls = "") => `<div class="tile"><b class="${cls}">${v}</b><span>${label}</span></div>`;
+    box.innerHTML = `<h3>🆕 신규 편입 추천 <span class="muted" style="font-size:.78rem;font-weight:400">${esc(quarter(nb.now.period || ""))} 13F · ${esc(nb.as_of)} 기준</span>${tipBtn("newbuy", "신규 편입 추천 설명")}</h3>
+      <p class="note">이미 들고 있는 종목이 아니라 <b>이번 분기에 새로 산 종목</b>이에요. 과거 ${nb.n_events}건의 신규 편입이 공시일 이후 어땠는지로 대가를 평가하고, 그 성적·편입 비중·함께 산 대가 수로 점수를 매겼습니다.</p>
+      <p class="st-warn"><span>⚠️ 전체 신규 편입 ${ov.n || 0}건의 6개월 평균은 S&P500 대비 <b>${pv(ov.mean)}</b>, 이긴 비율 ${ov.win == null ? "—" : Math.round(ov.win * 100) + "%"}예요. ${anySig ? "신뢰 구간이 0 위에 있는 대가만 ‘통계적으로 우위’로 표시합니다." : "통계적으로 시장보다 낫다고 말할 수 있는 대가는 아직 없습니다 — 아래 순위는 ‘상대적으로 나았던 순서’로만 보세요."}</span></p>
+      ${picks.length ? `<ol class="nb-list">${picks.slice(0, showN).map(row).join("")}</ol>${picks.length > showN ? `<button type="button" class="more" data-nball>나머지 ${picks.length - showN}종목 더 보기</button>` : ""}` : `<p class="note">이번 분기에 조건(비중 ${(nb.min_w * 100).toFixed(0)}% 이상)에 맞는 신규 편입이 없어요.</p>`}
+      ${lv ? `<div class="st-live"><div class="lab">📍 신규 편입 상위 ${nb.now.combo.length}종목 조합의 실제 성적 <small>${esc(lv.since)}부터 ${lv.days}일째</small></div>
+        ${lv.days < 5 ? `<p class="desc">추적을 막 시작했어요. 성적 상위 대가가 새로 산 종목 중 점수 상위 ${nb.now.combo.length}개(${nb.now.combo.map(esc).join(" · ")})를 같은 비중으로 샀다고 가정하고 매주 S&P500 과 비교합니다.</p>`
+          : `<div class="tiles">${tile("신규 편입 조합", pv(lv.ret), pc(lv.ret))}${tile("비용 뺀 뒤", pv(lv.ret_net), pc(lv.ret_net))}${tile("S&P500", pv(lv.spy), pc(lv.spy))}${tile("차이", pv(lv.ret_net - lv.spy), pc(lv.ret_net - lv.spy))}</div>`}</div>` : ""}
+      <details class="ovfold"${state.nbCard ? " open" : ""} id="nb-card"><summary><h3 style="font-size:.95rem;display:inline">📋 대가별 신규 편입 성적표</h3></summary>
+        <p class="note" style="margin-top:6px">공시일 종가에 사서 6개월 뒤 S&P500 과 비교한 값이에요. 순위는 표본이 적을수록 0 쪽으로 당긴 값으로 매깁니다. 신뢰 구간이 0 을 걸치면 우연일 수 있다는 뜻입니다.</p>
+        <div class="wrap"><table class="st-mini nb-tbl"><thead><tr><th>#</th><th>대가</th><th>표본</th><th>6개월 평균</th><th>95% 신뢰 구간</th><th>이긴 비율</th><th>12개월 평균</th><th>가장 좋았던 편입</th></tr></thead><tbody>${nb.gurus.map((g) =>
+          `<tr class="${g.top ? "me" : ""}"><td>${g.rank}</td><td><button type="button" class="nm" data-goinv="${esc(g.id)}">${nm(g.id)}</button>${g.significant ? `<span class="st-tag">통계적 우위</span>` : g.top ? `<span class="st-tag x">상대 상위</span>` : ""}</td>
+            <td>${g.m6.n}</td><td class="${pc(g.m6.mean)}"><b>${pv(g.m6.mean)}</b></td><td>${ci(g.m6)}</td><td>${g.m6.win == null ? "—" : Math.round(g.m6.win * 100) + "%"}</td><td class="${pc(g.m12.mean)}">${pv(g.m12.mean)}</td>
+            <td>${g.best[0] ? `${esc(g.best[0].t)} ${pv(g.best[0].ex)} <small class="muted">${esc(quarter(g.best[0].period))}</small>` : "—"}</td></tr>`).join("")}</tbody></table></div>
+        <p class="note">유형별 6개월 평균: ${Object.entries(nb.types || {}).map(([k, v]) => `${esc(TYPE[k] || k)} <b class="${pc(v.mean)}">${pv(v.mean)}</b> (${v.n}건, 이긴 비율 ${v.win == null ? "—" : Math.round(v.win * 100) + "%"})`).join(" · ")}</p></details>
+      <p class="note">가격 비교: ‘분기 평균가’는 대가가 산 분기 석 달의 평균 종가라 대가의 매수 단가에 가까운 추정치예요. 13F 는 최대 45일 늦게 공개되므로 그사이 오른 종목은 표시해 둡니다. 거래 비용·세금 제외, 투자 권유가 아닙니다.</p>`;
+  }
   function renderCalc() {
     const out = document.getElementById("calc-out"), port = state.calcPort || [];
     if (!out || !S) return;
@@ -1463,6 +1512,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
       <p class="note">읽는 법: ‘공시일 기준’은 분기 말에서 ${S.lag_days}일 뒤(13F 마감 직후), 그때까지 공시된 내용만 보고 다시 짠 결과라 실제로 따라 할 수 있는 값이에요. ‘분기 말 기준’은 분기 말 보유를 그날 바로 알았다고 가정한 참고용 상한선입니다.
         주의: ① 과거 ${fm.quarters}개 분기뿐이라 우연이 섞여 있고 ② 대가 명단이 ‘지금 유명한 사람’이라 과거 성적이 실제보다 좋게 나오며(생존 편향) ③ ‘비용 후’는 사고팔 때마다 ${((S.cost || 0) * 100).toFixed(1)}% 를 뺀 값이고 세금·환율 변동은 빠져 있으며 ④ 13F 에는 공매도·현금·해외 주식이 없어요. 추천은 수익률 1등이 아니라 앞·뒤 절반 모두 S&P500 을 이기고 낙폭이 지나치지 않은 조합을 고릅니다. 투자 권유가 아닙니다.</p>`;
     renderCalc();
+    renderNewbuys();
     // 따라 하기 좋은 대가
     const gs = S.gurus || [];
     gbox.hidden = !gs.length;
@@ -2627,6 +2677,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
     if ((x = el("[data-stockmode]"))) { state.stockMode = x.dataset.stockmode; renderStockRank(); return; }
     if ((x = el("[data-cmpinv]"))) { let c = cmpSel(); const id = x.dataset.cmpinv; c = c.includes(id) ? c.filter((y) => y !== id) : c.length < 4 ? [...c, id] : c; store.set("radar.cmp", JSON.stringify(c)); renderInvCmp(); return; }
     if (el("[data-cmpclear]")) { store.set("radar.cmp", "[]"); renderInvCmp(); return; }
+    if (el("[data-nball]")) { state.nbAll = true; renderNewbuys(); return; }
     if ((x = el("[data-stsize]"))) { state.stSize = +x.dataset.stsize; store.set("radar.stSize", String(state.stSize)); renderStrategy(); return; }
     if ((x = el("[data-stbasis]"))) { state.stBasis = x.dataset.stbasis; store.set("radar.stBasis", state.stBasis); renderStrategy(); return; }
     if ((x = el("[data-jump]"))) { e.preventDefault(); const t = document.getElementById(x.dataset.jump); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
