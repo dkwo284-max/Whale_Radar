@@ -1,16 +1,16 @@
 {
- "generated_at": "2026-11-10T11:10:29+13:00",
+ "generated_at": "2026-11-12T11:10:18+13:00",
  "as_of": {
-  "us-us": "2026-11-06",
-  "cn-us": "2026-11-06",
-  "in-us": "2026-11-06",
-  "cn-local": "2026-11-09",
-  "in-local": "2026-11-08"
+  "us-us": "2026-11-10",
+  "cn-us": "2026-11-10",
+  "in-us": "2026-11-10",
+  "cn-local": "2026-11-11",
+  "in-local": "2026-11-09"
  },
  "summary": {
-  "us": "전일 폭락 후 AMD 11% 등 반도체·AI주가 반등해 나스닥 1.1% 상승. 10월 고용 16.5만명 호조로 12월 금리인상 전망이 강화됐습니다.",
-  "cn": "9일 상하이 0.32% 상승, 창업판 0.27% 하락. 석탄·피지컬 AI·로봇주가 강세, 리튬 등 신에너지주는 약세였습니다.",
-  "in": "8일 디왈리 무후랏 세션에서 니프티 0.18% 하락한 24,986. 선파마 등 제약주는 강세, IT·은행주는 약세였습니다."
+  "us": "10월 CPI 상회로 10년물 금리가 5%를 넘으며 S&P 0.38%, 나스닥 0.74% 하락. 엔비디아 5.5%·금 2.6% 급락, 천연가스는 강세였습니다.",
+  "cn": "11일 창업판 3.11%, 선전 1.32% 급등. CPO·반도체와 인형로봇주가 주도했고 백주·항공주는 약세였습니다.",
+  "in": "9일 니프티 0.23% 오른 25,044로 25,000 회복. PSU은행(+3.7%)·제약주가 강세, IT·금속주는 약세였습니다."
  },
  "notes": {
   "BTAL": {
@@ -101,10 +101,6 @@
    "d": "2026-11-06",
    "k": "뱅크니프티 8개월 고점, 민간은행주 랠리"
   },
-  "GDMN": {
-   "d": "2026-11-06",
-   "k": "주중 금값 2주 고점 영향으로 7일 상승 선두"
-  },
   "GDXW": {
    "d": "2026-11-06",
    "k": "주중 금값 강세에 금광주 주간 급등"
@@ -133,25 +129,9 @@
    "d": "2026-11-06",
    "k": "6일 창업판 3.96% 급락, AI 하드웨어주 주도 하락"
   },
-  "159819.SZ": {
-   "d": "2026-11-09",
-   "k": "6일 급락 후 9일 AI·우주컴퓨팅 테마 반등"
-  },
-  "515070.SS": {
-   "d": "2026-11-06",
-   "k": "6일 AI 하드웨어주 하한가 속출, 미 AI주 급락 여파"
-  },
   "3147.HK": {
    "d": "2026-11-06",
    "k": "6일 창업판 3.96% 급락, 연산력 하드웨어 약세"
-  },
-  "159949.SZ": {
-   "d": "2026-11-06",
-   "k": "6일 창업판 대형 기술주 급락에 낙폭 확대"
-  },
-  "513050.SS": {
-   "d": "2026-11-06",
-   "k": "5일 순환매 급등 후 6일 차익실현 하락"
   },
   "3032.HK": {
    "d": "2026-11-06",
@@ -181,21 +161,9 @@
    "d": "2026-11-08",
    "k": "8일 무후랏, 액시스은행 약세 속 보합"
   },
-  "NIFTYBEES.NS": {
-   "d": "2026-11-06",
-   "k": "6일 니프티 2% 올라 25,000 회복"
-  },
-  "ALPHA.NS": {
-   "d": "2026-11-08",
-   "k": "무후랏 세션 모멘텀 종목 상대 강세"
-  },
   "HDFCSML250.NS": {
    "d": "2026-11-08",
    "k": "지수 보합 속 소형주 상대 강세(무후랏)"
-  },
-  "MODEFENCE.NS": {
-   "d": "2026-11-08",
-   "k": "뚜렷한 개별 뉴스 없이 방산주 강세"
   },
   "GOLDBEES.NS": {
    "d": "2026-11-06",
@@ -204,18 +172,6 @@
   "SILVERBEES.NS": {
    "d": "2026-11-06",
    "k": "뚜렷한 개별 뉴스 없이 은 가격 약세 반영"
-  },
-  "515220.SS": {
-   "d": "2026-11-09",
-   "k": "9일 석탄주 강세 주도, 정주석탄전력 등 상한가"
-  },
-  "562500.SS": {
-   "d": "2026-11-09",
-   "k": "9일 피지컬 AI 테마 강세 속 로봇주 상승"
-  },
-  "159770.SZ": {
-   "d": "2026-11-09",
-   "k": "9일 피지컬 AI 테마 강세 속 로봇주 상승"
   },
   "512660.SS": {
    "d": "2026-11-09",
@@ -233,22 +189,6 @@
    "d": "2026-11-09",
    "k": "뚜렷한 개별 뉴스 없이 필수소비재 약세"
   },
-  "PHARMABEES.NS": {
-   "d": "2026-11-08",
-   "k": "8일 무후랏 세션, 선파마 등 제약주 강세"
-  },
-  "HEALTHIETF.NS": {
-   "d": "2026-11-08",
-   "k": "8일 무후랏 세션 제약·헬스케어주 상승"
-  },
-  "ITBEES.NS": {
-   "d": "2026-11-08",
-   "k": "8일 인포시스 등 IT주 약세로 보합권"
-  },
-  "ICICIB22.NS": {
-   "d": "2026-11-08",
-   "k": "무후랏 세션 국영기업주 보합권 마감"
-  },
   "SETFNIF50.NS": {
    "d": "2026-11-04",
    "k": "11/4 이후 가격 미갱신, 보합으로 표시"
@@ -260,44 +200,152 @@
   "FLIN": {
    "d": "2026-11-06",
    "k": "6일 니프티 2% 상승, 대형주 랠리 반영"
+  },
+  "UNG": {
+   "d": "2026-11-10",
+   "k": "숏커버링·견조한 LNG 수요에 천연가스 선물 상승"
+  },
+  "FCG": {
+   "d": "2026-11-10",
+   "k": "천연가스 선물 상승에 가스 생산주 동반 강세"
+  },
+  "PFIX": {
+   "d": "2026-11-10",
+   "k": "CPI 상회로 10년물 금리 5% 돌파, 금리헤지 수혜"
+  },
+  "AHLT": {
+   "d": "2026-11-10",
+   "k": "뚜렷한 개별 뉴스 없이 1.8% 상승"
+  },
+  "KBWP": {
+   "d": "2026-11-10",
+   "k": "뚜렷한 개별 뉴스 없이 손보주 강세(30일 +12.8%)"
+  },
+  "BWET": {
+   "d": "2026-11-10",
+   "k": "탱커 운임 급락세 이어지며 8% 하락"
+  },
+  "NVII": {
+   "d": "2026-11-10",
+   "k": "엔비디아 5.5% 급락·이사회 조사 착수 여파"
+  },
+  "NVDW": {
+   "d": "2026-11-10",
+   "k": "엔비디아 5.5% 급락·이사회 조사 착수 여파"
+  },
+  "GDMN": {
+   "d": "2026-11-10",
+   "k": "CPI 상회·금리 상승에 금 2.6% 급락, 광산주 약세"
+  },
+  "URNJ": {
+   "d": "2026-11-10",
+   "k": "뚜렷한 개별 뉴스 없이 우라늄 소형주 급락"
+  },
+  "562500.SS": {
+   "d": "2026-11-11",
+   "k": "딥마인드 로봇 AI 모델 공개 속 인형로봇주 강세"
+  },
+  "159770.SZ": {
+   "d": "2026-11-11",
+   "k": "딥마인드 로봇 AI 모델 공개 속 인형로봇주 강세"
+  },
+  "159949.SZ": {
+   "d": "2026-11-11",
+   "k": "창업판지수 3.1% 급등, CPO·반도체 주도"
+  },
+  "159819.SZ": {
+   "d": "2026-11-11",
+   "k": "CPO·광모듈 등 AI 하드웨어주 급등"
+  },
+  "515070.SS": {
+   "d": "2026-11-11",
+   "k": "CPO·광모듈 등 AI 하드웨어주 급등"
+  },
+  "512690.SS": {
+   "d": "2026-11-11",
+   "k": "백주가 업종 하락률 상위, 성장주로 자금 이동"
+  },
+  "515220.SS": {
+   "d": "2026-11-11",
+   "k": "뚜렷한 개별 뉴스 없이 석탄주 약세"
+  },
+  "KSTR": {
+   "d": "2026-11-10",
+   "k": "미국 기술주·엔비디아 약세 속 하락"
+  },
+  "512010.SS": {
+   "d": "2026-11-11",
+   "k": "뚜렷한 개별 뉴스 없이 의약주 약세"
+  },
+  "513050.SS": {
+   "d": "2026-11-11",
+   "k": "뚜렷한 개별 뉴스 없이 해외상장 인터넷주 하락"
+  },
+  "PHARMABEES.NS": {
+   "d": "2026-11-09",
+   "k": "제약지수 1.65% 상승, 업종 상승률 2위"
+  },
+  "PSUBNKBEES.NS": {
+   "d": "2026-11-09",
+   "k": "PSU은행지수 3.7% 급등, SBI 주도"
+  },
+  "HEALTHIETF.NS": {
+   "d": "2026-11-09",
+   "k": "제약·헬스케어주 동반 강세"
+  },
+  "JUNIORBEES.NS": {
+   "d": "2026-11-09",
+   "k": "뚜렷한 개별 뉴스 없이 중대형주 강세"
+  },
+  "MODEFENCE.NS": {
+   "d": "2026-11-09",
+   "k": "뚜렷한 개별 뉴스 없이 방산주 소폭 상승"
+  },
+  "ITBEES.NS": {
+   "d": "2026-11-09",
+   "k": "IT주 업종 최대 낙폭, HCL테크 약세"
+  },
+  "FMCGIETF.NS": {
+   "d": "2026-11-09",
+   "k": "뚜렷한 개별 뉴스 없이 소폭 하락"
+  },
+  "ALPHA.NS": {
+   "d": "2026-11-09",
+   "k": "지수 강보합 속 소폭 상승에 그침"
+  },
+  "NIFTYBEES.NS": {
+   "d": "2026-11-09",
+   "k": "니프티 0.23% 오른 25,044로 25,000 회복"
+  },
+  "ICICIB22.NS": {
+   "d": "2026-11-09",
+   "k": "뚜렷한 개별 뉴스 없이 소폭 상승"
   }
  },
  "sources": [
   {
-   "title": "China's Shanghai Composite Edges Up 0.32% as Coal Stocks Rally, Lithium Miners Slip — BigGo Finance",
-   "url": "https://finance.biggo.com/news/59116ca0-93aa-43e3-8a78-011e515d7f11"
+   "title": "The Stock Market Today, November 10, 2026 (StockTitan)",
+   "url": "https://www.stocktitan.net/articles/stock-market-today-live-november-10-2026"
   },
   {
-   "title": "China Stocks End Mixed as Tech Gains Offset Demand, Margin Concerns — MarketScreener",
-   "url": "https://www.marketscreener.com/news/china-stocks-end-mixed-as-tech-gains-offset-demand-margin-concerns-ce785fd3d880f42d"
+   "title": "Dow, Nasdaq, S&P 500 Fall on November 10, 2026; Oil and Gold Retreat",
+   "url": "https://eurasiabusinessnews.com/2026/11/11/stock-market-today-dow-jones-nasdaq-sp-500-fall-on-november-10-2026-oil-and-gold-retreat/"
   },
   {
-   "title": "Muhurat Trading 2026: Sensex, Nifty end lower despite positive start — The Week",
-   "url": "https://www.theweek.in/news/biz-tech/2026/11/08/muhurat-trading-2026-sensex-nifty-end-lower-despite-positive-start-check-gainers-and-losers-here.html"
+   "title": "Short-Covering Rally Extends Winning Ways for Natural Gas Futures (NGI)",
+   "url": "https://naturalgasintel.com/news/short-covering-rally-extends-winning-ways-for-natural-gas-futures"
   },
   {
-   "title": "Yahoo Finance: Nasdaq and S&P 500 rebound, Dow slips (Nov 6)",
-   "url": "https://finance.yahoo.com/markets/live/stock-market-today-friday-november-6-dow-sp-500-nasdaq-jobs-report-earnings-135953863.html"
+   "title": "Oil Tanker Rates Extend Plunge (Bloomberg)",
+   "url": "https://bloomberg.com/news/articles/2026-11-09/oil-tanker-rates-extend-plunge-still-trade-at-very-high-levels"
   },
   {
-   "title": "StockTitan: Chip Stocks Bounced Back, November 6, 2026",
-   "url": "https://www.stocktitan.net/articles/stock-market-today-live-november-6-2026"
+   "title": "A股三大指数集体拉涨！人形机器人上行 (21经济网)",
+   "url": "https://www.21jingji.com/article/20261111/herald/5dfa472f8721e7b2c8bf58e8a06eb862.html"
   },
   {
-   "title": "TheStreet: Stock Market Today (Nov. 6, 2026)",
-   "url": "https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-nov-06-2026"
-  },
-  {
-   "title": "Fox Business: Nasdaq rises as AI and chip stocks recover",
-   "url": "https://www.foxbusiness.com/markets/stocks-11-6-2026"
-  },
-  {
-   "title": "PANews: A-Share Close: ChiNext Index Falls Nearly 4%",
-   "url": "https://panews.io/articles/01a1afaf-a84d-7700-a321-324d453e5098"
-  },
-  {
-   "title": "5paisa: Nifty Tops 25,000, Bank Nifty Hits 8-Month High (Nov 6)",
-   "url": "https://www.5paisa.com/blog/post-market-update-nifty-sensex-rally-over-2-percent-bank-nifty-closes-at-8-month-high-november-6-2026"
+   "title": "Stock Market Close Nov 9: Sensex 107 pts higher, Nifty at 25,045 (Business Standard)",
+   "url": "https://www.business-standard.com/markets/news/stock-market-live-november-9-nse-bse-sensex-today-nifty50-gift-nifty-crude-oil-prices-update-126110900058_1.html"
   }
  ]
 }
