@@ -76,3 +76,19 @@ def test_empty_selection_holds_benchmark():
     ports = st.portfolios(per, TK, px, sched, "follow", {"consensus": {"min_holders": 9}})
     r = st.run(ports, px, today, "consensus")
     assert all(abs(x["ret"] - x["spy"]) < 1e-9 for x in r["rows"])
+
+
+def test_schedule_skips_quarters_with_too_few_investors_and_merges_share_classes():
+    per, px, today = world()
+    per["win"] = [q("2023-12-31", {"A": 1})] + per["win"]      # 한 명만 있는 옛 분기
+    assert st.schedule(per, today, "qe")[0]["period"] == "2024-03-31"
+    assert st.weights({"x": {"v": 60, "n": ""}, "y": {"v": 40, "n": ""}}, {"x": "GOOG", "y": "GOOGL"}) == {"GOOGL": 1.0}
+
+
+def test_recommend_prefers_steady_and_calm_over_highest_return():
+    m = lambda h1, h2, mdd, tot: {"metrics": {"ex_h1": h1, "ex_h2": h2, "mdd": mdd, "spy_mdd": -0.25, "total": tot, "excess": 0.05, "quarters": 20,  # noqa: E731
+                                              "cagr": 0.2, "spy_cagr": 0.15, "win": 0.6, "turnover": 0.3}}
+    r = st.recommend({"momentum": m(1.2, 0.5, -0.78, 4.6), "blend": m(0.3, 0.25, -0.3, 2.2), "newbuy": m(0.4, -0.03, -0.27, 2.0)})
+    assert r["pick"] == "blend" and r["robust"] and r["best_return"] == "momentum"
+    r = st.recommend({"newbuy": m(0.4, -0.03, -0.27, 2.0)})
+    assert r["pick"] == "newbuy" and not r["robust"] and r["warnings"]

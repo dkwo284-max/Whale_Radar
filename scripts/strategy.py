@@ -17,13 +17,18 @@
 """
 from __future__ import annotations
 
+import math
 from datetime import date, timedelta
 
-from perf import BENCH, STALE_DAYS, Series, chain, metrics, sample, turnover, weights, window
+from perf import BENCH, STALE_DAYS, Series, chain, metrics, sample, turnover, window
+from perf import weights as _weights
 
 LAG_DAYS = 47       # 분기 말 → 재조정일 (마감 45일 + 주말 여유)
 LOOKBACK = 4        # 성적 상위 대가를 고를 때 보는 분기 수 (모든 조합이 이만큼 지난 뒤 함께 시작)
 MAX_NAMES = 20      # 한 조합의 최대 종목 수
+MIN_SHARE = 0.6     # 시뮬레이션은 대가의 60% 이상이 13F 를 낸 분기부터 시작
+MDD_GUARD = 0.15    # 추천 후보: 최대 낙폭이 S&P500 보다 이만큼 넘게 나쁘면 제외
+ALIAS = {"GOOG": "GOOGL", "BRK.A": "BRK.B", "BRK-A": "BRK.B", "FOX": "FOXA", "NWS": "NWSA"}  # 같은 회사의 다른 주식 종류는 하나로
 DEFAULTS = {"momentum": {"top": 4, "lookback": LOOKBACK, "per": 10}, "consensus": {"min_holders": 3}, "conviction": {"top": 2},
             "newbuy": {"min_w": 0.01}}
 VARIANTS = {"momentum": [{"top": 3}, {"top": 5}, {"lookback": 2}, {"top": 3, "lookback": 2}, {"top": 5, "lookback": 2}],
@@ -40,7 +45,14 @@ def plus_days(d: str, n: int) -> str:
 
 def schedule(per: dict[str, list[dict]], today: str, basis: str) -> list[dict]:
     """재조정 일정: [{period, date}] (오래된 순). follow 는 분기 말 + LAG_DAYS, qe 는 분기 말. 아직 오지 않은 날은 뺀다."""
-    periods = sorted({q["period"] for qs in per.values() for q in qs})
+    cnt: dict[str, int] = {}
+    for qs in per.values():
+        for q in qs:
+            cnt[q["period"]] = cnt.get(q["period"], 0) + 1
+    need = max(2, math.ceil(len(per) * MIN_SHARE))  # 대가 대부분의 13F 가 있는 분기부터 (한두 명뿐인 옛 분기는 뺀다)
+    periods = sorted(cnt)
+    first = next((p for p in periods if cnt[p] >= need), None)
+    periods = [p for p in periods if first and p >= first]
     out = [{"period": p, "date": plus_days(p, LAG_DAYS) if basis == "follow" else p} for p in periods]
     return [s for s in out if s["date"] <= today]
 
@@ -57,6 +69,15 @@ def snapshot(per: dict[str, list[dict]], when: str, basis: str, fresh_from: str)
         if qs[i]["period"] < fresh_from:
             continue
         out[inv] = (qs[i], qs[i - 1] if i > 0 else None)
+    return out
+
+
+def weights(h: dict, tickers: dict[str, str | None]) -> dict[str, float]:
+    """perf.weights 와 같지만 같은 회사의 다른 주식 종류(GOOG/GOOGL 등)를 합친다."""
+    out: dict[str, float] = {}
+    for t, v in _weights(h, tickers).items():
+        t = ALIAS.get(t, t)
+        out[t] = out.get(t, 0) + v
     return out
 
 
@@ -110,10 +131,11 @@ def new_buys(q: dict, prev: dict | None, tickers: dict[str, str | None], min_w: 
     if not prev:
         return {}
     tot = q.get("total") or sum(x["v"] for x in q["h"].values()) or 1
-    old = {tickers.get(c) or c for c in prev["h"]} | set(prev["h"])
+    old = {ALIAS.get(tickers.get(c), tickers.get(c)) or c for c in prev["h"]} | set(prev["h"])
     out: dict[str, float] = {}
     for c, x in q["h"].items():
         t = tickers.get(c)
+        t = ALIAS.get(t, t) if t else t
         if t and c not in old and t not in old and x["v"] / tot >= min_w:
             out[t] = out.get(t, 0) + x["v"] / tot
     return out
@@ -169,7 +191,7 @@ def portfolios(per, tickers, px, sched, basis, params: dict | None = None) -> li
         last_new = new
         w = {"momentum": mom, "consensus": pick_consensus(ws, p["consensus"]["min_holders"]),
              "conviction": pick_conviction(ws, p["conviction"]["top"]), "newbuy": new, "all": mix(list(ws.values()), 40)}
-        w["blend"] = mix([w[s] for s in ("momentum", "consensus", "conviction", "newbuy")], 40)
+        w["blend"] = mix([w[s] for s in ("momentum", "consensus", "conviction", "newbuy")], 30)
         out.append({"period": sched[k]["period"], "date": sched[k]["date"], "w": w, "gurus": gurus, "n": len(ws)})
     return out
 
@@ -239,7 +261,7 @@ def holdings_now(pf: dict, name: str, snap: dict[str, tuple[dict, dict | None]],
             holders.setdefault(t, []).append(i)
         for c, x in q["h"].items():
             if tickers.get(c):
-                issuer.setdefault(tickers[c], x["n"])
+                issuer.setdefault(ALIAS.get(tickers[c], tickers[c]), x["n"])
     return [{"t": t, "w": round(w, 4), "n": issuer.get(t, ""), "by": holders.get(t, [])}
             for t, w in sorted(pf["w"][name].items(), key=lambda kv: (-kv[1], kv[0]))]
 
@@ -251,21 +273,24 @@ def recommend(strats: dict[str, dict]) -> dict:
     if not cand:
         return {"pick": None, "robust": False, "reasons": [], "warnings": ["비교할 만큼 기록이 쌓이지 않았어요."]}
     floor = {k: min(m["ex_h1"], m["ex_h2"]) for k, m in cand.items()}
-    pick = max(floor, key=lambda k: (floor[k], cand[k].get("excess") or -9))
+    calm = lambda m: m.get("mdd") is None or m.get("spy_mdd") is None or m["mdd"] >= m["spy_mdd"] - MDD_GUARD  # noqa: E731
+    ok = [k for k in cand if floor[k] > 0 and calm(cand[k])]   # 두 절반 모두 이기고, 낙폭도 지수보다 크게 나쁘지 않은 조합
+    pick = max(ok or cand, key=lambda k: (floor[k], cand[k].get("excess") or -9))
     m = cand[pick]
-    robust = floor[pick] > 0
+    robust = bool(ok)
     pct = lambda x: f"{x * 100:+.1f}%"  # noqa: E731
     reasons = [f"{m['quarters']}개 분기 중 앞 절반 {pct(m['ex_h1'])}p, 뒤 절반 {pct(m['ex_h2'])}p (S&P500 대비 누적 초과 수익)",
                f"연 {pct(m['cagr'])} · S&P500 연 {pct(m['spy_cagr'])} · 분기 승률 {m['win'] * 100:.0f}%" if m.get("cagr") is not None and m.get("win") is not None else "",
                f"가장 크게 빠졌을 때 {m['mdd'] * 100:.0f}% (S&P500 {m['spy_mdd'] * 100:.0f}%)" if m.get("mdd") is not None and m.get("spy_mdd") is not None else ""]
     warnings = []
     if not robust:
-        warnings.append("앞·뒤 절반 모두에서 S&P500 을 이긴 조합이 없어요. 지수(S&P500)를 중심에 두고 일부만 참고하는 편이 안전합니다.")
+        warnings.append("앞·뒤 절반 모두에서 S&P500 을 이기면서 낙폭도 견딜 만했던 조합이 없어요. 지수(S&P500)를 중심에 두고 일부만 참고하는 편이 안전합니다.")
     if m.get("mdd") is not None and m.get("spy_mdd") is not None and m["mdd"] < m["spy_mdd"] - 0.05:
         warnings.append("수익이 높은 대신 하락 폭이 S&P500 보다 컸어요.")
     if m.get("turnover") is not None and m["turnover"] > 0.5:
         warnings.append(f"분기마다 종목의 약 {m['turnover'] * 100:.0f}% 를 바꿔야 해요 (거래 비용·세금은 계산에 없음).")
-    return {"pick": pick, "robust": robust, "reasons": [r for r in reasons if r], "warnings": warnings}
+    best = max(cand, key=lambda k: cand[k].get("total") or -9)
+    return {"pick": pick, "robust": robust, "best_return": best, "reasons": [r for r in reasons if r], "warnings": warnings}
 
 
 def guru_scores(per, tickers, px, sched, today, inv_names: dict[str, str]) -> list[dict]:
