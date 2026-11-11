@@ -687,6 +687,20 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
 .gr-card b { font-size: .9rem; } .gr-card small { grid-column: 2 / -1; font-size: .74rem; color: var(--muted); }
 .gr-card .sc { font-variant-numeric: tabular-nums; font-weight: 700; font-size: .95rem; } .gr-card .sc small { font-weight: 400; }
 .gr-card.sel { border-color: color-mix(in oklab, var(--accent) 50%, var(--line)); background: color-mix(in oklab, var(--accent) 6%, var(--surface)); }
+.st-pick, .st-port, .st-chg, .st-size { grid-template-columns: minmax(0, 1fr); }
+.st-port > *, .st-calc > * { min-width: 0; max-width: 100%; }
+.calc-in { flex-wrap: wrap; } .calc-in select { flex: 1 1 140px; }
+.st-chg { display: grid; gap: 4px; padding-top: 6px; border-top: 1px dashed var(--line); }
+.st-chg .lab { font-weight: 600; font-size: .78rem; color: var(--muted); }
+.st-size { display: grid; gap: 6px; justify-items: start; }
+.st-size .lab { font-size: .8rem; font-weight: 700; }
+.perf table.st-mini { font-size: .8rem; } .perf .st-mini td:nth-child(2), .perf .st-mini th:nth-child(2) { text-align: right; min-width: 0; white-space: nowrap; }
+.perf .st-mini td:first-child, .perf .st-mini th:first-child { text-align: left; }
+.st-calc > summary { font-weight: 600; }
+.calc-in { display: flex; gap: 6px; margin: 8px 0; }
+.calc-in input, .calc-in select { font: inherit; font-size: 16px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); color: var(--ink); min-width: 0; }
+.calc-in input { flex: 1 1 150px; }
+.today-line .schip { margin: 1px 0; }
 </style>
 </head>
 <body>
@@ -762,6 +776,8 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   </div>
 
   <div class="panel" data-panel="investors" hidden>
+    <p class="today-line" id="inv-line" hidden></p>
+    <nav class="ov-jump" aria-label="투자자 화면 바로 가기"><a href="#investors" data-jump="perf-rank">성적 순위</a><a href="#investors" data-jump="hold-compare">보유 비중</a><a href="#investors" data-jump="stock-rank">종목 순위</a><a href="#investors" data-jump="inv-cmp">대가 비교</a><a href="#investors" data-jump="inv-pills">대가별 상세</a></nav>
     <section class="perf" id="perf-rank" aria-label="대가 성적 순위"></section>
     <section class="perf" id="hold-compare" aria-label="대가별 보유 비중 비교"></section>
     <section class="perf" id="stock-rank" aria-label="종목 중심 보기"></section>
@@ -786,6 +802,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   <div class="panel" data-panel="timeline" hidden>
     <section>
       <h2>공시 타임라인</h2>
+      <p class="today-line" id="tl-line" hidden></p>
       <p class="sub">SEC에 올라온 보유종목(13F<button type="button" class="tip" data-tip="13F" aria-label="13F 설명">ⓘ</button>)·장내매매(Form 4<button type="button" class="tip" data-tip="F4" aria-label="Form 4 설명">ⓘ</button>)·대량지분(13D·G<button type="button" class="tip" data-tip="13DG" aria-label="13D·G 설명">ⓘ</button>) 신고</p>
       <div class="controls">
         <select id="tl-inv" aria-label="투자자 필터"><option value="">모든 투자자</option></select>
@@ -808,6 +825,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   <div class="panel" data-panel="news" hidden>
     <section>
       <h2>인터뷰·뉴스·서한</h2>
+      <p class="today-line" id="news-line" hidden></p>
       <p class="sub" id="news-sub"></p>
       <div class="controls">
         <span id="news-qchip" style="display:contents"></span>
@@ -948,6 +966,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   </div>
 
   <div class="panel" data-panel="watch" hidden>
+    <p class="today-line" id="watch-line" hidden></p>
     <div class="watchbox">
       <div>
         <div class="lab">관심 투자자</div>
@@ -1316,7 +1335,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   function ensureStrat() {
     if (S || stratReq) return;
     stratReq = (window.__RADAR_STRAT__ ? Promise.resolve(window.__RADAR_STRAT__) : fetch("data/strategy.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null))
-      .then((d) => { S = d && d.bases && d.bases.follow ? d : false; if (current() === "overview") renderStrategy(); });
+      .then((d) => { S = d && d.bases && d.bases.follow ? d : false; if (D) VIEWS[current()](); });
   }
   const mdShort = (iso) => { const d = new Date(iso + "T00:00:00"); return isNaN(d) ? iso : `${d.getMonth() + 1}월 ${d.getDate()}일`; };
   function stratChart(B, sel) {
@@ -1339,6 +1358,23 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
       <path d="${line(c.d, c.v)}" fill="none" stroke="var(--up)" stroke-width="2.4"/></svg>
       <div class="legend"><span><i style="background:var(--up)"></i>${esc(S.labels[sel])}</span><span><i style="background:#8b98a7"></i>S&P500</span><span><i style="background:currentColor;opacity:.25"></i>다른 조합</span></div>`;
   }
+  function renderCalc() {
+    const out = document.getElementById("calc-out"), port = state.calcPort || [];
+    if (!out || !S) return;
+    const amt = parseFloat(store.get("radar.calcAmt") || ""), cur = store.get("radar.calcCur") || "USD", fx = cur === "USD" ? 1 : (S.fx || {})[cur];
+    if (!(amt > 0) || !fx) { out.innerHTML = `<p class="note">금액을 넣으면 종목별로 얼마씩, 몇 주를 사면 되는지 보여 드려요. 금액은 이 기기에만 저장됩니다.</p>`; return; }
+    const usd = amt / fx, money = (v, c) => c === "USD" ? "$" + v.toLocaleString("en-US", { maximumFractionDigits: v < 100 ? 2 : 0 }) : (c === "KRW" ? "₩" : "NZ$") + v.toLocaleString("ko-KR", { maximumFractionDigits: c === "KRW" ? 0 : (v < 100 ? 2 : 0) });
+    let spent = 0;
+    const rows = port.map((h) => {
+      const u = usd * h.w, sh = h.p ? u / h.p : null, whole = sh == null ? null : Math.floor(sh);
+      if (whole != null) spent += whole * h.p;
+      return `<tr><td><b>${esc(h.t)}</b></td><td>${(h.w * 100).toFixed(1)}%</td><td>${money(amt * h.w, cur)}${cur !== "USD" ? `<br><small class="muted">${money(u, "USD")}</small>` : ""}</td><td>${h.p ? "$" + h.p.toLocaleString("en-US") : "—"}</td><td>${sh == null ? "—" : `${sh.toFixed(2)}주<br><small class="muted">정수 ${whole}주</small>`}</td></tr>`;
+    }).join("");
+    out.innerHTML = `<p class="note">${money(amt, cur)}${cur !== "USD" ? ` ≈ ${money(usd, "USD")} (1달러 = ${fx.toLocaleString("ko-KR")} ${cur})` : ""} · 정수 주식만 사면 ${money(spent, "USD")} 사용, ${money(Math.max(0, usd - spent), "USD")} 남음</p>
+      <div class="wrap"><table class="st-mini"><thead><tr><th>종목</th><th>비중</th><th>금액</th><th>최근 종가</th><th>주식 수</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="note">종가는 ${esc(S.as_of)} 기준, 환율은 참고용이에요. 소수점 주식을 살 수 없는 증권사라면 ‘정수’ 주식 수를 쓰세요. 금액은 이 기기에만 저장되고 어디에도 전송되지 않습니다.</p>`;
+  }
+  function tabLine(id, bits) { const e = document.getElementById(id); if (!e) return; const b = bits.filter(Boolean); e.hidden = !b.length; e.innerHTML = b.join(" · "); }
   function renderStrategy() {
     const box = $("#strat"), gbox = $("#strat-gurus");
     if (!box) return;
@@ -1349,8 +1385,22 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
     if (!state.stBasis) state.stBasis = store.get("radar.stBasis") || "follow";
     const B = S.bases[state.stBasis] || F;
     if (!state.strat || !F.strategies[state.strat]) state.strat = rec.pick || "blend";
-    const sel = state.strat, m = B.strategies[sel].metrics, fm = F.strategies[sel].metrics, now = F.now;
-    const port = (now.portfolios[sel] || []), maxW = Math.max(0.0001, ...port.map((h) => h.w));
+    if (!state.stSize) state.stSize = +store.get("radar.stSize") || 30;
+    const sel = state.strat, now = F.now, sizes = F.sizes || {};
+    const sized = sel === "blend" && state.stSize !== 30 && sizes[state.stSize] && now.portfolios["blend" + state.stSize];
+    const pkey = sized ? "blend" + state.stSize : sel;
+    const fm = sized ? { ...F.strategies[sel].metrics, ...sizes[state.stSize] } : F.strategies[sel].metrics;
+    const port = (now.portfolios[pkey] || []), maxW = Math.max(0.0001, ...port.map((h) => h.w));
+    const ch = (now.changes || {})[pkey] || {};
+    const chips = (rows, cls, sign) => rows.slice(0, 8).map((r) => `<button type="button" class="schip ${cls}" data-ticker="${esc(r.t)}">${esc(r.t)}${sign && r.d ? ` ${r.d > 0 ? "+" : "−"}${Math.abs(r.d * 100).toFixed(1)}%p` : ""}</button>`).join("") + (rows.length > 8 ? `<small class="muted"> 외 ${rows.length - 8}</small>` : "");
+    const chBlock = ch.prev && ((ch.in || []).length + (ch.out || []).length + (ch.up || []).length + (ch.down || []).length) ? `<div class="st-chg"><div class="lab">지난 재조정(${esc(quarter(ch.prev))}) 대비 바뀐 점</div>
+      ${(ch.in || []).length ? `<div class="srow"><span>새로 편입</span>${chips(ch.in, "b")}</div>` : ""}${(ch.out || []).length ? `<div class="srow"><span>제외</span>${chips(ch.out, "s")}</div>` : ""}
+      ${(ch.up || []).length ? `<div class="srow"><span>비중 확대</span>${chips(ch.up, "b", true)}</div>` : ""}${(ch.down || []).length ? `<div class="srow"><span>비중 축소</span>${chips(ch.down, "s", true)}</div>` : ""}</div>` : "";
+    const sizeTbl = sel === "blend" && Object.keys(sizes).length ? `<div class="st-size"><div class="lab">몇 종목으로 따라 할까요?</div>
+      <div class="seg" role="group" aria-label="종목 수">${Object.keys(sizes).map((n) => `<button type="button" data-stsize="${n}" aria-pressed="${+n === state.stSize}">${n}종목</button>`).join("")}</div>
+      <table class="st-mini"><thead><tr><th>종목 수</th><th>연 수익률</th><th>비용 후</th><th>최대 낙폭</th><th>이긴 분기</th></tr></thead><tbody>${Object.entries(sizes).map(([n, x]) =>
+        `<tr class="${+n === state.stSize ? "me" : ""}"><td>${n}</td><td class="${pc(x.cagr)}">${pv(x.cagr)}</td><td>${pv(x.cagr_net)}</td><td class="down">${pv(x.mdd)}</td><td>${x.win == null ? "—" : Math.round(x.win * 100) + "%"}</td></tr>`).join("")}</tbody></table></div>` : "";
+    state.calcPort = port;
     const tile = (label, v, cls = "") => `<div class="tile"><b class="${cls}">${v}</b><span>${label}</span></div>`;
     const isRec = sel === rec.pick;
     const prow = (h, i) => `<li><button type="button" class="st-row" data-ticker="${esc(h.t)}" title="${esc(h.n)} · 보유 대가 ${h.by.length}명"><span class="rk">${i + 1}</span>
@@ -1361,7 +1411,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
       const x = B.strategies[k].metrics;
       return `<tr data-strat="${k}" class="${k === sel ? "me" : ""}${k === "all" ? " bench" : ""}"><td>${k === sel ? "▶" : ""}</td>
         <td><button type="button" class="nmb" data-strat="${k}">${esc(S.labels[k])}</button>${k === rec.pick ? `<span class="st-tag">추천</span>` : ""}${k === rec.best_return && state.stBasis === "follow" ? `<span class="st-tag r">수익 1위</span>` : ""}${(rec.failed || {})[k] ? `<span class="st-tag x" title="${esc(rec.failed[k])}">제외</span>` : ""}<br><small><span class="dsc">${esc(ST_DESC[k])}</span>${(rec.failed || {})[k] ? `<span class="dsc" style="color:var(--sell)"> · 추천 제외: ${esc(rec.failed[k])}</span>` : ""}</small></td>
-        <td class="${pc(x.cagr)}"><b>${pv(x.cagr)}</b><br><small class="cum">누적 ${pv(x.total)}</small></td><td class="${pc(x.excess)}">${pv(x.excess)}</td>
+        <td class="${pc(x.cagr)}"><b>${pv(x.cagr)}</b><br><small class="cum">누적 ${pv(x.total)}${x.cagr_net != null ? ` · 비용 후 연 ${pv(x.cagr_net)}` : ""}</small></td><td class="${pc(x.excess)}">${pv(x.excess)}</td>
         <td class="down">${pv(x.mdd)}</td><td>${x.win == null ? "—" : Math.round(x.win * 100) + "%"}</td><td>${x.turnover == null ? "—" : Math.round(x.turnover * 100) + "%"}</td></tr>`;
     }).join("");
     const sm = B.strategies[sel].metrics;
@@ -1373,17 +1423,23 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
           <span class="eyebrow">${isRec ? (rec.robust ? "추천 조합 · 앞·뒤 절반 모두 시장을 이김" : "참고 조합 · 조건을 다 채운 조합은 없음") : "선택한 조합"}</span>
           <h3>${esc(S.labels[sel])}</h3>
           <p class="desc">${esc(ST_DESC[sel])}</p>
-          <div class="tiles">${tile("연 수익률", pv(fm.cagr), pc(fm.cagr))}${tile("S&P500 연 수익률", pv(fm.spy_cagr))}${tile("최대 낙폭", pv(fm.mdd), "down")}${tile(`시장 이긴 분기 (${fm.quarters}개 중)`, fm.win == null ? "—" : Math.round(fm.win * 100) + "%")}</div>
+          <div class="tiles">${tile("연 수익률", pv(fm.cagr), pc(fm.cagr))}${fm.cagr_net != null ? tile(`거래 비용 ${((S.cost || 0) * 100).toFixed(1)}% 뺀 뒤`, pv(fm.cagr_net), pc(fm.cagr_net)) : ""}${tile("S&P500 연 수익률", pv(fm.spy_cagr))}${tile("최대 낙폭", pv(fm.mdd), "down")}${tile(`시장 이긴 분기 (${fm.quarters}개 중)`, fm.win == null ? "—" : Math.round(fm.win * 100) + "%")}</div>
           ${isRec && (rec.reasons || []).length ? `<ul class="st-why">${rec.reasons.map((r) => `<li>${esc(r)}</li>`).join("")}</ul>` : `<ul class="st-why"><li>앞 절반 ${pv(fm.ex_h1)}p · 뒤 절반 ${pv(fm.ex_h2)}p (S&P500 대비 누적 초과 수익)</li><li>최근 1년 ${pv(fm.r1y)} · 분기마다 약 ${Math.round((fm.turnover || 0) * 100)}% 교체</li></ul>`}
           ${sens ? `<p class="desc">규칙의 숫자(인원·종목 수)를 조금 바꾸면 연 ${pv(sens.min)} ~ ${pv(sens.max)} — 범위가 넓을수록 우연일 가능성이 커요.</p>` : ""}
           ${warn.length ? `<p class="st-warn">${warn.map((w) => `<span>⚠️ ${esc(w)}</span>`).join("")}</p>` : ""}
+          ${sizeTbl}
           ${!isRec && rec.pick ? `<button type="button" class="schip" data-strat="${esc(rec.pick)}">추천 조합(${esc(S.labels[rec.pick])})으로 돌아가기</button>` : ""}
         </div>
         <div class="st-port">
           <div class="lab">이 조합의 현재 종목 <small>${esc(quarter(now.period))} 13F · ${esc(mdShort(now.date))} 재조정 · ${port.length}종목</small></div>
           ${sel === "momentum" || sel === "blend" ? `<div class="st-gurus"><span>성적 상위 대가</span>${now.gurus.map((id) => `<button type="button" class="schip" data-goinv="${esc(id)}">${esc(invById[id]?.name || id)}</button>`).join("")}</div>` : ""}
           ${port.length ? `<ol class="stp-list">${port.slice(0, 8).map(prow).join("")}</ol>${port.length > 8 ? `<details><summary>나머지 ${port.length - 8}종목 보기</summary><ol class="stp-list">${port.slice(8).map((h, i) => prow(h, i + 8)).join("")}</ol></details>` : ""}` : `<p class="note">이번 분기에는 조건에 맞는 종목이 없어 S&P500 을 들고 있는 것으로 계산해요.</p>`}
+          ${chBlock}
           <p class="note">다음 재조정: <b>${esc(mdShort(now.next))}</b> 무렵 (다음 분기 13F 마감 직후). 그때 이 목록이 바뀝니다.</p>
+          ${port.length && port.some((h) => h.p) ? `<details class="st-calc" id="st-calc"${store.get("radar.calcOpen") === "1" ? " open" : ""}><summary>💰 내 투자금으로 계산하기</summary>
+            <div class="calc-in"><input type="number" id="calc-amt" inputmode="decimal" min="0" step="any" placeholder="투자할 금액" aria-label="투자할 금액" value="${esc(store.get("radar.calcAmt") || "")}">
+              <select id="calc-cur" aria-label="통화">${["USD", ...Object.keys(S.fx || {})].map((c) => `<option value="${c}"${c === (store.get("radar.calcCur") || "USD") ? " selected" : ""}>${{ USD: "달러 (USD)", KRW: "원 (KRW)", NZD: "뉴질랜드 달러 (NZD)" }[c] || c}</option>`).join("")}</select></div>
+            <div id="calc-out"></div></details>` : ""}
         </div>
       </div>
       <h3 style="font-size:.95rem">조합별 성적 비교 <span class="muted" style="font-size:.76rem;font-weight:400">${esc(B.start)} ~ ${esc(S.as_of)} · 줄을 누르면 위 카드가 바뀌어요</span></h3>
@@ -1395,7 +1451,8 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
         <tr><td>수익률</td>${hq.map((r) => { const ex = (r.ret ?? 0) - (r.spy ?? 0), a = Math.min(0.85, Math.abs(ex) * 4 + 0.08); return `<td style="background:${ex >= 0 ? `rgba(216,52,63,${a})` : `rgba(42,107,216,${a})`}" title="${quarter(r.period)} 13F 로 ${esc(r.date)} 재조정${r.partial ? " (진행 중)" : ""}: ${pv(r.ret)} · S&P500 ${pv(r.spy)}">${r.ret == null ? "·" : (r.ret * 100).toFixed(0)}${r.partial ? "*" : ""}</td>`; }).join("")}</tr>
         <tr><td>S&P500</td>${hq.map((r) => `<td class="muted">${r.spy == null ? "·" : (r.spy * 100).toFixed(0)}</td>`).join("")}</tr></tbody></table></div>
       <p class="note">읽는 법: ‘공시일 기준’은 분기 말에서 ${S.lag_days}일 뒤(13F 마감 직후), 그때까지 공시된 내용만 보고 다시 짠 결과라 실제로 따라 할 수 있는 값이에요. ‘분기 말 기준’은 분기 말 보유를 그날 바로 알았다고 가정한 참고용 상한선입니다.
-        주의: ① 과거 ${fm.quarters}개 분기뿐이라 우연이 섞여 있고 ② 대가 명단이 ‘지금 유명한 사람’이라 과거 성적이 실제보다 좋게 나오며(생존 편향) ③ 거래 비용·세금·환율이 빠져 있고 ④ 13F 에는 공매도·현금·해외 주식이 없어요. 추천은 수익률 1등이 아니라 앞·뒤 절반 모두 S&P500 을 이기고 낙폭이 지나치지 않은 조합을 고릅니다. 투자 권유가 아닙니다.</p>`;
+        주의: ① 과거 ${fm.quarters}개 분기뿐이라 우연이 섞여 있고 ② 대가 명단이 ‘지금 유명한 사람’이라 과거 성적이 실제보다 좋게 나오며(생존 편향) ③ ‘비용 후’는 사고팔 때마다 ${((S.cost || 0) * 100).toFixed(1)}% 를 뺀 값이고 세금·환율 변동은 빠져 있으며 ④ 13F 에는 공매도·현금·해외 주식이 없어요. 추천은 수익률 1등이 아니라 앞·뒤 절반 모두 S&P500 을 이기고 낙폭이 지나치지 않은 조합을 고릅니다. 투자 권유가 아닙니다.</p>`;
+    renderCalc();
     // 따라 하기 좋은 대가
     const gs = S.gurus || [];
     gbox.hidden = !gs.length;
@@ -1696,7 +1753,16 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   }
 
   function renderInvestors() {
-    ensurePerf();
+    ensurePerf(); ensureStrat();
+    {
+      const gs = (S && S.gurus) || [], stale = D.investors.filter((i) => i.stale);
+      const best = P && [...P.investors].filter((p) => !p.stale && p.follow && p.follow.r3y != null).sort((a, b) => b.follow.r3y - a.follow.r3y)[0];
+      const buyer = [...D.investors].filter((i) => !i.stale).sort((a, b) => (b.counts.BUY - b.counts.SELL) - (a.counts.BUY - a.counts.SELL))[0];
+      tabLine("inv-line", [gs.length ? `🎯 따라 하기 좋은 대가 ${gs.slice(0, 3).map((g, i) => `${i + 1}. <button type="button" class="schip" data-goinv="${esc(g.id)}">${esc(g.name)} ${g.score}점</button>`).join(" ")}` : "",
+        best ? `공시 보고 따라 샀을 때 3년 수익 1위 ${esc(best.name)} ${pv(best.follow.r3y)}` : "",
+        buyer ? `이번 분기 가장 적극적으로 산 대가 ${esc(buyer.name)} (매수 ${buyer.counts.BUY} · 매도 ${buyer.counts.SELL})` : "",
+        stale.length ? `공시 끊김 ${stale.map((i) => esc(i.name)).join(", ")}` : ""]);
+    }
     const inv = invById[state.inv] || D.investors[0];
     if (!inv) { $("#positions").innerHTML = `<div class="empty">수집된 투자자가 없습니다.</div>`; return; }
     state.inv = inv.id;
@@ -1739,6 +1805,12 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   /* ---------- 공시 ---------- */
   const formGroup = (f) => f.startsWith("13F") ? "13F" : f.startsWith("Form 4") ? "4" : "13DG";
   function renderTimeline() {
+    {
+      const wk = (D.timeline || []).filter((t) => within(t.date, 7)), cnt = (g) => wk.filter((t) => formGroup(t.form) === g).length, se = D.season, last = (D.timeline || [])[0];
+      tabLine("tl-line", [`📄 최근 7일 공시 ${wk.length}건${wk.length ? ` (13F ${cnt("13F")} · Form 4 ${cnt("4")} · 13D·G ${cnt("13DG")})` : ""}`,
+        se ? `${esc(quarter(se.period))} 13F ${se.arrived.length}명 도착 · ${se.waiting.length}명 대기${se.days_left > 0 ? ` (마감 D-${se.days_left})` : ""}` : "",
+        last ? `가장 최근: ${esc(invName(last.investor))} ${esc(last.form)} (${esc(last.date)})` : ""]);
+    }
     $("#tl-inv").innerHTML = `<option value="">모든 투자자</option>` + D.investors.map((i) =>
       `<option value="${esc(i.id)}"${i.id === state.tlInv ? " selected" : ""}>${esc(i.name)}</option>`).join("");
     $$("#tl-seg button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.form === state.tlForm));
@@ -1755,6 +1827,14 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
     return q.toLowerCase().split(/\s+/).filter(Boolean).every((w) => hay.includes(w));
   }
   function renderNews() {
+    {
+      const wk = (N.items || []).filter((n) => within(n.date, 7)), tk = {}, who = {};
+      wk.forEach((n) => { who[n.investor] = (who[n.investor] || 0) + 1; (n.calls || []).forEach((c) => { if (c.ticker) tk[c.ticker] = (tk[c.ticker] || 0) + 1; }); });
+      const top = (o, k) => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, k);
+      tabLine("news-line", [`📰 최근 7일 기사 ${wk.length}건`,
+        top(tk, 4).length ? `많이 언급된 종목 ${top(tk, 4).map(([t, c]) => `<button type="button" class="schip" data-ticker="${esc(t)}">${esc(t)} ${c}</button>`).join(" ")}` : "",
+        top(who, 3).length ? `기사가 많은 대가 ${top(who, 3).map(([i, c]) => `${esc(invName(i))} ${c}건`).join(", ")}` : ""]);
+    }
     $("#news-inv").innerHTML = `<option value="">모든 투자자</option>` + D.investors.map((i) =>
       `<option value="${esc(i.id)}"${i.id === state.newsInv ? " selected" : ""}>${esc(i.name)}</option>`).join("");
     $$("#news-kind button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.kind === state.newsKind));
@@ -1769,6 +1849,15 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
 
   /* ---------- 관심 ---------- */
   function renderWatch() {
+    ensureStrat();
+    {
+      const tks = watch.terms.filter(isTicker), pick = S && S.recommend && S.recommend.pick, port = pick ? (S.bases.follow.now.portfolios[pick] || []) : [];
+      const inP = tks.map((t) => port.find((h) => h.t === t)).filter(Boolean);
+      const buys = tks.filter((t) => T[t] && T[t].holders.some((h) => h.p.signal === "BUY")).length, sells = tks.filter((t) => T[t] && T[t].holders.some((h) => h.p.signal === "SELL")).length;
+      tabLine("watch-line", tks.length || watch.investors.length ? [`⭐ 관심 종목 ${tks.length}개 · 관심 투자자 ${watch.investors.length}명`,
+        tks.length ? `대가가 산 종목 ${buys}개 · 판 종목 ${sells}개` : "",
+        pick && tks.length ? (inP.length ? `추천 조합(${esc(S.labels[pick])})에 포함 ${inP.map((h) => `<button type="button" class="schip" data-ticker="${esc(h.t)}">${esc(h.t)} ${(h.w * 100).toFixed(1)}%</button>`).join(" ")}` : `추천 조합(${esc(S.labels[pick])})에 포함된 관심 종목은 없어요`) : ""] : []);
+    }
     $("#watch-inv").innerHTML = D.investors.map((i) =>
       `<button type="button" class="pill" data-winv="${esc(i.id)}" aria-pressed="${watch.investors.includes(i.id)}">${pav(i)}${esc(i.name)}</button>`).join("");
     $("#watch-tags").innerHTML = watch.terms.map((t) =>
@@ -2471,6 +2560,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   const VIEWS = { overview: renderOverview, investors: renderInvestors, timeline: renderTimeline, etf: renderEtf, global: renderGlobal, news: renderNews, watch: renderWatch };
   const current = () => VIEWS[location.hash.slice(1)] ? location.hash.slice(1) : "overview";
   function route() {
+    if (!D) return;  // 데이터가 오기 전에 주소가 바뀌면 boot() 가 끝난 뒤 그린다
     const v = current();
     document.body.dataset.view = v;
     $$("[data-panel]").forEach((p) => (p.hidden = p.dataset.panel !== v));
@@ -2483,6 +2573,11 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
   function go(view) { if (location.hash.slice(1) === view) route(); else location.hash = view; window.scrollTo(0, 0); }
   function toggle(list, val) { const i = list.indexOf(val); if (i >= 0) list.splice(i, 1); else list.push(val); saveWatch(); }
 
+  document.addEventListener("input", (e) => {
+    if (e.target.id === "calc-amt") { store.set("radar.calcAmt", e.target.value); renderCalc(); }
+    if (e.target.id === "calc-cur") { store.set("radar.calcCur", e.target.value); renderCalc(); }
+  });
+  document.addEventListener("toggle", (e) => { if (e.target.id === "st-calc") store.set("radar.calcOpen", e.target.open ? "1" : "0"); }, true);
   document.addEventListener("click", (e) => {
     const el = (s) => e.target.closest(s);
     let x;
@@ -2522,6 +2617,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
     if ((x = el("[data-stockmode]"))) { state.stockMode = x.dataset.stockmode; renderStockRank(); return; }
     if ((x = el("[data-cmpinv]"))) { let c = cmpSel(); const id = x.dataset.cmpinv; c = c.includes(id) ? c.filter((y) => y !== id) : c.length < 4 ? [...c, id] : c; store.set("radar.cmp", JSON.stringify(c)); renderInvCmp(); return; }
     if (el("[data-cmpclear]")) { store.set("radar.cmp", "[]"); renderInvCmp(); return; }
+    if ((x = el("[data-stsize]"))) { state.stSize = +x.dataset.stsize; store.set("radar.stSize", String(state.stSize)); renderStrategy(); return; }
     if ((x = el("[data-stbasis]"))) { state.stBasis = x.dataset.stbasis; store.set("radar.stBasis", state.stBasis); renderStrategy(); return; }
     if ((x = el("[data-jump]"))) { e.preventDefault(); const t = document.getElementById(x.dataset.jump); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
     if ((x = el("[data-strat]")) && !el("[data-ticker]")) { state.strat = x.dataset.strat; renderStrategy(); return; }
