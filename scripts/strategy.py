@@ -184,16 +184,21 @@ def portfolios(per, tickers, px, sched, basis, params: dict | None = None) -> li
     out, last_new = [], {}
     for k in range(LOOKBACK, len(sched)):
         snap = snapshot(per, sched[k]["date"], basis, sched[k - 1]["period"])
-        ws = {i: weights(q["h"], tickers) for i, (q, _) in snap.items()}
+        ws = {i: _priced(weights(q["h"], tickers), px) for i, (q, _) in snap.items()}
         ws = {i: w for i, w in ws.items() if w}
         mom, gurus = pick_momentum(ws, trailing(rets, k, p["momentum"]["lookback"]), p["momentum"]["top"], p["momentum"]["per"])
-        new = pick_newbuy(snap, tickers, p["newbuy"]["min_w"]) or last_new  # 새로 산 종목이 없는 분기는 직전 조합을 그대로 든다
+        new = norm(_priced(pick_newbuy(snap, tickers, p["newbuy"]["min_w"]), px)) or last_new  # 새로 산 종목이 없는 분기는 직전 조합을 그대로 든다
         last_new = new
         w = {"momentum": mom, "consensus": pick_consensus(ws, p["consensus"]["min_holders"]),
              "conviction": pick_conviction(ws, p["conviction"]["top"]), "newbuy": new, "all": mix(list(ws.values()), 40)}
         w["blend"] = mix([w[s] for s in ("momentum", "consensus", "conviction", "newbuy")], 30)
         out.append({"period": sched[k]["period"], "date": sched[k]["date"], "w": w, "gurus": gurus, "n": len(ws)})
     return out
+
+
+def _priced(w: dict[str, float], px: dict[str, Series]) -> dict[str, float]:
+    """시세가 없는 종목(상장폐지·우선주 등)은 살 수 없으니 뺀다 (비중은 나중에 다시 100% 로)."""
+    return {t: v for t, v in w.items() if t in px}
 
 
 def run(ports: list[dict], px: dict[str, Series], today: str, name: str) -> dict:
@@ -266,15 +271,18 @@ def holdings_now(pf: dict, name: str, snap: dict[str, tuple[dict, dict | None]],
             for t, w in sorted(pf["w"][name].items(), key=lambda kv: (-kv[1], kv[0]))]
 
 
-def recommend(strats: dict[str, dict]) -> dict:
-    """규칙 기반 추천: 앞 절반·뒤 절반 '모두'에서 S&P500 을 이긴 조합 중, 더 나빴던 절반의 초과 수익이 가장 큰 것.
+def recommend(strats: dict[str, dict], sens: dict[str, dict] | None = None) -> dict:
+    """규칙 기반 추천: ① 앞 절반·뒤 절반 '모두'에서 S&P500 을 이기고 ② 최대 낙폭이 지수보다 MDD_GUARD 넘게 나쁘지 않고
+    ③ 규칙의 숫자를 조금 바꿔도 연 수익률이 지수보다 높은(우연히 맞춘 숫자가 아닌) 조합 중, 더 나빴던 절반의 초과 수익이 가장 큰 것.
     (전체 수익률 1등을 고르면 한 번의 대박에 끌려가기 쉽다.) 그런 조합이 없으면 그 사실을 알리고 가장 덜 나빴던 것을 보여 준다."""
     cand = {k: s["metrics"] for k, s in strats.items() if k != "all" and s["metrics"].get("ex_h1") is not None and s["metrics"].get("ex_h2") is not None}
     if not cand:
         return {"pick": None, "robust": False, "reasons": [], "warnings": ["비교할 만큼 기록이 쌓이지 않았어요."]}
     floor = {k: min(m["ex_h1"], m["ex_h2"]) for k, m in cand.items()}
     calm = lambda m: m.get("mdd") is None or m.get("spy_mdd") is None or m["mdd"] >= m["spy_mdd"] - MDD_GUARD  # noqa: E731
-    ok = [k for k in cand if floor[k] > 0 and calm(cand[k])]   # 두 절반 모두 이기고, 낙폭도 지수보다 크게 나쁘지 않은 조합
+    sens = sens or {}
+    sturdy = lambda k: k not in sens or cand[k].get("spy_cagr") is None or sens[k]["min"] > cand[k]["spy_cagr"]  # noqa: E731
+    ok = [k for k in cand if floor[k] > 0 and calm(cand[k]) and sturdy(k)]
     pick = max(ok or cand, key=lambda k: (floor[k], cand[k].get("excess") or -9))
     m = cand[pick]
     robust = bool(ok)
@@ -284,13 +292,15 @@ def recommend(strats: dict[str, dict]) -> dict:
                f"가장 크게 빠졌을 때 {m['mdd'] * 100:.0f}% (S&P500 {m['spy_mdd'] * 100:.0f}%)" if m.get("mdd") is not None and m.get("spy_mdd") is not None else ""]
     warnings = []
     if not robust:
-        warnings.append("앞·뒤 절반 모두에서 S&P500 을 이기면서 낙폭도 견딜 만했던 조합이 없어요. 지수(S&P500)를 중심에 두고 일부만 참고하는 편이 안전합니다.")
+        warnings.append("세 조건(앞·뒤 절반 모두 시장을 이김, 낙폭이 지나치지 않음, 규칙을 조금 바꿔도 시장을 이김)을 모두 채운 조합이 없어요. 지수(S&P500)를 중심에 두고 일부만 참고하는 편이 안전합니다.")
     if m.get("mdd") is not None and m.get("spy_mdd") is not None and m["mdd"] < m["spy_mdd"] - 0.05:
         warnings.append("수익이 높은 대신 하락 폭이 S&P500 보다 컸어요.")
     if m.get("turnover") is not None and m["turnover"] > 0.5:
         warnings.append(f"분기마다 종목의 약 {m['turnover'] * 100:.0f}% 를 바꿔야 해요 (거래 비용·세금은 계산에 없음).")
     best = max(cand, key=lambda k: cand[k].get("total") or -9)
-    return {"pick": pick, "robust": robust, "best_return": best, "reasons": [r for r in reasons if r], "warnings": warnings}
+    out_why = {k: ("뒤 절반이나 앞 절반에서 시장에 졌어요" if floor[k] <= 0 else "낙폭이 S&P500 보다 훨씬 컸어요" if not calm(cand[k])
+                   else "규칙의 숫자를 조금 바꾸면 시장에 져요") for k in cand if k not in ok}
+    return {"pick": pick, "robust": robust, "best_return": best, "passed": ok, "failed": out_why, "reasons": [r for r in reasons if r], "warnings": warnings}
 
 
 def guru_scores(per, tickers, px, sched, today, inv_names: dict[str, str]) -> list[dict]:
@@ -353,7 +363,7 @@ def build(per: dict[str, list[dict]], tickers: dict[str, str | None], px: dict[s
                             "investors": last["n"], "gurus": last["gurus"],
                             "portfolios": {name: holdings_now(last, name, snap, tickers, inv_names) for name in ORDER if name != "all"}}
             block["history"] = [{"period": p["period"], "date": p["date"], "gurus": p["gurus"]} for p in ports]
-            out["recommend"] = recommend(strats)
+            out["recommend"] = recommend(strats, block["sensitivity"])
             out["gurus"] = guru_scores(per, tickers, px, sched, today, inv_names)
         out["bases"][basis] = block
     return out

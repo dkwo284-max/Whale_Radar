@@ -109,7 +109,9 @@ class Meta:
             log.info("OpenFIGI: %d new cusip(s)", len(todo))
             self.cusip.update(figi_lookup(todo, self.client))
             write_json(CACHE / "cusip_ticker.json", self.cusip)
-        return {c: self.cusip.get(c) or self.MANUAL.get(c) for c in cusips}
+        # OpenFIGI 가 가끔 해외 거래소 표기("WBD*")를 돌려준다 — 끝의 * 만 떼면 미국 티커와 같다
+        clean = lambda t: t[:-1] if t and t.endswith("*") and t[:-1].isalpha() else t  # noqa: E731
+        return {c: clean(self.cusip.get(c)) or self.MANUAL.get(c) for c in cusips}
 
     def sector_for(self, ticker: str | None, name: str = "") -> str:
         if not ticker:

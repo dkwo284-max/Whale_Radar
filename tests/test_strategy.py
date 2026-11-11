@@ -90,5 +90,7 @@ def test_recommend_prefers_steady_and_calm_over_highest_return():
                                               "cagr": 0.2, "spy_cagr": 0.15, "win": 0.6, "turnover": 0.3}}
     r = st.recommend({"momentum": m(1.2, 0.5, -0.78, 4.6), "blend": m(0.3, 0.25, -0.3, 2.2), "newbuy": m(0.4, -0.03, -0.27, 2.0)})
     assert r["pick"] == "blend" and r["robust"] and r["best_return"] == "momentum"
+    r = st.recommend({"momentum": m(0.4, 0.5, -0.3, 4.6), "blend": m(0.3, 0.25, -0.3, 2.2)}, {"momentum": {"min": 0.09, "max": 0.2}})
+    assert r["pick"] == "blend" and "momentum" in r["failed"]      # 숫자를 바꾸면 시장에 지는 조합은 제외
     r = st.recommend({"newbuy": m(0.4, -0.03, -0.27, 2.0)})
     assert r["pick"] == "newbuy" and not r["robust"] and r["warnings"]
