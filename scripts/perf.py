@@ -356,10 +356,17 @@ def main(argv: list[str] | None = None) -> int:
 
             old_st = read_json(DATA / "strategy.json", {})
             st = strategy.build(per, tickers, px, today, {i["id"]: i["name"] for i in invs})
-            ledger, live = strategy.live_track(read_json(CACHE / "strategy_track.json", {}), st, px, today)
+            ledger, live = strategy.live_track(read_json(CACHE / "strategy_track.json", {}), *strategy.recommended(st), px, today)
             write_json(CACHE / "strategy_track.json", ledger)
             if live:
                 st["live"] = live
+            try:  # 신규 편입 추천 (대가별 신규 편입 성적표 + 이번 분기 추천 + 실제 추적)
+                import newbuys
+
+                st["newbuys"], nb_ledger = newbuys.build(per, tickers, px, today, {i["id"]: i["name"] for i in invs}, read_json(CACHE / "newbuy_track.json", {}))
+                write_json(CACHE / "newbuy_track.json", nb_ledger)
+            except Exception as e:  # noqa: BLE001
+                log.warning("newbuys failed: %s", e)
             write_json(DATA / "strategy.json", st)
             from notify import notify_strategy
 
