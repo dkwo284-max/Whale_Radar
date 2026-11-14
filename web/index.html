@@ -2099,6 +2099,8 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
     return sym + Math.round(a);
   }
   const shortDate = (iso) => iso ? `${+iso.slice(5, 7)}/${+iso.slice(8, 10)}` : "";
+  // 해설이 가격 데이터보다 이전 거래일 것이면(해설 작업이 그날 실패) 그 거래일을 돌려준다 → 화면에 '지난 해설'로 표시
+  const noteLag = (c, src) => { const k = c + "-us", n = (EN.as_of || {})[k], d = ((src || {}).as_of || {})[k]; return n && d && n < d ? n : ""; };
   const etfNote = (r) => { const n = (EN.notes || {})[r.y]; return n && n.k && (!n.d || n.d >= daysAgoFrom(r.d, 7)) ? n : null; };
   function daysAgoFrom(iso, n) { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - n); return d.toISOString().slice(0, 10); }
   function etfPool(c, l, theme) { return E.rows.filter((r) => r.c === c && (l === "all" || r.l === l) && (!theme || r.th === theme)); }
@@ -2218,7 +2220,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
     const fresh = top.filter((x) => !x.prev || x.prev > TOPN), jump = top.filter((x) => x.prev && x.prev <= TOPN && x.prev - x.rank >= 3).sort((a, b) => (b.prev - b.rank) - (a.prev - a.rank))[0];
     const sum = (EN.summary || {})[state.etfC];
     const moves = `${fresh.length ? `새로 진입 ${fresh.length}개: ${fresh.slice(0, 4).map((x) => esc(x.r.t)).join(", ")}${fresh.length > 4 ? " 외" : ""}` : "새로 진입한 ETF 없음"}${jump ? ` · 가장 크게 오른 순위: ${esc(jump.r.t)} ▲${jump.prev - jump.rank}` : ""}`;
-    $("#etf-sum").innerHTML = `<div class="etf-sum">${sum ? `<div class="eyebrow">오늘의 해설 · Claude${EN.as_of_label ? " · " + esc(EN.as_of_label) : ""}</div><div>${esc(sum)}</div>` : ""}<div class="moves">${PER_KO[state.etfP]} ${state.etfDir === "up" ? "상승" : "하락"} 순위 · ${moves}</div></div>`;
+    $("#etf-sum").innerHTML = `<div class="etf-sum">${sum ? (noteLag(state.etfC, E) ? `<div class="eyebrow" style="color:var(--warn,#b45309)">지난 해설 · ${esc(shortDate(noteLag(state.etfC, E)))} 거래일 기준 (최신 거래일 해설은 아직 없어요)</div><div class="muted">${esc(sum)}</div>` : `<div class="eyebrow">오늘의 해설 · Claude${EN.as_of_label ? " · " + esc(EN.as_of_label) : ""}</div><div>${esc(sum)}</div>`) : ""}<div class="moves">${PER_KO[state.etfP]} ${state.etfDir === "up" ? "상승" : "하락"} 순위 · ${moves}</div></div>`;
     $("#etf-list").innerHTML = top.length ? top.map(etfRow).join("") : `<div class="empty">이 조건에 맞는 ETF가 없습니다${state.etfP >= 4 ? " (상장 기간이 짧으면 장기 수익률이 비어 있어요)" : ""}.</div>`;
     $("#etf-hm").innerHTML = top.length ? heatRows(top.map((x) => ({ key: x.r.y, r: x.r.r, t: x.r.t })), (it) => esc(it.t), "etf") : `<div class="empty">—</div>`;
     const th = etfThemes();
@@ -2242,7 +2244,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
       const up = ranked(pool, 0, "up").slice(0, 3), dn = ranked(pool, 0, "down").slice(0, 3), s = (EN.summary || {})[c];
       return `<div class="bcard"><span class="eyebrow">${CTRY[c]} ETF · 1일 <a href="#etf" data-etfgo="${c}" style="margin-left:auto;font-weight:500">Top 20 →</a></span>
         <div class="split"><ul>${up.map((r) => li(r, 0)).join("")}</ul><ul>${dn.map((r) => li(r, 0)).join("")}</ul></div>
-        ${s ? `<span class="note">${esc(s)}</span>` : ""}</div>`;
+        ${s ? `<span class="note">${noteLag(c, src) ? `<b>${esc(shortDate(noteLag(c, src)))} 거래일 해설</b> · ` : ""}${esc(s)}</span>` : ""}</div>`;
     }).join("");
   }
   function loadSeries() {
@@ -2340,7 +2342,7 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
     E = data && Array.isArray(data.rows) ? data : null;
     etfFailed = !E;
     if (notes && typeof notes === "object") {
-      EN = { summary: notes.summary || {}, notes: notes.notes || {}, as_of_label: notes.generated_at ? new Date(notes.generated_at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) : "" };
+      EN = { summary: notes.summary || {}, notes: notes.notes || {}, as_of: notes.as_of || {}, as_of_label: notes.generated_at ? new Date(notes.generated_at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) : "" };
     }
     renderEtfHome();
     if (current() === "etf") renderEtf();
@@ -2773,9 +2775,9 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
     ]).then(([h, n]) => {
       if (h && Array.isArray(h.rows) && h.rows.length) {  // 홈 요약만 먼저 (전체는 ensureEtf 가 필요할 때)
         EH = h;
-        if (n && typeof n === "object") EN = { summary: n.summary || {}, notes: n.notes || {}, as_of_label: n.generated_at ? new Date(n.generated_at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) : "" };
+        if (n && typeof n === "object") EN = { summary: n.summary || {}, notes: n.notes || {}, as_of: n.as_of || {}, as_of_label: n.generated_at ? new Date(n.generated_at).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) : "" };
         renderEtfHome();
-        if (current() === "etf") ensureEtf();
+        if (current() === "etf") ensureEtf().then((d) => { if (d && current() === "etf") renderEtf(); });  // ETF 탭으로 바로 열면 해설이 가격보다 늦게 도착할 수 있어 한 번 더 그린다
       } else {  // 요약 파일이 아직 없으면 이전처럼 전체를 받는다
         fetch("data/etf.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null).then((d) => bootEtf(d, n));
       }
