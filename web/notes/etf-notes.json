@@ -1,16 +1,16 @@
 {
- "generated_at": "2026-11-14T13:30:00+13:00",
+ "generated_at": "2026-11-15T11:10:38+13:00",
  "as_of": {
-  "us-us": "2026-11-12",
-  "cn-us": "2026-11-12",
-  "in-us": "2026-11-12",
-  "cn-local": "2026-11-13",
-  "in-local": "2026-11-12"
+  "us-us": "2026-11-13",
+  "cn-us": "2026-11-13",
+  "in-us": "2026-11-13",
+  "cn-local": "2026-11-12",
+  "in-local": "2026-11-13"
  },
  "summary": {
-  "us": "10월 CPI 여파로 10년물 5.10%·소형주 1.7% 하락, S&P 0.35%↓. 엔비디아 CEO 사임, 비트코인·금 급락, AMD 연계 상품은 급등.",
-  "cn": "13일 창업판 3.32%·선전 2.05% 급락, 컴퓨팅 하드웨어 약세 주도. 은행·필수소비 방어주만 상승.",
-  "in": "11일 센섹스 0.95%·니프티 0.84% 상승, PSU은행 약 3% 급등이 주도. IT와 금 ETF는 약세."
+  "us": "엔비디아 CEO 사임 혼란 속 AMD 등 칩주 약세, 10년물 5%대 금리와 인플레 우려로 나스닥 -0.9%.",
+  "cn": "반도체주는 강세였으나 로봇·게임 테마는 조정, 13일엔 미국의 칩 원격접근 규제 우려로 중국 AI·기술주 약세.",
+  "in": "12일 국영은행 주도 랠리, 금·은은 미 금리 인상 우려에 급락. 13일엔 CPI 6.09%와 유가 상승으로 하락."
  },
  "notes": {
   "BTAL": {
@@ -121,14 +121,6 @@
    "d": "2026-11-06",
    "k": "6일 니프티 25,000 회복, 은행·자동차주 주도"
   },
-  "HDFCSML250.NS": {
-   "d": "2026-11-08",
-   "k": "지수 보합 속 소형주 상대 강세(무후랏)"
-  },
-  "SILVERBEES.NS": {
-   "d": "2026-11-06",
-   "k": "뚜렷한 개별 뉴스 없이 은 가격 약세 반영"
-  },
   "512660.SS": {
    "d": "2026-11-09",
    "k": "뚜렷한 개별 뉴스 없이 군수주 동반 상승"
@@ -181,10 +173,6 @@
    "d": "2026-11-10",
    "k": "CPI 상회·금리 상승에 금 2.6% 급락, 광산주 약세"
   },
-  "159770.SZ": {
-   "d": "2026-11-11",
-   "k": "딥마인드 로봇 AI 모델 공개 속 인형로봇주 강세"
-  },
   "159819.SZ": {
    "d": "2026-11-11",
    "k": "CPO·광모듈 등 AI 하드웨어주 급등"
@@ -197,17 +185,9 @@
    "d": "2026-11-11",
    "k": "뚜렷한 개별 뉴스 없이 석탄주 약세"
   },
-  "KSTR": {
-   "d": "2026-11-10",
-   "k": "미국 기술주·엔비디아 약세 속 하락"
-  },
   "512010.SS": {
    "d": "2026-11-11",
    "k": "뚜렷한 개별 뉴스 없이 의약주 약세"
-  },
-  "PHARMABEES.NS": {
-   "d": "2026-11-09",
-   "k": "제약지수 1.65% 상승, 업종 상승률 2위"
   },
   "HEALTHIETF.NS": {
    "d": "2026-11-09",
@@ -233,37 +213,13 @@
    "d": "2026-11-12",
    "k": "SMCI 연계 옵션수익 ETF, 기초종목 약세 반영(개별 뉴스 미확인)"
   },
-  "NCLD": {
-   "d": "2026-11-12",
-   "k": "네오클라우드 종목 약세, 전일 급등 후 차익매물 추정(미확인)"
-  },
   "MSTW": {
    "d": "2026-11-12",
    "k": "비트코인 3.8% 하락 속 MSTR 연계 상품 동반 급락"
   },
-  "NRR": {
-   "d": "2026-11-12",
-   "k": "뚜렷한 개별 뉴스 없이 하락"
-  },
   "URNJ": {
    "d": "2026-11-12",
    "k": "금리 급등·소형주 약세 속 우라늄 광산주 하락"
-  },
-  "BWET": {
-   "d": "2026-11-12",
-   "k": "호르무즈 유조선 피격 등 해운 불안 속 운임 선물 상승"
-  },
-  "AMDW": {
-   "d": "2026-11-12",
-   "k": "AMD 투자의견 상향 보도에 AMD 연계 상품 급등"
-  },
-  "AMDY": {
-   "d": "2026-11-12",
-   "k": "AMD 투자의견 상향에 AMD 연계 옵션수익 ETF 상승"
-  },
-  "PFIX": {
-   "d": "2026-11-12",
-   "k": "10년물 5.10% 급등에 금리 헤지 ETF 상승"
   },
   "BNO": {
    "d": "2026-11-12",
@@ -277,41 +233,21 @@
    "d": "2026-11-13",
    "k": "중국 인터넷주 약세, 뚜렷한 개별 뉴스 미확인"
   },
-  "159869.SZ": {
-   "d": "2026-11-13",
-   "k": "창업판 급락 속 게임·애니 테마 하락"
-  },
   "3147.HK": {
    "d": "2026-11-13",
    "k": "창업판 3.3% 급락에 동반 하락"
-  },
-  "562500.SS": {
-   "d": "2026-11-13",
-   "k": "컴퓨팅·성장 테마 약세 속 로봇주 하락"
   },
   "159865.SZ": {
    "d": "2026-11-13",
    "k": "지수 급락 속 방어적 소비주(양돈) 강세"
   },
-  "159928.SZ": {
-   "d": "2026-11-13",
-   "k": "지수 급락 속 필수소비 방어주 상승"
-  },
   "512690.SS": {
    "d": "2026-11-13",
    "k": "성장주 약세 속 백주 상대 강세"
   },
-  "512800.SS": {
-   "d": "2026-11-13",
-   "k": "은행주가 하락장에서 홀로 상승"
-  },
   "159611.SZ": {
    "d": "2026-11-13",
    "k": "지수 약세 속 전력주 소폭 상승"
-  },
-  "GOLDBEES.NS": {
-   "d": "2026-11-11",
-   "k": "금 ETF 약세(11일), 뚜렷한 원인 미확인"
   },
   "ITBEES.NS": {
    "d": "2026-11-11",
@@ -329,43 +265,155 @@
    "d": "2026-11-12",
    "k": "뚜렷한 개별 뉴스 없이 소폭 하락"
   },
-  "PSUBNKBEES.NS": {
-   "d": "2026-11-11",
-   "k": "11일 PSU은행 약 3% 급등, 은행주 랠리 주도"
-  },
-  "ALPHA.NS": {
-   "d": "2026-11-11",
-   "k": "11일 니프티 0.84% 상승장에서 소형·중형주 강세"
-  },
-  "PVTBANIETF.NS": {
-   "d": "2026-11-12",
-   "k": "민간은행 상승, 은행주 랠리 동참"
-  },
   "AUTOBEES.NS": {
    "d": "2026-11-11",
    "k": "11일 시장 상승 속 M&M 등 자동차주 강세"
   },
+  "BWET": {
+   "d": "2026-11-13",
+   "k": "호르무즈 해운 차질·유가 강세 속 탱커 운임 베팅 상승"
+  },
+  "PFIX": {
+   "d": "2026-11-13",
+   "k": "10년물 금리 5.17%까지 상승, 금리 헤지 상품 강세"
+  },
+  "NRR": {
+   "d": "2026-11-13",
+   "k": "뚜렷한 개별 뉴스 없이 상승"
+  },
+  "FBY": {
+   "d": "2026-11-13",
+   "k": "뚜렷한 뉴스 없이 상승, 메타 옵션인컴 전략"
+  },
+  "IPAY": {
+   "d": "2026-11-13",
+   "k": "뚜렷한 개별 뉴스 없이 결제 업종 상승"
+  },
+  "AMDW": {
+   "d": "2026-11-13",
+   "k": "전날 급등 뒤 AMD 하락, 레버리지형 낙폭 확대"
+  },
+  "AMDY": {
+   "d": "2026-11-13",
+   "k": "AMD가 브로드컴과 함께 하락해 동반 약세"
+  },
+  "LYTE": {
+   "d": "2026-11-13",
+   "k": "AI 인프라·반도체 비중 축소 속 광학주 약세"
+  },
+  "NCLD": {
+   "d": "2026-11-13",
+   "k": "네오클라우드 업종 약세, 전날 네비우스 급락 여파"
+  },
+  "XBCI": {
+   "d": "2026-11-13",
+   "k": "비트코인 7만달러 아래로 하락해 동반 약세"
+  },
+  "159995.SZ": {
+   "d": "2026-11-12",
+   "k": "미국의 원격 AI 접근 규제 우려로 중국산 칩 기대 부각"
+  },
+  "512760.SS": {
+   "d": "2026-11-12",
+   "k": "반도체 업종 강세에 동반 상승"
+  },
+  "159928.SZ": {
+   "d": "2026-11-12",
+   "k": "뚜렷한 뉴스 없이 필수소비 업종 소폭 상승"
+  },
+  "588000.SS": {
+   "d": "2026-11-12",
+   "k": "반도체 강세 속 STAR 50 소폭 상승"
+  },
+  "512800.SS": {
+   "d": "2026-11-12",
+   "k": "방어적 성격의 은행주 소폭 상승"
+  },
+  "159869.SZ": {
+   "d": "2026-11-12",
+   "k": "뚜렷한 개별 뉴스 없이 게임·애니 업종 약세"
+  },
+  "562500.SS": {
+   "d": "2026-11-12",
+   "k": "뚜렷한 개별 뉴스 없이 로봇 테마 조정"
+  },
+  "159770.SZ": {
+   "d": "2026-11-12",
+   "k": "뚜렷한 개별 뉴스 없이 로봇 테마 조정"
+  },
+  "CNXT": {
+   "d": "2026-11-13",
+   "k": "엔비디아 혼란 속 중국 AI·기술주 접근 우려로 하락"
+  },
+  "KSTR": {
+   "d": "2026-11-13",
+   "k": "미국 칩 접근 제한 우려에 중국 기술주 약세"
+  },
+  "ALPHA.NS": {
+   "d": "2026-11-12",
+   "k": "은행·중소형주 강세 속 알파 지수 상승"
+  },
+  "PSUBNKBEES.NS": {
+   "d": "2026-11-12",
+   "k": "국영은행주 주도 랠리, 닛프티 25,250선 상회"
+  },
   "BANKBEES.NS": {
-   "d": "2026-11-11",
-   "k": "11일 은행지수 1.8% 상승, PSU은행 주도"
+   "d": "2026-11-12",
+   "k": "은행주 강세가 닛프티 상승 견인"
+  },
+  "HDFCSML250.NS": {
+   "d": "2026-11-12",
+   "k": "증시 랠리 속 소형주 동반 상승"
+  },
+  "MOM100.NS": {
+   "d": "2026-11-12",
+   "k": "증시 랠리 속 중형주 동반 상승"
+  },
+  "SILVERBEES.NS": {
+   "d": "2026-11-12",
+   "k": "미 물가·금리 인상 우려에 귀금속 약세"
+  },
+  "GOLDBEES.NS": {
+   "d": "2026-11-12",
+   "k": "금 국제가 2.8% 하락, 달러 강세·금리 인상 베팅"
+  },
+  "PVTBANIETF.NS": {
+   "d": "2026-11-13",
+   "k": "인플레 우려로 민간은행 약세, 은행지수 -0.8%"
+  },
+  "LOWVOLIETF.NS": {
+   "d": "2026-11-13",
+   "k": "3일 상승 뒤 차익실현 속 하락"
+  },
+  "PHARMABEES.NS": {
+   "d": "2026-11-13",
+   "k": "차익실현 속 제약지수 0.6% 하락"
   }
  },
  "sources": [
   {
-   "title": "Stock Market Today, November 12, 2026 (Vista PGlobal)",
-   "url": "https://vistapglobal.com/stock-market-today-november-12-2026-stocks-fall-as-treasury-yields-hit-5-10-oil-rises-and-nvidia-faces-leadership-reset-amd-crwv-eprx-googl-modd-msft-nvda-ser-spcx-ttek-ual/"
+   "title": "Alain Guillot: Stock Market Recap Nov 13, 2026",
+   "url": "https://www.alainguillot.com/stock-market-recap-november-13-2026/"
   },
   {
-   "title": "Oil rebounds as Hormuz shipping attacks blunt hopes for Iran truce (Reuters/BusinessDay)",
-   "url": "https://www.businessday.co.za/world/2026-11-11-oil-rebounds-as-hormuz-shipping-attacks-blunt-hopes-for-iran-truce/"
+   "title": "CNT Trading: Daily Market 2026-11-12",
+   "url": "https://cnttrading.substack.com/p/daily-market-2026-11-12"
   },
   {
-   "title": "Everything You Should Know About China's Economy on Friday (Nov. 13)",
-   "url": "https://crosspacificwatchers.substack.com/p/everything-you-should-know-about-a2b"
+   "title": "5paisa: Nifty, Sensex End 3-Day Rally (Nov 13, 2026)",
+   "url": "https://www.5paisa.com/blog/post-market-update-nifty-sensex-fall-inflation-crude-oil-november-13-2026"
   },
   {
-   "title": "Closing Bell, 11 November 2026 (Kotak Neo)",
-   "url": "https://www.kotakneo.com/news/market-news/markets-maintain-positive-momentum/"
+   "title": "Aroged: The Nvidia scandal hit Chinese AI companies",
+   "url": "https://www.aroged.com/the-nvidia-scandal-hit-chinese-ai-companies-the-market-was-afraid-that-the-us-would-cut-off-their-oxygen/"
+  },
+  {
+   "title": "BullionVault: Gold, silver, inflation, Fed hike (Nov 10, 2026)",
+   "url": "https://www.bullionvault.com/gold-news/gold-price-news/gold-silver-inflation-fed-hike-111020261"
+  },
+  {
+   "title": "DSIJ: Closing Bell, Nifty surges above 25,250; PSU banks lead",
+   "url": "https://insights.dsij.in/dsijarticledetail/closing-bell-nifty-surges-210-points-above-25250-psu-banks-and-auto-stocks-lead-rally-60382"
   }
  ]
 }
