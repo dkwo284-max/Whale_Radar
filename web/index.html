@@ -13,7 +13,56 @@
 <meta name="apple-mobile-web-app-title" content="마켓 레이더">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
-<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+/* 이번 분기 대가 흐름 */
+.flow h2 { margin: 0; font-size: 1.05rem; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.flow h2 small { font-size: .72rem; color: var(--muted); font-weight: 500; }
+.fl-lead { margin: 0; line-height: 1.6; font-size: .92rem; }
+.fl-ai { font-size: .66rem; font-weight: 700; color: var(--accent); border: 1px solid color-mix(in oklab, var(--accent) 45%, var(--line)); border-radius: 6px; padding: 1px 6px; margin-right: 6px; vertical-align: 1px; }
+.fl-mix { display: flex; height: 26px; border-radius: 8px; overflow: hidden; font-size: .72rem; font-weight: 700; color: #fff; }
+.fl-mix span { display: grid; place-items: center; min-width: 0; white-space: nowrap; overflow: hidden; }
+.fl-mix .mb { background: var(--buy); } .fl-mix .ms { background: var(--sell); } .fl-mix .mw { background: var(--accent); } .fl-mix .mh { background: var(--hold); }
+.fl-sub { font-size: .8rem; font-weight: 700; color: var(--muted); margin: 4px 0 -2px; }
+.fl-sec { display: grid; grid-template-columns: 84px 1fr 1fr 70px; align-items: center; gap: 0 4px; font-size: .8rem; }
+.fl-sec .bar { height: 12px; } .fl-sec .neg { display: flex; justify-content: flex-end; }
+.fl-sec .neg i, .fl-sec .pos i { display: block; height: 12px; border-radius: 3px; }
+.fl-sec .neg i { background: var(--sell); } .fl-sec .pos i { background: var(--buy); }
+.fl-sec .v { text-align: right; font-family: var(--font-fig); font-variant-numeric: tabular-nums; font-weight: 600; }
+.fl-cons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.fl-cons > div { border: 1px solid var(--line); border-radius: 10px; padding: 8px; min-width: 0; }
+.fl-cons b.h { display: block; font-size: .76rem; margin-bottom: 4px; }
+.fl-cons .tk { display: flex; justify-content: space-between; gap: 4px; font-size: .78rem; padding: 2px 0; }
+.fl-cons .tk small { color: var(--muted); font-size: .7rem; white-space: nowrap; }
+.fl-heat { width: 100%; border-collapse: separate; border-spacing: 2px; font-size: .68rem; table-layout: fixed; }
+.fl-heat th { font-weight: 600; color: var(--muted); padding: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fl-heat th.n { text-align: left; width: 72px; color: var(--ink); }
+.fl-heat td { height: 24px; text-align: center; border-radius: 4px; font-family: var(--font-fig); font-variant-numeric: tabular-nums; }
+.fl-styles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.fl-styles > div { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: .8rem; }
+.fl-styles b { display: flex; justify-content: space-between; } .fl-styles small { color: var(--muted); display: block; margin-top: 2px; }
+.fl-inv { border: 1px solid var(--line); border-radius: 12px; margin-top: 6px; }
+.fl-inv summary { list-style: none; cursor: pointer; padding: 10px 12px; display: grid; gap: 3px; }
+.fl-inv summary::-webkit-details-marker { display: none; }
+.fl-inv .top { display: flex; align-items: center; gap: 6px; } .fl-inv .top .nm { font-weight: 700; }
+.fl-inv .top .np { margin-left: auto; font-family: var(--font-fig); font-weight: 700; font-size: .85rem; }
+.fl-inv .ln { font-size: .82rem; color: var(--muted); line-height: 1.45; }
+.fl-tag { font-size: .68rem; font-weight: 700; border-radius: 6px; padding: 1px 7px; }
+.fl-tag.t1 { color: var(--buy); background: color-mix(in oklab, var(--buy) 14%, transparent); } .fl-tag.t2 { color: var(--sell); background: color-mix(in oklab, var(--sell) 14%, transparent); }
+.fl-tag.t3 { color: var(--accent); background: color-mix(in oklab, var(--accent) 14%, transparent); } .fl-tag.t4 { color: var(--muted); background: color-mix(in oklab, var(--hold) 16%, transparent); }
+.fl-body { padding: 0 12px 12px; display: grid; gap: 10px; font-size: .82rem; }
+.fl-mv { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fl-mv ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 3px; }
+.fl-mv li { display: flex; justify-content: space-between; gap: 4px; } .fl-mv li small { color: var(--muted); }
+.fl-sw { display: grid; grid-template-columns: 74px 1fr 52px; gap: 3px 6px; align-items: center; font-size: .76rem; }
+.fl-sw .tr { position: relative; height: 10px; background: color-mix(in oklab, var(--line) 70%, transparent); border-radius: 3px; }
+.fl-sw .tr i { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 3px; background: color-mix(in oklab, var(--accent) 35%, transparent); }
+.fl-sw .tr b { position: absolute; top: -2px; bottom: -2px; width: 3px; border-radius: 2px; background: var(--ink); }
+.fl-sw .d { text-align: right; font-family: var(--font-fig); font-weight: 700; }
+.fl-ev { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+.fl-ev li { display: grid; grid-template-columns: 46px 1fr; gap: 6px; } .fl-ev small { color: var(--muted); }
+.fl-ev a { color: inherit; }
+@media (max-width: 420px) { .fl-cons { grid-template-columns: 1fr; } .fl-styles { grid-template-columns: 1fr; } }
+</style>
 <style>
 /* Layout: 폰 우선 단일 컬럼 — 상단 고정 바(검색), 하단 탭바, 종목은 바텀시트. 결론(브리핑) → 근거(차트·목록) 순서 */
 :root {
@@ -745,7 +794,8 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
 
   <div class="panel" data-panel="overview">
     <div class="meta" id="meta" style="margin:0 0 10px"></div>
-    <nav class="ov-jump" aria-label="홈 바로 가기"><a href="#overview" data-jump="strat">따라 할 조합</a><a href="#overview" data-jump="strat-gurus">대가 순위</a><a href="#overview" data-jump="newbuy-sec">신규 편입</a><a href="#overview" data-jump="ov-brief">새 소식</a><a href="#overview" data-jump="ov-cons">컨센서스</a><a href="#etf">ETF</a><a href="#global">글로벌</a></nav>
+    <nav class="ov-jump" aria-label="홈 바로 가기"><a href="#overview" data-jump="flow-sec">대가 흐름</a><a href="#overview" data-jump="strat">따라 할 조합</a><a href="#overview" data-jump="strat-gurus">대가 순위</a><a href="#overview" data-jump="newbuy-sec">신규 편입</a><a href="#overview" data-jump="ov-brief">새 소식</a><a href="#overview" data-jump="ov-cons">컨센서스</a><a href="#etf">ETF</a><a href="#global">글로벌</a></nav>
+    <section class="perf flow" id="flow-sec" aria-label="이번 분기 대가 흐름"><div class="sk card"></div></section>
     <section class="perf strat" id="strat" aria-label="지금 따라 할 조합"><div class="sk card"></div></section>
     <section class="perf" id="strat-gurus" aria-label="따라 하기 좋은 대가" hidden></section>
     <section class="perf" id="newbuy-sec" aria-label="신규 편입 추천" hidden></section>
@@ -1293,7 +1343,61 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
         <a href="#timeline" style="font-size:.82rem;text-decoration:none">공시·뉴스 모두 보기</a>` : `<span class="note">새로 올라온 공시나 기사가 없습니다.</span>`}</div>`);
     $("#brief").innerHTML = cards.join("");
   }
+
+  // ── 이번 분기 대가 흐름 (flows.json) ───────────────────────
+  let flowsReq = null;
+  function renderFlows() {
+    const box = document.getElementById("flow-sec"); if (!box) return;
+    if (!flowsReq) flowsReq = fetch("data/flows.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).catch(() => null);
+    flowsReq.then((F) => {
+      if (!F || !F.investors) { box.hidden = true; return; }
+      const nm = Object.fromEntries(F.investors.map((r) => [r.id, r.name]));
+      const ai = F.ai && F.ai.period === F.period ? F.ai : null;
+      const c = F.counts, tot = Math.max(1, c.n);
+      const seg = (n, cls, l) => n ? `<span class="${cls}" style="flex:${n}" title="${l} ${n}명">${n / tot < 0.2 ? n : l + " " + n}</span>` : "";
+      const mx = Math.max(1, ...F.sectors.map((r) => Math.abs(r.f)));
+      const secRows = F.sectors.map((r) => `<span>${esc(r.s)}</span><span class="neg">${r.f < 0 ? `<i style="width:${Math.abs(r.f) / mx * 100}%"></i>` : ""}</span><span class="pos">${r.f > 0 ? `<i style="width:${r.f / mx * 100}%"></i>` : ""}</span><span class="v" style="color:${r.f >= 0 ? "var(--buy)" : "var(--sell)"}">${usd(r.f, true)}</span>`).join("");
+      const tk = (x, mode) => `<div class="tk"><span class="tkr">${esc(x.t)}</span><small>${mode === "s" ? "매도 " + x.s.length : mode === "b" ? "매수 " + x.b.length : `매수 ${x.b.length}·매도 ${x.s.length}`}</small></div>`;
+      const col = (title, arr, mode) => `<div><b class="h">${title}</b>${arr.length ? arr.map((x) => tk(x, mode)).join("") : '<small class="note">없음</small>'}</div>`;
+      const hm = Math.max(3, ...F.heat.rows.flatMap((r) => r.v.map((v) => Math.abs(v))));
+      const cell = (v) => { const a = Math.min(1, Math.abs(v) / hm); const colr = v >= 0 ? "var(--buy)" : "var(--sell)"; return `<td style="background:color-mix(in oklab, ${colr} ${Math.round(a * 75)}%, transparent);color:${a > .55 ? "#fff" : "var(--ink)"}" title="${v > 0 ? "+" : ""}${v}% (보유액 대비)">${Math.abs(v) >= 0.5 ? (v > 0 ? "+" : "") + Math.round(v) : ""}</td>`; };
+      const heat = `<table class="fl-heat"><thead><tr><th class="n"></th>${F.heat.cols.map((s) => `<th title="${esc(s)}">${esc(({ "커뮤니케이션": "통신", "경기소비재": "경기", "필수소비재": "필수", "ETF·기타": "ETF", "산업재": "산업", "헬스케어": "헬스", "에너지": "에너지", "부동산": "부동산", "소재": "소재", "유틸리티": "유틸" })[s] || s)}</th>`).join("")}</tr></thead><tbody>${F.heat.rows.map((r) => `<tr><th class="n">${esc(r.name)}</th>${r.v.map(cell).join("")}</tr>`).join("")}</tbody></table>`;
+      const styles = F.styles.map((g) => `<div><b><span>${esc(g.name)}</span><span style="color:${g.avg >= 0 ? "var(--buy)" : "var(--sell)"}">${g.avg > 0 ? "+" : ""}${g.avg}%</span></b><small>${g.ids.map((i) => esc(nm[i] || i)).join(" · ")}</small><small>순매수 ${g.buyers}/${g.n}명${g.in ? ` · 많이 산 업종 <b style="display:inline">${esc(g.in)}</b>` : ""}${g.out ? ` · 많이 판 업종 ${esc(g.out)}` : ""}</small></div>`).join("");
+      const tcls = { "적극 매수": "t1", "비중 축소": "t2", "갈아타기": "t3", "관망": "t4" };
+      const mvList = (arr, sign) => arr.length ? `<ul>${arr.map((m) => `<li><span><b class="tkr">${esc(m.t)}</b> <small>${esc(m.l)}</small></span><span style="color:${sign > 0 ? "var(--buy)" : "var(--sell)"}">${usd(m.f, true)}</span></li>`).join("")}</ul>` : '<small class="note">없음</small>';
+      const inv = F.investors.filter((r) => !r.stale).map((r) => {
+        const smx = Math.max(10, ...r.sectors.map((x) => Math.max(x.now, x.prev)));
+        const sw = r.sectors.slice(0, 6).map((x) => `<span>${esc(x.s)}</span><span class="tr"><i style="width:${x.now / smx * 100}%"></i><b style="left:calc(${x.prev / smx * 100}% - 1px)" title="지난 분기 ${x.prev}%"></b></span><span class="d" style="color:${x.d > 0 ? "var(--buy)" : x.d < 0 ? "var(--sell)" : "var(--muted)"}">${x.d > 0 ? "+" : ""}${x.d}%p</span>`).join("");
+        const ev = [...r.form4.map((f) => `<li><small>${esc(f.d.slice(5).replace("-", "/"))}</small><span>Form 4 · ${f.t && f.t !== "N/A" ? `<b>${esc(f.t)}</b> ` : ""} ${esc(f.x)} ${f.u ? `<a href="${esc(f.u)}" target="_blank" rel="noopener">공시</a>` : ""}</span></li>`),
+          ...r.news.map((n) => `<li><small>${esc((n.d || "").slice(5).replace("-", "/"))}</small><span>${n.u ? `<a href="${esc(n.u)}" target="_blank" rel="noopener">${esc(n.t)}</a>` : esc(n.t)}${n.s ? `<br><small>${esc(n.s)}</small>` : ""}</span></li>`)].join("");
+        const line = ai && ai.investors && ai.investors[r.id] ? ai.investors[r.id] : r.line.replace(/^[^—]+— /, "");
+        return `<details class="fl-inv"><summary><div class="top"><span class="nm">${esc(r.name)}</span><span class="fl-tag ${tcls[r.tag] || "t4"}">${esc(r.tag)}</span><span class="np" style="color:${r.net >= 0 ? "var(--buy)" : "var(--sell)"}">${r.net_pct > 0 ? "+" : ""}${r.net_pct}%</span></div><div class="ln">${esc(line)}</div></summary>
+          <div class="fl-body">
+            <div class="small note">순${r.net >= 0 ? "매수" : "매도"} ${usd(r.net, true)} (매수 ${usd(r.buy)} · 매도 ${usd(r.sell)}) · 보유 종목 ${r.n_prev} → ${r.n_now}개${r.new.length ? ` · 신규 ${esc(r.new.join(", "))}` : ""}${r.exits.length ? ` · 전량 매도 ${esc(r.exits.join(", "))}` : ""}</div>
+            <div class="fl-mv"><div><b>크게 산 것</b>${mvList(r.buys, 1)}</div><div><b>크게 판 것</b>${mvList(r.sells, -1)}</div></div>
+            <div><b>업종 비중</b> <small class="note">막대 = 이번 분기, 검은 선 = 지난 분기</small><div class="fl-sw" style="margin-top:6px">${sw}</div></div>
+            ${ev ? `<div><b>최근 행동·발언</b><ul class="fl-ev" style="margin-top:6px">${ev}</ul></div>` : ""}
+            <a href="#investors" class="note" data-inv="${esc(r.id)}">보유 종목 전체 보기 →</a>
+          </div></details>`;
+      }).join("");
+      const q = F.period ? `${F.period.slice(0, 4)}년 ${Math.ceil(+F.period.slice(5, 7) / 3)}분기 13F` : "";
+      box.hidden = false;
+      box.innerHTML = `<h2>이번 분기 대가 흐름 <small>${esc(q)} · 분기 말 기준, 약 45일 늦게 공개</small></h2>
+        <p class="fl-lead">${ai ? '<span class="fl-ai">AI 해설</span>' + esc(ai.market) : esc(F.lead)}</p>
+        <div class="note" style="font-size:.72rem;display:flex;gap:10px;flex-wrap:wrap"><span style="color:var(--buy)">■ 적극 매수</span><span style="color:var(--accent)">■ 갈아타기</span><span style="color:var(--hold)">■ 관망</span><span style="color:var(--sell)">■ 비중 축소</span></div>
+        <div class="fl-mix" role="img" aria-label="대가 ${c.n}명의 포지션 방향">${seg(c.buy, "mb", "적극 매수")}${seg(c.switch, "mw", "갈아타기")}${seg(c.hold, "mh", "관망")}${seg(c.sell, "ms", "비중 축소")}</div>
+        <div class="fl-sub">업종별 순매수 (전체 대가 합계)</div><div class="fl-sec">${secRows}</div>
+        <div class="fl-sub">함께 산 / 함께 판 / 엇갈린 종목</div>
+        <div class="fl-cons">${col("함께 산 종목", F.agree_buy, "b")}${col("함께 판 종목", F.agree_sell, "s")}${col("의견이 갈린 종목", F.split, "x")}</div>
+        <div class="fl-sub">대가 × 업종 (보유액 대비 순매수 %)</div>${heat}
+        <div class="fl-sub">스타일별</div><div class="fl-styles">${styles}</div>
+        <div class="fl-sub">대가별 한 줄 판정 <small class="note">(눌러서 자세히)</small></div>${inv}
+        <p class="note" style="margin:0;font-size:.72rem">13F는 분기 말 보유 현황이라 지금 포지션과 다를 수 있습니다. 매수·매도 금액은 주식 수 변화 × 분기 말 가격으로 추정한 값이며, 투자 권유가 아닙니다.</p>`;
+    });
+  }
+
   function renderOverview() {
+    renderFlows();
     renderStrategy();
     renderBrief();
     renderSeason();

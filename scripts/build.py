@@ -160,6 +160,13 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     old_dash = read_json(out_dir / "dashboard.json", {})
     write_json(out_dir / "dashboard.json", dashboard)
+    # 대가 매매 흐름 요약 (규칙 기반, AI 없음) — 뉴스 갱신 뒤 한 번 더 만들고 분기 해설을 붙인다
+    try:
+        from flows import build_flows
+
+        write_json(out_dir / "flows.json", build_flows(dashboard, read_json(out_dir / "news.json", {}), read_json(out_dir / "flows.json", {})))
+    except Exception as e:  # noqa: BLE001
+        log.warning("flows failed: %s", e)
     if not args.only and not old_dash.get("demo"):
         try:
             from notify import notify
@@ -187,6 +194,20 @@ def main(argv: list[str] | None = None) -> int:
             llm.max_requests = min(llm.max_requests, max(left, 0))
             news = update_news(cfg, read_json(DATA / "news.json", {}) if not args.only else {}, llm, first_of_day=used == 0)
             write_json(out_dir / "news.json", news)
+            # 대가 흐름: 새 뉴스 반영 + 분기 AI 해설(이번 분기 공시가 새로 도착했을 때만, 남은 몫이 있을 때만)
+            try:
+                from flows import ai_notes, build_flows
+
+                flows = build_flows(dashboard, news, read_json(out_dir / "flows.json", {}))
+                filed = sum(1 for r in flows["investors"] if not r["stale"] and r["period"] == flows["period"])
+                if llm.enabled and flows["period"] and llm.requests < llm.max_requests and (flows.get("ai") or {}).get("n", 0) < filed:
+                    notes = ai_notes(flows, llm)
+                    if notes:
+                        notes["n"] = filed
+                        flows["ai"] = notes
+                write_json(out_dir / "flows.json", flows)
+            except Exception as e:  # noqa: BLE001
+                log.warning("flows AI failed: %s", e)
             if llm.requests:
                 record(out_dir, today, llm.requests, cfg)
     log.info("done: %d investors, %d timeline, %d consensus", len(investors), len(timeline), len(consensus))
