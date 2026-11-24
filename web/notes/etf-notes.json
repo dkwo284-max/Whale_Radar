@@ -1,16 +1,16 @@
 {
- "generated_at": "2026-11-23T22:10:12+00:00",
+ "generated_at": "2026-11-25T11:10:00+13:00",
  "as_of": {
-  "us-us": "2026-11-20",
-  "cn-us": "2026-11-20",
-  "in-us": "2026-11-20",
-  "cn-local": "2026-11-23",
+  "us-us": "2026-11-23",
+  "cn-us": "2026-11-23",
+  "in-us": "2026-11-23",
+  "cn-local": "2026-11-24",
   "in-local": "2026-11-23"
  },
  "summary": {
-  "us": "11/20 S&P500 -3.7%, 나스닥 -5.3%: 엔비디아 SEC 회계조사 보도와 AI 매도세에 반도체지수 -10.7%.",
-  "cn": "11/23 중국 ETF는 로봇·창업판 중심 반등. 앞서 11/20 미국 AI 매도로 기술주가 크게 밀린 뒤의 되돌림으로 보이나 확정 뉴스는 못 찾음.",
-  "in": "11/23 인도는 금·은·금속 ETF 약세와 은행주 소폭 조정. 11/18 달러 강세發 금속·귀금속 약세 흐름이 이어졌으나 당일 뉴스는 미확인."
+  "us": "11/23 S&P500 +4.7%, 나스닥 +6.5%: 젠슨 황 엔비디아 CEO 복귀로 엔비디아 +31.6%, AI·반도체 급반등. WTI는 -3.8%.",
+  "cn": "11/24 중국 로봇 ETF 급등, 11/23 미국상장 중국 기술 ETF도 5~7% 상승. 미국 AI 반등 영향으로 보이나 현지 뉴스는 미확인.",
+  "in": "11/20 은행·IT 상승, 금·은 ETF 하락. 11/23 민간은행·저변동성 ETF 약세. 11/18 금·은 급락 흐름 이후이며 당일 원인 뉴스는 미확인."
  },
  "notes": {
   "BNO": {
@@ -33,18 +33,6 @@
    "d": "2026-11-20",
    "k": "7일·30일 상승, 방어적 소비주 선호"
   },
-  "159611.SZ": {
-   "d": "2026-11-20",
-   "k": "뚜렷한 개별 뉴스 없이 7일 강세 이어짐"
-  },
-  "562500.SS": {
-   "d": "2026-11-23",
-   "k": "로봇 테마 반등, 최근 7일 약세 후 되돌림"
-  },
-  "159770.SZ": {
-   "d": "2026-11-23",
-   "k": "로봇 테마 동반 반등, 7일 하락폭 일부 만회"
-  },
   "2823.HK": {
    "d": "2026-11-20",
    "k": "A주 대형주 상대 강세, 뚜렷한 개별 뉴스 없음"
@@ -65,10 +53,6 @@
    "d": "2026-11-20",
    "k": "배당주 방어 수요, 개별 뉴스 미확인"
   },
-  "515220.SS": {
-   "d": "2026-11-16",
-   "k": "뚜렷한 개별 뉴스 없이 석탄 업종 상승"
-  },
   "2800.HK": {
    "d": "2026-11-16",
    "k": "홍콩 증시 상승, 항셍 0.8% 오른 흐름 반영"
@@ -80,10 +64,6 @@
   "EPI": {
    "d": "2026-11-19",
    "k": "인도 증시 반등(Sensex +1.2%) 영향으로 상승"
-  },
-  "FLIN": {
-   "d": "2026-11-20",
-   "k": "글로벌 AI주 이탈 자금이 인도로 유입, 센섹스 +1.1%"
   },
   "HDFCSML250.NS": {
    "d": "2026-11-20",
@@ -173,10 +153,6 @@
    "d": "2026-11-18",
    "k": "금 선물 3.5% 하락과 금광주 급락에 레버리지 상품 낙폭 확대"
   },
-  "CNXT": {
-   "d": "2026-11-18",
-   "k": "전주 급락 뒤 뚜렷한 뉴스 없이 기술적 반등"
-  },
   "159869.SZ": {
    "d": "2026-11-20",
    "k": "넷이즈 -17%·콰이쇼우 -11% 실적 부진 영향"
@@ -193,10 +169,6 @@
    "d": "2026-11-23",
    "k": "비철금속 반등, 최근 약세 후 매수세 유입"
   },
-  "LOWVOLIETF.NS": {
-   "d": "2026-11-19",
-   "k": "증시 전반 강세 속 저변동성 종목 동반 상승"
-  },
   "MOM100.NS": {
    "d": "2026-11-19",
    "k": "대형주 대비 중형주 상승폭 제한, 뚜렷한 뉴스는 확인 못함"
@@ -205,17 +177,9 @@
    "d": "2026-11-19",
    "k": "호르무즈 유조선 우려로 유가 지지, 휘발유 ETF 상승"
   },
-  "DBO": {
-   "d": "2026-11-19",
-   "k": "호르무즈 유조선 우려 속 유가 소폭 상승"
-  },
   "DBE": {
    "d": "2026-11-19",
    "k": "유가 소폭 상승에 에너지 원자재 ETF 동반 상승"
-  },
-  "USO": {
-   "d": "2026-11-19",
-   "k": "호르무즈 유조선 우려 속 WTI 연동 ETF 상승"
   },
   "WEAT": {
    "d": "2026-11-19",
@@ -273,18 +237,6 @@
    "d": "2026-11-20",
    "k": "항셍테크 -3.8%, 넷이즈·콰이쇼우 실적 부진에 기술주 급락"
   },
-  "AGOX": {
-   "d": "2026-11-20",
-   "k": "AI 급락장에서 하락 방어 성격의 전략 상품이 상승"
-  },
-  "TAIL": {
-   "d": "2026-11-20",
-   "k": "증시 급락(S&P500 -3.7%)에 풋옵션 헤지가 수혜"
-  },
-  "UNG": {
-   "d": "2026-11-20",
-   "k": "뚜렷한 개별 뉴스 확인 못함, 천연가스 선물 반등"
-  },
   "BTAL": {
    "d": "2026-11-20",
    "k": "반베타 전략, 기술주 급락장에서 상대 강세"
@@ -293,21 +245,9 @@
    "d": "2026-11-20",
    "k": "증시 급락 속 안전자산 선호로 장기채 강세"
   },
-  "NVII": {
-   "d": "2026-11-20",
-   "k": "엔비디아 -14%, SEC 회계조사 보도에 연동 급락"
-  },
   "MARO": {
    "d": "2026-11-20",
    "k": "위험자산 약세, 마라 연계 옵션인컴 ETF 급락(개별 원인 미확인)"
-  },
-  "ARMW": {
-   "d": "2026-11-20",
-   "k": "반도체 급락(SOX -10.7%)에 레버리지형 주간배당 ETF 동반 급락"
-  },
-  "NVDW": {
-   "d": "2026-11-20",
-   "k": "엔비디아 -14%에 연동, 주간배당형 ETF 급락"
   },
   "AMDW": {
    "d": "2026-11-20",
@@ -325,10 +265,6 @@
    "d": "2026-11-19",
    "k": "뚜렷한 개별 뉴스 없이 반도체 반등"
   },
-  "512880.SS": {
-   "d": "2026-11-19",
-   "k": "뚜렷한 개별 뉴스 없이 증권주 소폭 상승"
-  },
   "159928.SZ": {
    "d": "2026-11-19",
    "k": "뚜렷한 개별 뉴스 없이 필수소비재 방어적 강세"
@@ -336,14 +272,6 @@
   "KTEC": {
    "d": "2026-11-20",
    "k": "항셍테크 -3.8%, 미국 AI 매도세 여파"
-  },
-  "KSTR": {
-   "d": "2026-11-20",
-   "k": "미 반도체 급락(SOX -10.7%) 여파로 중국 반도체 약세"
-  },
-  "CQQQ": {
-   "d": "2026-11-20",
-   "k": "미 AI·기술주 급락 여파로 중국 기술주 동반 하락"
   },
   "516510.SS": {
    "d": "2026-11-20",
@@ -357,33 +285,9 @@
    "d": "2026-11-19",
    "k": "원자재 가격 하락 기대에 자동차주 강세(마루티·M&M 등)"
   },
-  "PVTBANIETF.NS": {
-   "d": "2026-11-23",
-   "k": "30일 급등 후 차익실현 성격의 소폭 하락"
-  },
-  "PSUBNKBEES.NS": {
-   "d": "2026-11-23",
-   "k": "30일 +21% 급등 뒤 숨고르기, 뚜렷한 뉴스 없음"
-  },
   "INDY": {
    "d": "2026-11-20",
    "k": "글로벌 AI주에서 인도로 외국인 자금 이동"
-  },
-  "BANKBEES.NS": {
-   "d": "2026-11-23",
-   "k": "은행주 30일 강세 후 소폭 조정"
-  },
-  "SILVERBEES.NS": {
-   "d": "2026-11-23",
-   "k": "은 가격 약세 지속, 7일 -10% 급락 흐름 연장"
-  },
-  "GOLDBEES.NS": {
-   "d": "2026-11-20",
-   "k": "국제 금값 하락 영향, 현물 3,600달러 하회"
-  },
-  "ITBEES.NS": {
-   "d": "2026-11-19",
-   "k": "TCS·인포시스 등 IT주 약세, 미 기술주 우려 반영"
   },
   "FMCGIETF.NS": {
    "d": "2026-11-20",
@@ -404,48 +308,140 @@
   "MODEFENCE.NS": {
    "d": "2026-11-20",
    "k": "뚜렷한 개별 뉴스 없이 소폭 하락"
+  },
+  "NVII": {
+   "d": "2026-11-23",
+   "k": "엔비디아 +31.6% 반등 연동, 옵션형 ETF 급등"
+  },
+  "NVDW": {
+   "d": "2026-11-23",
+   "k": "엔비디아 급반등(+31.6%)에 연동해 급등"
+  },
+  "NVDY": {
+   "d": "2026-11-23",
+   "k": "엔비디아 급반등(+31.6%)에 연동해 급등"
+  },
+  "ARMW": {
+   "d": "2026-11-23",
+   "k": "AI·반도체주 급반등에 동반 상승(개별 뉴스 미확인)"
+  },
+  "LYTE": {
+   "d": "2026-11-23",
+   "k": "AI·반도체 급반등 속 광통신주 강세"
+  },
+  "AGOX": {
+   "d": "2026-11-23",
+   "k": "뚜렷한 개별 뉴스 없이 위험자산 랠리 속 약세"
+  },
+  "UNG": {
+   "d": "2026-11-23",
+   "k": "원유 약세 속 천연가스도 하락(직접 원인 미확인)"
+  },
+  "DBO": {
+   "d": "2026-11-23",
+   "k": "WTI 선물 -3.8% 하락에 연동"
+  },
+  "USO": {
+   "d": "2026-11-23",
+   "k": "WTI 선물 -3.8% 하락에 연동"
+  },
+  "TAIL": {
+   "d": "2026-11-23",
+   "k": "VIX -25.8% 급락, 꼬리위험 헤지 가치 하락"
+  },
+  "CNXT": {
+   "d": "2026-11-23",
+   "k": "미국 AI·기술주 급반등에 동조해 급등"
+  },
+  "KSTR": {
+   "d": "2026-11-23",
+   "k": "미국 반도체 급반등에 동조해 상승"
+  },
+  "CQQQ": {
+   "d": "2026-11-23",
+   "k": "미국 기술주 반등에 동조해 상승"
+  },
+  "562500.SS": {
+   "d": "2026-11-24",
+   "k": "로봇 테마 강세(구체적 뉴스는 미확인)"
+  },
+  "159770.SZ": {
+   "d": "2026-11-24",
+   "k": "로봇 테마 강세(구체적 뉴스는 미확인)"
+  },
+  "515220.SS": {
+   "d": "2026-11-24",
+   "k": "뚜렷한 뉴스 없이 석탄 업종 약세"
+  },
+  "159611.SZ": {
+   "d": "2026-11-24",
+   "k": "뚜렷한 뉴스 없이 전력·유틸리티 약세"
+  },
+  "515180.SS": {
+   "d": "2026-11-24",
+   "k": "뚜렷한 뉴스 없이 배당주 약세"
+  },
+  "512880.SS": {
+   "d": "2026-11-24",
+   "k": "뚜렷한 뉴스 없이 증권주 약세"
+  },
+  "513180.SS": {
+   "d": "2026-11-24",
+   "k": "뚜렷한 뉴스 없이 항셍테크 약세"
+  },
+  "BANKBEES.NS": {
+   "d": "2026-11-20",
+   "k": "은행주 강세(구체적 뉴스는 미확인)"
+  },
+  "ITBEES.NS": {
+   "d": "2026-11-20",
+   "k": "IT 업종 강세(구체적 뉴스는 미확인)"
+  },
+  "NIFTYBEES.NS": {
+   "d": "2026-11-20",
+   "k": "니프티50 상승, 은행·IT 동반 강세"
+  },
+  "NIFTYIETF.NS": {
+   "d": "2026-11-20",
+   "k": "니프티50 상승, 은행·IT 동반 강세"
+  },
+  "PSUBNKBEES.NS": {
+   "d": "2026-11-20",
+   "k": "국영은행주 강세(구체적 뉴스는 미확인)"
+  },
+  "SILVERBEES.NS": {
+   "d": "2026-11-20",
+   "k": "은 가격 약세 흐름(당일 뉴스 미확인)"
+  },
+  "GOLDBEES.NS": {
+   "d": "2026-11-20",
+   "k": "금 가격 약세 흐름(당일 뉴스 미확인)"
+  },
+  "LOWVOLIETF.NS": {
+   "d": "2026-11-23",
+   "k": "뚜렷한 뉴스 없이 저변동성 종목 약세"
+  },
+  "PVTBANIETF.NS": {
+   "d": "2026-11-23",
+   "k": "뚜렷한 뉴스 없이 민간은행주 약세"
+  },
+  "FLIN": {
+   "d": "2026-11-23",
+   "k": "미국상장 인도 ETF 하락(원인 미확인)"
   }
  },
  "sources": [
   {
-   "title": "Motley Fool - Stock Market Today Nov 20",
-   "url": "https://www.fool.com/coverage/stock-market-today/2026/11/20/stock-market-today-nov-20-nvidia-s-usd2-5-trillion-rout-deepens-as-sec-accounting-probe-adds-to-wall-street-s-ai-sell-off/"
+   "title": "Motley Fool - Stock Market Midday, Nov. 23",
+   "url": "https://www.fool.com/coverage/stock-market-today/2026/11/23/stock-market-midday-nov-23-nasdaq-surges-nearly-7-as-jensen-huang-s-return-sparks-historic-ai-rebound/"
   },
   {
-   "title": "TradingKey - Nasdaq plunges 5%",
-   "url": "https://www.tradingkey.com/analysis/stocks/us-stocks/262316111-nasdaq-falls-ai-stock-selloff-nvidia-sec-probe-tradingkey"
+   "title": "Yahoo Finance/AP - How major US stock indexes fared Monday 11/23/2026",
+   "url": "https://finance.yahoo.com/markets/world-indices/articles/major-us-stock-indexes-fared-213053319.html"
   },
   {
-   "title": "Business Today - Closing Bell Nov 20",
-   "url": "https://www.businesstoday.in/markets/stocks/story/bt-closing-bell-markets-extend-gains-as-sensex-jumps-898-points-nifty-reclaims-25800-568767-2026-11-20"
-  },
-  {
-   "title": "HDFC Sky - Market close Nov 20",
-   "url": "https://hdfcsky.com/news/market-close-report-today-november-20-2026-nifty-sensex-scale-nine-month-highs-as-investors-dump-global-ai-for-india"
-  },
-  {
-   "title": "China Compass - Hong Kong Close",
-   "url": "https://chinacompass.substack.com/p/hong-kong-close-tech-selloff-deepens"
-  },
-  {
-   "title": "The Standard - Hang Seng lowest since April 2025",
-   "url": "https://www.thestandard.com.hk/finance/article/349132/Hang-Seng-touches-lowest-since-April-2025-on-Friday-tech-shares-hits-two-year-low"
-  },
-  {
-   "title": "MarketScreener/Reuters - China, HK stocks sink",
-   "url": "https://www.marketscreener.com/news/china-hk-stocks-sink-as-wall-street-selloff-dents-sentiment-ce785ed2d188fe21"
-  },
-  {
-   "title": "DSIJ Closing Bell 18 Nov 2026 (Nifty Metal -2.46%)",
-   "url": "https://insights.dsij.in/dsijarticledetail/closing-bell-nifty-snap-2-day-rally-sensex-drops-500-points-nifty-metal-sinks-246"
-  },
-  {
-   "title": "Kotak Neo Closing Bell 19 Nov 2026",
-   "url": "https://www.kotakneo.com/news/market-news/closing-bell-19-november-2026-sensex-nifty-end-higher-as-bulls-return-to-dalal-street/"
-  },
-  {
-   "title": "Trading Economics: China Stocks Remain Under Pressure",
-   "url": "https://tradingeconomics.com/china/stock-market/news/601735"
+   "title": "Kotak Neo - Closing Bell, 18 November 2026",
+   "url": "https://www.kotakneo.com/news/market-news/market-wrap-18-november-2026-profit-booking-and-a-drag-in-metal-stocks-pull-benchmarks-down/"
   }
  ]
 }
