@@ -2058,7 +2058,12 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
       return `<div class="item" data-ticker="${esc(t)}" role="button" tabindex="0">${av(t)}
         <div class="l1"><span class="tk">${esc(t)}</span><span class="name">${esc(o?.issuer || "")}</span></div>
         <div class="r">${acts.length ? `<small><span class="b">매수 ${b}</span> · <span class="s">매도 ${s}</span></small>` : ""}</div>
-        <div class="l2">${acts.length ? `보유 투자자 ${acts.length}명` : "추적 중인 투자자의 상위 보유종목에 없음"}${o?.news.length ? ` · 뉴스 언급 ${o.news.length}건` : ""}</div></div>`;
+        <div class="l2">${acts.length ? `보유 투자자 ${acts.length}명` : "추적 중인 투자자의 상위 보유종목에 없음"}${o?.news.length ? ` · 뉴스 언급 ${o.news.length}건` : ""}${(() => {
+          // 누가 샀나·팔았나 (이번 분기 13F, 금액 큰 순 최대 3명)
+          const nm = (arr) => arr.sort((x, y) => Math.abs(y.p.flow || 0) - Math.abs(x.p.flow || 0)).slice(0, 3).map((h) => `${esc(h.inv.name)}(${esc(h.p.label)})`).join(", ");
+          const by = acts.filter((h) => h.p.signal === "BUY" && !h.inv.stale), sl = acts.filter((h) => h.p.signal === "SELL" && !h.inv.stale);
+          return (by.length ? `<br><span class="b">산 대가</span> ${nm(by)}${by.length > 3 ? ` 외 ${by.length - 3}명` : ""}` : "") + (sl.length ? `<br><span class="s">판 대가</span> ${nm(sl)}${sl.length > 3 ? ` 외 ${sl.length - 3}명` : ""}` : "");
+        })()}</div></div>`;
     }).join("");
 
     if (!watch.investors.length && !watch.terms.length) {
