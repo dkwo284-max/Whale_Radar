@@ -18,6 +18,18 @@
 .flow h2 { margin: 0; font-size: 1.05rem; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .flow h2 small { font-size: .72rem; color: var(--muted); font-weight: 500; }
 .fl-lead { margin: 0; line-height: 1.6; font-size: .92rem; }
+.fl-lead.clamp:not(.open) { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.fl-more { align-self: flex-start; padding: 0; font-size: .78rem; text-decoration: underline; color: var(--muted); }
+.fl-sum { display: grid; gap: 6px; }
+.fl-sumrow { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; font-size: .8rem; }
+.fl-sumrow > b { min-width: 3.6em; color: var(--muted); font-size: .76rem; }
+.fl-sumrow.b > b { color: var(--buy); } .fl-sumrow.s > b { color: var(--sell); }
+.onb-bar { display: flex; align-items: center; gap: 8px; margin: 10px 0 0; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); font-size: .84rem; }
+.onb-bar span { flex: 1; } .onb-bar .btn { padding: 5px 12px; } .onb-bar .ghost { padding: 4px 8px; }
+.fl-heatwrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.fl-heatwrap .fl-heat { min-width: 520px; cursor: pointer; }
+.fl-heat.nonum td { color: transparent !important; }
+.fl-heat th.n { position: sticky; left: 0; z-index: 1; background: var(--surface); width: 92px !important; }
 .fl-ai { font-size: .66rem; font-weight: 700; color: var(--accent); border: 1px solid color-mix(in oklab, var(--accent) 45%, var(--line)); border-radius: 6px; padding: 1px 6px; margin-right: 6px; vertical-align: 1px; }
 .fl-mix { display: flex; height: 26px; border-radius: 8px; overflow: hidden; font-size: .72rem; font-weight: 700; color: #fff; }
 .fl-mix span { display: grid; place-items: center; min-width: 0; white-space: nowrap; overflow: hidden; }
@@ -1383,13 +1395,14 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
       const q = F.period ? `${F.period.slice(0, 4)}년 ${Math.ceil(+F.period.slice(5, 7) / 3)}분기 13F` : "";
       box.hidden = false;
       box.innerHTML = `<h2>이번 분기 대가 흐름 <small>${esc(q)} · 분기 말 기준, 약 45일 늦게 공개</small></h2>
-        <p class="fl-lead">${ai ? '<span class="fl-ai">AI 해설</span>' + esc(ai.market) : esc(F.lead)}</p>
+        <div class="fl-sum">${[["산 쪽", F.agree_buy, "b"], ["판 쪽", F.agree_sell, "s"], ["갈린 쪽", F.split, "x"]].map(([l, arr, k]) => (arr || []).length ? `<span class="fl-sumrow ${k}"><b>${l}</b>${arr.slice(0, 4).map((x) => `<button type="button" class="schip ${k === "b" ? "b" : k === "s" ? "s" : ""}" data-ticker="${esc(x.t)}">${esc(x.t)}</button>`).join("")}</span>` : "").join("")}</div>
+        <p class="fl-lead clamp">${ai ? '<span class="fl-ai">AI 해설</span>' + esc(ai.market) : esc(F.lead)}</p><button type="button" class="ghost fl-more" data-flmore>해설 전문 보기</button>
         <div class="note" style="font-size:.72rem;display:flex;gap:10px;flex-wrap:wrap"><span style="color:var(--buy)">■ 적극 매수</span><span style="color:var(--accent)">■ 갈아타기</span><span style="color:var(--hold)">■ 관망</span><span style="color:var(--sell)">■ 비중 축소</span></div>
         <div class="fl-mix" role="img" aria-label="대가 ${c.n}명의 포지션 방향">${seg(c.buy, "mb", "적극 매수")}${seg(c.switch, "mw", "갈아타기")}${seg(c.hold, "mh", "관망")}${seg(c.sell, "ms", "비중 축소")}</div>
         <div class="fl-sub">업종별 순매수 (전체 대가 합계)</div><div class="fl-sec">${secRows}</div>
         <div class="fl-sub">함께 산 / 함께 판 / 엇갈린 종목</div>
         <div class="fl-cons">${col("함께 산 종목", F.agree_buy, "b")}${col("함께 판 종목", F.agree_sell, "s")}${col("의견이 갈린 종목", F.split, "x")}</div>
-        <div class="fl-sub">대가 × 업종 (보유액 대비 순매수 %)</div>${heat}
+        <div class="fl-sub">대가 × 업종 <small class="note">빨강 = 순매수, 파랑 = 순매도, 진할수록 큼 · 표를 누르면 숫자</small></div><div class="fl-heatwrap">${heat.replace('class="fl-heat"', 'class="fl-heat nonum"')}</div>
         <div class="fl-sub">스타일별</div><div class="fl-styles">${styles}</div>
         <div class="fl-sub">대가별 한 줄 판정 <small class="note">(눌러서 자세히)</small></div>${inv}
         <p class="note" style="margin:0;font-size:.72rem">13F는 분기 말 보유 현황이라 지금 포지션과 다를 수 있습니다. 매수·매도 금액은 주식 수 변화 × 분기 말 가격으로 추정한 값이며, 투자 권유가 아닙니다.</p>`;
@@ -2776,6 +2789,9 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
     hideTip();
     if ((x = el("[data-onb]"))) { if (x.dataset.onb === "end") endOnb(); else showOnb(+x.dataset.onb); return; }
     if (e.target.closest("#replay-onb")) { showOnb(0); return; }
+    { const ob = e.target.closest("[data-onbbar]"); if (ob) { $("#onb-bar")?.remove(); if (ob.dataset.onbbar === "open") showOnb(0); else store.set("radar.onboarded", "1"); return; } }
+    { const fm = e.target.closest("[data-flmore]"); if (fm) { const l = fm.previousElementSibling; const open = l.classList.toggle("open"); fm.textContent = open ? "접기" : "해설 전문 보기"; return; } }
+    { const ht = e.target.closest(".fl-heat"); if (ht) { ht.classList.toggle("nonum"); return; } }
     if (e.target.closest("#theme-btn")) { theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length]; store.set("radar.theme", theme); applyTheme(theme, true); return; }
     if (e.target.closest("a[href^='http']")) return;
     if ((x = el("[data-close]")) || e.target === $("#scrim")) { closeSheet(); return; }
@@ -2872,7 +2888,12 @@ details.ovfold[open] > summary::after { content: " 접기 ▴"; }
     $("#warnings").innerHTML = (D.demo ? [] : [...(D.warnings || []), ...(N.warnings || [])]).map((w) => `<li>${esc(w)}</li>`).join("");
     route();
     updateBadges();
-    if (!store.get("radar.onboarded")) showOnb(0, false);
+    if (!store.get("radar.onboarded")) {
+      const m = document.querySelector("main.wrap"), bar = document.createElement("div");
+      bar.className = "onb-bar"; bar.id = "onb-bar";
+      bar.innerHTML = `<span>처음이세요? <b>4단계 사용법</b>을 볼 수 있어요</span><button type="button" class="btn" data-onbbar="open">보기</button><button type="button" class="ghost" data-onbbar="close" aria-label="안내 닫기">✕</button>`;
+      m && m.prepend(bar);
+    }
   }
 
   applyTheme(theme, theme !== "auto");
